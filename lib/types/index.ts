@@ -1,0 +1,10 @@
+export type * from './api';
+export type * from './auth';
+export type * from './user';
+export type * from './edition';
+export type * from './team';
+export type * from './submission';
+export type * from './feedback';
+export type * from './judge';
+export type * from './notification';
+export type * from './admin';
