@@ -6,7 +6,7 @@ import axios, {
 
 import type { ApiError, ApiResponse } from '@/lib/types';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://pidec-api.onrender.com/api/v1';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://pidec-backend-api.onrender.com/api/v1';
 
 let isRefreshing = false;
 let failedQueue: Array<{
@@ -66,9 +66,12 @@ apiClient.interceptors.response.use(
     } catch (refreshError) {
       processQueue(refreshError);
 
-      // Redirect to login on refresh failure (client-side only)
+      // Redirect to login on refresh failure (client-side only), but not if already on auth pages
       if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+        const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/'];
+        if (!publicPaths.includes(window.location.pathname)) {
+          window.location.href = '/login';
+        }
       }
 
       return Promise.reject(refreshError);
@@ -82,6 +85,17 @@ apiClient.interceptors.response.use(
  * Extract typed error from an Axios error response.
  */
 export function extractApiError(error: unknown): { code: string; message: string } {
+  // Check if error is already extracted
+  if (
+    error &&
+    typeof error === 'object' &&
+    'code' in error &&
+    'message' in error &&
+    typeof (error as any).code === 'string'
+  ) {
+    return error as { code: string; message: string };
+  }
+
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as ApiError | undefined;
     if (data?.error) {

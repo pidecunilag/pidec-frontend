@@ -31,7 +31,11 @@ export function useVerification() {
       if (result.status !== 'pending') {
         stopPolling();
       }
-    } catch {
+    } catch (err) {
+      const apiError = extractApiError(err);
+      if (apiError.code === 'AUTH_REQUIRED') {
+        setError('AUTH_REQUIRED');
+      }
       stopPolling();
     }
   }, [setVerificationStatus, stopPolling]);
@@ -46,11 +50,11 @@ export function useVerification() {
   }, [verificationStatus, poll, stopPolling]);
 
   const uploadDoc = useCallback(
-    async (file: File) => {
+    async (file: File, unauthData?: { email: string; matricNumber: string }) => {
       setIsUploading(true);
       setError(null);
       try {
-        await authApi.uploadVerificationDoc(file);
+        await authApi.uploadVerificationDoc(file, unauthData);
         setVerificationStatus('pending');
       } catch (err) {
         const apiError = extractApiError(err);

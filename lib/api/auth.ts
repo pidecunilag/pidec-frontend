@@ -43,9 +43,13 @@ export const authApi = {
     return apiClient.post<ApiResponse<null>>('/auth/reset-password', data).then(unwrap);
   },
 
-  uploadVerificationDoc(file: File) {
+  uploadVerificationDoc(file: File, unauthData?: { email: string; matricNumber: string }) {
     const formData = new FormData();
     formData.append('document', file);
+    if (unauthData) {
+      formData.append('email', unauthData.email);
+      formData.append('matricNumber', unauthData.matricNumber);
+    }
 
     return apiClient
       .post<ApiResponse<null>>('/auth/verification-document', formData, {
