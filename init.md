@@ -19,12 +19,13 @@ You have **EXCLUSIVE OWNERSHIP** over the following domains. You may freely crea
 
 1. **Student Dashboard & Team Management (`/app/(protected)/dashboard/*`)**
    - Main dashboard layout reacting dynamically to competition stages.
+   - The full dashboard **chrome** (top nav, status bar, persistent banners per PRD §4.1, sidebar if you choose) is yours to design and own. The protected route group already has an auth/role gate — you build everything inside.
    - Team creation, invite link generation, and team-lock logic.
 2. **Submissions Portal (`/app/(protected)/dashboard/submissions/*`)**
    - Multi-stage forms (Stage 1 Proposal, Stage 2 Video Links).
    - Integration with the pre-existing `useAutosave` hook for draft persistence.
 3. **Judge Portal (`/app/(protected)/judge/*`)**
-   - Judge-facing dashboard listing assigned teams.
+   - Judge-facing dashboard listing assigned teams (chrome included — same pattern).
    - Dynamic scoring rubrics and feedback submission forms.
 
 ### What the Lead Developer is Building (DO NOT TOUCH):
@@ -38,7 +39,28 @@ The Lead Developer (Tayo) has **EXCLUSIVE OWNERSHIP** over the following domains
    - Do not alter global themes or install new dependencies to solve local UI problems. Use the existing `shadcn/ui` components and brand tokens.
 
 ### Where You Intertwine (Coordinate Here):
-- **Zustand Stores (`/lib/stores/*`)**: You will heavily consume global stores like `useTeamStore` and `useSubmissionStore`. If you need to alter the global state payloads to support your UI, ask the Lead Dev first.
+- **Data hooks (`/lib/hooks/*`)**: All server data flows through React Query hooks the Lead Dev maintains. **Just consume them — do not write your own `fetch` calls or `useEffect`-based loaders.** Pattern:
+  ```tsx
+  const { team, invites, isLoading, acceptInvite } = useTeam();
+  ```
+  Cache, polling, optimistic updates, and invalidation already live behind the hook. If a hook is missing data you need, ask the Lead Dev to extend it — do not bypass it.
+- **Query keys**: If you ever need direct cache control (rare — most use cases don't), use the `qk` registry from `lib/api/query-keys.ts`. Never inline literal key strings.
+- **Motion vocabulary**: Every element on the platform must have an entrance, and any element that leaves (conditional render, route transition, list mutation) must have an exit. Do not roll your own variants per page — use the shared primitives in `components/landing/motion-primitives.tsx`:
+  ```tsx
+  import { Reveal, StaggerGroup, StaggerItem } from '@/components/landing/motion-primitives';
+
+  <Reveal>                        {/* fade + rise on scroll, fires once */}
+    <h2>Section heading</h2>
+  </Reveal>
+
+  <StaggerGroup as="ul">           {/* parent — orchestrates stagger */}
+    {items.map(i => (
+      <StaggerItem as="li" key={i.id}>{i.label}</StaggerItem>
+    ))}
+  </StaggerGroup>
+  ```
+  For lists that mutate (invites disappearing, notifications appearing, modals), wrap with `<AnimatePresence>` from `motion/react` and give each child a stable `key`. Do not skip exit animations — that is the project's design contract. If you need a new motion primitive that several pages will use, add it to `motion-primitives.tsx` rather than duplicating variants.
+- **Zustand Stores (`/lib/stores/*`)**: Only two survive — `auth-store` (session identity, sync reads) and `ui-store` (announcement banner, global loading flags). Server state lives in React Query, not Zustand. If you need a new client-state slice, ask first.
 - **Verification Loop**: You will build the UI that shows "Pending Verification" or "Rejected" status on the dashboard. The Lead Dev builds the Admin UI that actually triggers those state changes in the database.
 - **API Endpoints**: If you find an endpoint missing or poorly typed in `lib/types.ts`, do not hack a workaround—request the addition from the Lead Dev.
 
