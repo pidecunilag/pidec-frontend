@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Loader2, ShieldCheck, TriangleAlert } from "lucide-react";
@@ -8,7 +8,7 @@ import { Loader2, ShieldCheck, TriangleAlert } from "lucide-react";
 import { authApi } from "@/lib/api/auth";
 import { Button } from "@/components/ui/button";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
@@ -93,5 +93,20 @@ export default function VerifyEmailPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={
+      <div className="w-full max-w-md mx-auto py-12 space-y-6 flex flex-col items-center text-center">
+        <Loader2 className="h-12 w-12 animate-spin text-brand" />
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          Loading...
+        </h1>
+      </div>
+    }>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }

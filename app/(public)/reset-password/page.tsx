@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -189,5 +189,20 @@ export default function ResetPasswordPage() {
         </form>
       </Form>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="w-full max-w-md mx-auto py-12 space-y-6 flex flex-col items-center text-center">
+        <Loader2 className="h-12 w-12 animate-spin text-brand" />
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          Loading...
+        </h1>
+      </div>
+    }>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

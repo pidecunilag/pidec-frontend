@@ -62,6 +62,7 @@ export default function PublicAuthLayout({
             src={src}
             alt="Engineering students at work"
             fill
+            sizes="(max-width: 1024px) 100vw, 50vw"
             priority={index === 0}
             className={`object-cover transition-opacity duration-1000 ease-in-out ${
               index === currentImageIndex ? "opacity-100" : "opacity-0"
