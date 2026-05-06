@@ -13,7 +13,7 @@ interface Step3PollingProps {
 
 export function Step3Polling({ onReupload }: Step3PollingProps) {
   const router = useRouter();
-  const { status } = useVerification();
+  const { status, error } = useVerification();
   const [cooldown, setCooldown] = useState(0);
 
   // If rejected, start a 10-minute cooldown
@@ -115,6 +115,32 @@ export function Step3Polling({ onReupload }: Step3PollingProps) {
         <div className="pt-6">
           <Button onClick={() => router.push("/dashboard")} variant="outline" className="w-full h-12 text-base font-semibold">
             Go to Dashboard (Limited Access)
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (error === "AUTH_REQUIRED") {
+    return (
+      <div className="w-full max-w-md mx-auto space-y-6 text-center animate-in fade-in duration-500">
+        <div className="mx-auto w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center mb-6">
+          <FileUp className="h-8 w-8 text-amber-500" />
+        </div>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          Document Uploaded!
+        </h1>
+        <p className="text-muted-foreground text-lg">
+          Your verification document has been securely submitted. However, your session is unverified.
+        </p>
+        <div className="bg-muted p-4 rounded-lg mt-6">
+          <p className="text-sm font-medium">
+            Please check your email and click the verification link, then log in to view your application status.
+          </p>
+        </div>
+        <div className="pt-4">
+          <Button onClick={() => router.push("/login")} className="w-full h-12 text-base font-semibold">
+            Continue to Login
           </Button>
         </div>
       </div>

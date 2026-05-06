@@ -37,7 +37,7 @@ interface Step1DetailsProps {
 }
 
 export function Step1Details({ onNext }: Step1DetailsProps) {
-  const { register } = useAuth();
+  const { register, isLoading: isAuthLoading } = useAuth();
   
   // Persist form inputs in localStorage
   const [persistedData, setPersistedData] = useLocalStorageState<Partial<RegisterFormValues>>(
@@ -59,6 +59,14 @@ export function Step1Details({ onNext }: Step1DetailsProps) {
   });
 
   const passwordValue = form.watch("password");
+  const matricValue = form.watch("matricNumber");
+
+  const isMatricValid = /^(19|2[0-5])04\d{5}$/.test(matricValue || "");
+  const matricStateClasses = matricValue
+    ? isMatricValid
+      ? "border-green-500 focus-visible:ring-green-500 shadow-[0_0_10px_rgba(34,197,94,0.2)]"
+      : "border-red-500 focus-visible:ring-red-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]"
+    : "";
 
   // Sync form to local storage
   useEffect(() => {
@@ -79,7 +87,7 @@ export function Step1Details({ onNext }: Step1DetailsProps) {
     }
   };
 
-  const isSubmitting = form.formState.isSubmitting;
+  const isSubmitting = form.formState.isSubmitting || isAuthLoading;
 
   return (
     <div className="w-full max-w-md mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -145,7 +153,12 @@ export function Step1Details({ onNext }: Step1DetailsProps) {
                 <FormItem>
                   <FormLabel className="text-base">Matric Number</FormLabel>
                   <FormControl>
-                    <Input placeholder="210412345" className="h-12 text-base" disabled={isSubmitting} {...field} />
+                    <Input 
+                      placeholder="210412345" 
+                      className={`h-12 text-base transition-all duration-300 ${matricStateClasses}`} 
+                      disabled={isSubmitting} 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

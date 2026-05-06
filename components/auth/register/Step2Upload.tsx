@@ -53,7 +53,17 @@ export function Step2Upload({ onNext, isReupload = false }: Step2UploadProps) {
       if (isReupload) {
         await reuploadDoc(selectedFile);
       } else {
-        await uploadDoc(selectedFile);
+        let unauthData = undefined;
+        const storedData = localStorage.getItem("pidec_register_step1_form");
+        if (storedData) {
+          const parsed = JSON.parse(storedData);
+          if (parsed.email && parsed.matricNumber) {
+            unauthData = { email: parsed.email, matricNumber: parsed.matricNumber };
+          }
+        }
+        await uploadDoc(selectedFile, unauthData);
+        // Clean up memory after successful upload
+        if (storedData) localStorage.removeItem("pidec_register_step1_form");
       }
       onNext();
     } catch (error: any) {
