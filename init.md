@@ -66,6 +66,47 @@ The Lead Developer (Tayo) has **EXCLUSIVE OWNERSHIP** over the following domains
 
 ---
 
+## 📐 Page & Layout Convention (Non-Negotiable)
+
+**Never put `"use client"` on a `page.tsx` or `layout.tsx`.** Every route file in this app is a server component that exports `metadata` and renders a co-located client child for interactivity. This is for SEO, smaller client bundles, and proper streaming.
+
+The pattern, copied from `app/(public)/login/`:
+
+```tsx
+// page.tsx — SERVER COMPONENT (no "use client")
+import type { Metadata } from "next";
+import { TeamView } from "./team-view";
+
+export const metadata: Metadata = {
+  title: "My Team",                    // becomes "My Team · PIDEC 1.0"
+  description: "Manage your PIDEC 1.0 team — invites, members, and submissions.",
+};
+
+export default function TeamPage() {
+  return <TeamView />;
+}
+```
+
+```tsx
+// team-view.tsx — CLIENT COMPONENT
+"use client";
+
+import { useTeam } from "@/lib/hooks/use-team";
+
+export function TeamView() {
+  const { team, invites, isLoading } = useTeam();
+  // ...all your interactive UI here
+}
+```
+
+**Rules:**
+- Every new `page.tsx` you create **must** export `metadata` with at least a `title` and `description`. The root layout supplies the title template, so just write the short title (`"My Team"` not `"My Team · PIDEC 1.0"`).
+- Naming the client child: `*-form.tsx` for forms, `*-view.tsx` or `*-shell.tsx` for layouts/views, `*-flow.tsx` for multi-step flows. Match the existing siblings in `(public)/`.
+- The `(protected)` route group already exports `robots: { index: false }` from its layout — your dashboard pages inherit that automatically. Don't override it.
+- If you need to wrap in `<Suspense>` (e.g. a page that reads `useSearchParams`), put the Suspense boundary in the server-component `page.tsx`, not in the client child. See `app/(public)/reset-password/` for the pattern.
+
+---
+
 ## 📋 YOUR FIRST INSTRUCTION
 
 Now that you have read this file, please output a structured summary for your developer containing:
