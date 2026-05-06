@@ -12,11 +12,13 @@ export function PasswordStrength({
   const hasMinLength = password.length >= 8;
   const hasLetter = /[a-zA-Z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
+  const hasSpecial = /[^a-zA-Z0-9]/.test(password);
 
   const criteria = [
     { label: "8+ characters", met: hasMinLength },
-    { label: "Contains a letter", met: hasLetter },
-    { label: "Contains a number", met: hasNumber },
+    { label: "Letter", met: hasLetter },
+    { label: "Number", met: hasNumber },
+    { label: "Special char", met: hasSpecial },
   ];
 
   const strengthScore = criteria.filter((c) => c.met).length;
@@ -24,15 +26,15 @@ export function PasswordStrength({
   return (
     <div className={cn("space-y-2 mt-2", className)}>
       <div className="flex gap-2">
-        {[1, 2, 3].map((level) => (
+        {[1, 2, 3, 4].map((level) => (
           <div
             key={level}
             className={cn(
               "h-1.5 w-full rounded-full transition-colors duration-300",
               strengthScore >= level
-                ? strengthScore === 3
-                  ? "bg-brand"
-                  : strengthScore === 2
+                ? strengthScore === 4
+                  ? "bg-green-500" // Green when fully passed
+                  : strengthScore >= 2
                   ? "bg-amber-500"
                   : "bg-red-500"
                 : "bg-muted"
