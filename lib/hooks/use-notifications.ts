@@ -1,96 +1,80 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { notificationsApi } from '@/lib/api/notifications';
-import { useNotificationStore } from '@/lib/stores/notification-store';
+import { qk } from '@/lib/api/query-keys';
 import { NOTIFICATION_POLL_INTERVAL_MS } from '@/lib/constants';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import type { Notification } from '@/lib/types';
 
 export function useNotifications() {
-  const { isAuthenticated } = useAuthStore();
-  const {
-    notifications,
-    unreadCount,
-    isLoading,
-    setNotifications,
-    appendNotifications,
-    markAsRead,
-    markAllAsRead: markAllAsReadStore,
-    setLoading,
-  } = useNotificationStore();
+  const qc = useQueryClient();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const query = useQuery({
+    queryKey: qk.notifications.list,
+    queryFn: () => notificationsApi.getNotifications(),
+    enabled: isAuthenticated,
+    refetchInterval: isAuthenticated ? NOTIFICATION_POLL_INTERVAL_MS : false,
+  });
 
-  const fetchNotifications = useCallback(async () => {
-    try {
-      const { data } = await notificationsApi.getNotifications();
-      setNotifications(data);
-    } catch {
-      // Fail silently — notifications are non-critical
-    }
-  }, [setNotifications]);
+  const notifications = query.data?.data ?? [];
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const loadMore = useCallback(
-    async (cursor: string) => {
-      try {
-        const { data } = await notificationsApi.getNotifications({ cursor });
-        appendNotifications(data);
-      } catch {
-        // Fail silently
-      }
+  const markReadMutation = useMutation({
+    mutationFn: (notificationId: string) => notificationsApi.markRead(notificationId),
+    onMutate: async (notificationId) => {
+      await qc.cancelQueries({ queryKey: qk.notifications.list });
+      const previous = qc.getQueryData<{ data: Notification[]; meta?: unknown }>(
+        qk.notifications.list,
+      );
+      qc.setQueryData<{ data: Notification[]; meta?: unknown }>(
+        qk.notifications.list,
+        (old) =>
+          old
+            ? {
+                ...old,
+                data: old.data.map((n) =>
+                  n.id === notificationId ? { ...n, read: true } : n,
+                ),
+              }
+            : old,
+      );
+      return { previous };
     },
-    [appendNotifications],
-  );
-
-  // Initial load + polling
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
-    setLoading(true);
-    fetchNotifications();
-
-    pollRef.current = setInterval(fetchNotifications, NOTIFICATION_POLL_INTERVAL_MS);
-
-    return () => {
-      if (pollRef.current) {
-        clearInterval(pollRef.current);
-        pollRef.current = null;
-      }
-    };
-  }, [isAuthenticated, fetchNotifications, setLoading]);
-
-  const markRead = useCallback(
-    async (notificationId: string) => {
-      // Optimistic update
-      markAsRead(notificationId);
-      try {
-        await notificationsApi.markRead(notificationId);
-      } catch {
-        // Re-fetch on failure to correct state
-        fetchNotifications();
-      }
+    onError: (_err, _id, ctx) => {
+      if (ctx?.previous) qc.setQueryData(qk.notifications.list, ctx.previous);
     },
-    [markAsRead, fetchNotifications],
-  );
+  });
 
-  const markAllRead = useCallback(async () => {
-    // Optimistic update
-    markAllAsReadStore();
-    try {
-      await notificationsApi.markAllRead();
-    } catch {
-      fetchNotifications();
-    }
-  }, [markAllAsReadStore, fetchNotifications]);
+  const markAllReadMutation = useMutation({
+    mutationFn: () => notificationsApi.markAllRead(),
+    onMutate: async () => {
+      await qc.cancelQueries({ queryKey: qk.notifications.list });
+      const previous = qc.getQueryData<{ data: Notification[]; meta?: unknown }>(
+        qk.notifications.list,
+      );
+      qc.setQueryData<{ data: Notification[]; meta?: unknown }>(
+        qk.notifications.list,
+        (old) =>
+          old
+            ? { ...old, data: old.data.map((n) => ({ ...n, read: true })) }
+            : old,
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous) qc.setQueryData(qk.notifications.list, ctx.previous);
+    },
+  });
 
   return {
     notifications,
     unreadCount,
-    isLoading,
-    markRead,
-    markAllRead,
-    loadMore,
-    refresh: fetchNotifications,
+    isLoading: query.isPending && isAuthenticated,
+    markRead: markReadMutation.mutateAsync,
+    markAllRead: markAllReadMutation.mutateAsync,
+    refresh: query.refetch,
   };
 }

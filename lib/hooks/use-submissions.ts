@@ -1,10 +1,9 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { submissionsApi } from '@/lib/api/submissions';
-import { extractApiError } from '@/lib/api/client';
-import { useSubmissionStore } from '@/lib/stores/submission-store';
+import { qk } from '@/lib/api/query-keys';
 import type {
   Stage1SubmissionRequest,
   Stage2SubmissionRequest,
@@ -12,83 +11,46 @@ import type {
 } from '@/lib/types';
 
 export function useSubmissions() {
-  const { submissions, activeSubmission, isLoading, setSubmissions, addSubmission, setLoading } =
-    useSubmissionStore();
+  const qc = useQueryClient();
 
-  useEffect(() => {
-    let cancelled = false;
+  const submissionsQuery = useQuery({
+    queryKey: qk.submissions.mine,
+    queryFn: submissionsApi.getMySubmissions,
+  });
 
-    async function load() {
-      setLoading(true);
-      try {
-        const data = await submissionsApi.getMySubmissions();
-        if (!cancelled) setSubmissions(data);
-      } catch {
-        if (!cancelled) setSubmissions([]);
-      }
-    }
+  // Stage submissions also alter team status (current_stage / submission status badge),
+  // so both caches must invalidate on success.
+  const invalidateAfterSubmit = () => {
+    qc.invalidateQueries({ queryKey: qk.submissions.mine });
+    qc.invalidateQueries({ queryKey: qk.team.mine });
+  };
 
-    load();
+  const stage1Mutation = useMutation({
+    mutationFn: (data: Stage1SubmissionRequest) => submissionsApi.submitStage1(data),
+    onSuccess: invalidateAfterSubmit,
+  });
 
-    return () => {
-      cancelled = true;
-    };
-  }, [setSubmissions, setLoading]);
+  const stage2Mutation = useMutation({
+    mutationFn: (data: Stage2SubmissionRequest) => submissionsApi.submitStage2(data),
+    onSuccess: invalidateAfterSubmit,
+  });
 
-  const submitStage1 = useCallback(
-    async (data: Stage1SubmissionRequest) => {
-      try {
-        const submission = await submissionsApi.submitStage1(data);
-        addSubmission(submission);
-        return submission;
-      } catch (error) {
-        throw extractApiError(error);
-      }
-    },
-    [addSubmission],
-  );
-
-  const submitStage2 = useCallback(
-    async (data: Stage2SubmissionRequest) => {
-      try {
-        const submission = await submissionsApi.submitStage2(data);
-        addSubmission(submission);
-        return submission;
-      } catch (error) {
-        throw extractApiError(error);
-      }
-    },
-    [addSubmission],
-  );
-
-  const submitStage3 = useCallback(
-    async (data: Stage3SubmissionRequest) => {
-      try {
-        const submission = await submissionsApi.submitStage3(data);
-        addSubmission(submission);
-        return submission;
-      } catch (error) {
-        throw extractApiError(error);
-      }
-    },
-    [addSubmission],
-  );
-
-  const getFeedback = useCallback(async (submissionId: string) => {
-    try {
-      return await submissionsApi.getSubmissionFeedback(submissionId);
-    } catch (error) {
-      throw extractApiError(error);
-    }
-  }, []);
+  const stage3Mutation = useMutation({
+    mutationFn: (data: Stage3SubmissionRequest) => submissionsApi.submitStage3(data),
+    onSuccess: invalidateAfterSubmit,
+  });
 
   return {
-    submissions,
-    activeSubmission,
-    isLoading,
-    submitStage1,
-    submitStage2,
-    submitStage3,
-    getFeedback,
+    submissions: submissionsQuery.data ?? [],
+    isLoading: submissionsQuery.isPending,
+    error: submissionsQuery.error,
+
+    submitStage1: stage1Mutation.mutateAsync,
+    submitStage2: stage2Mutation.mutateAsync,
+    submitStage3: stage3Mutation.mutateAsync,
+
+    isSubmittingStage1: stage1Mutation.isPending,
+    isSubmittingStage2: stage2Mutation.isPending,
+    isSubmittingStage3: stage3Mutation.isPending,
   };
 }

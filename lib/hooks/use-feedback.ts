@@ -1,48 +1,36 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import { feedbackApi } from '@/lib/api/feedback';
-import { extractApiError } from '@/lib/api/client';
-import type { Feedback } from '@/lib/types';
+import { qk } from '@/lib/api/query-keys';
 
 export function useFeedback() {
-  const [feedback, setFeedback] = useState<Feedback[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      setIsLoading(true);
-      try {
-        const data = await feedbackApi.getMyFeedback();
-        if (!cancelled) setFeedback(data);
-      } catch {
-        if (!cancelled) setFeedback([]);
-      } finally {
-        if (!cancelled) setIsLoading(false);
-      }
-    }
-
-    load();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const getSubmissionFeedback = useCallback(async (submissionId: string) => {
-    try {
-      return await feedbackApi.getFeedback(submissionId);
-    } catch (error) {
-      throw extractApiError(error);
-    }
-  }, []);
+  const query = useQuery({
+    queryKey: qk.feedback.mine,
+    queryFn: feedbackApi.getMyFeedback,
+  });
 
   return {
-    feedback,
-    isLoading,
-    getSubmissionFeedback,
+    feedback: query.data ?? [],
+    isLoading: query.isPending,
+    error: query.error,
+    refetch: query.refetch,
+  };
+}
+
+export function useSubmissionFeedback(submissionId: string | undefined) {
+  const query = useQuery({
+    queryKey: submissionId
+      ? qk.feedback.bySubmission(submissionId)
+      : ['feedback', 'submission', 'noop'],
+    queryFn: () => feedbackApi.getFeedback(submissionId!),
+    enabled: !!submissionId,
+  });
+
+  return {
+    feedback: query.data,
+    isLoading: query.isPending && !!submissionId,
+    error: query.error,
   };
 }

@@ -1,143 +1,108 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { teamsApi } from '@/lib/api/teams';
-import { extractApiError } from '@/lib/api/client';
-import { useTeamStore } from '@/lib/stores/team-store';
-import type { EligibleTeammate } from '@/lib/types';
+import { qk } from '@/lib/api/query-keys';
+import type { Team, TeamInvite } from '@/lib/types';
 
 export function useTeam() {
-  const {
-    team,
-    invites,
-    isLoading,
-    setTeam,
-    setInvites,
-    clearTeam,
-    setLoading,
-    removeInvite,
-    removeMember,
-  } = useTeamStore();
+  const qc = useQueryClient();
 
-  const [searchResults, setSearchResults] = useState<EligibleTeammate[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
+  const teamQuery = useQuery({
+    queryKey: qk.team.mine,
+    queryFn: teamsApi.getMyTeam,
+  });
 
-  // Fetch team + invites on mount
-  useEffect(() => {
-    let cancelled = false;
+  // PRD §5.2 — invite list polled every 60s so expiry transitions are visible without a manual refresh.
+  const invitesQuery = useQuery({
+    queryKey: qk.team.invites,
+    queryFn: teamsApi.getInvites,
+    refetchInterval: 60_000,
+  });
 
-    async function load() {
-      setLoading(true);
-      try {
-        const [teamData, inviteData] = await Promise.allSettled([
-          teamsApi.getMyTeam(),
-          teamsApi.getInvites(),
-        ]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchResultsQuery = useQuery({
+    queryKey: qk.team.search(searchQuery),
+    queryFn: () => teamsApi.searchTeammates(searchQuery),
+    enabled: searchQuery.length >= 2,
+  });
 
-        if (cancelled) return;
-
-        if (teamData.status === 'fulfilled') setTeam(teamData.value);
-        else setTeam(null);
-
-        if (inviteData.status === 'fulfilled') setInvites(inviteData.value);
-      } catch {
-        if (!cancelled) clearTeam();
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    load();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [setTeam, setInvites, clearTeam, setLoading]);
-
-  const createTeam = useCallback(
-    async (name: string) => {
-      const created = await teamsApi.createTeam({ name });
-      setTeam(created);
-      return created;
+  const createTeamMutation = useMutation({
+    mutationFn: (name: string) => teamsApi.createTeam({ name }),
+    onSuccess: (created) => {
+      qc.setQueryData(qk.team.mine, created);
     },
-    [setTeam],
-  );
+  });
 
-  const dissolveTeam = useCallback(
-    async (teamId?: string) => {
-      await teamsApi.dissolveTeam(teamId);
-      clearTeam();
+  const dissolveTeamMutation = useMutation({
+    mutationFn: (teamId?: string) => teamsApi.dissolveTeam(teamId),
+    onSuccess: () => {
+      qc.setQueryData<Team | null>(qk.team.mine, null);
+      qc.invalidateQueries({ queryKey: qk.team.invites });
     },
-    [clearTeam],
-  );
+  });
 
-  const searchTeammates = useCallback(async (query: string) => {
-    if (query.length < 2) {
-      setSearchResults([]);
-      return;
-    }
+  const sendInviteMutation = useMutation({
+    mutationFn: (inviteeId: string) => teamsApi.sendInvite({ inviteeId }),
+  });
 
-    setIsSearching(true);
-    try {
-      const results = await teamsApi.searchTeammates(query);
-      setSearchResults(results);
-    } catch {
-      setSearchResults([]);
-    } finally {
-      setIsSearching(false);
-    }
-  }, []);
-
-  const sendInvite = useCallback(async (inviteeId: string) => {
-    const invite = await teamsApi.sendInvite({ inviteeId });
-    return invite;
-  }, []);
-
-  const acceptInvite = useCallback(
-    async (inviteId: string) => {
-      await teamsApi.acceptInvite(inviteId);
-      removeInvite(inviteId);
-
-      // Refresh team state after accepting
-      try {
-        const updatedTeam = await teamsApi.getMyTeam();
-        setTeam(updatedTeam);
-      } catch {
-        // Team fetch may fail if still processing
-      }
+  const acceptInviteMutation = useMutation({
+    mutationFn: (inviteId: string) => teamsApi.acceptInvite(inviteId),
+    onMutate: async (inviteId) => {
+      await qc.cancelQueries({ queryKey: qk.team.invites });
+      const previous = qc.getQueryData<TeamInvite[]>(qk.team.invites);
+      qc.setQueryData<TeamInvite[]>(qk.team.invites, (old) =>
+        old?.filter((inv) => inv.id !== inviteId) ?? [],
+      );
+      return { previous };
     },
-    [removeInvite, setTeam],
-  );
-
-  const declineInvite = useCallback(
-    async (inviteId: string) => {
-      await teamsApi.declineInvite(inviteId);
-      removeInvite(inviteId);
+    onError: (_err, _id, ctx) => {
+      if (ctx?.previous) qc.setQueryData(qk.team.invites, ctx.previous);
     },
-    [removeInvite],
-  );
-
-  const handleRemoveMember = useCallback(
-    async (userId: string) => {
-      await teamsApi.removeMember(userId);
-      removeMember(userId);
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: qk.team.mine });
+      qc.invalidateQueries({ queryKey: qk.team.invites });
     },
-    [removeMember],
-  );
+  });
+
+  const declineInviteMutation = useMutation({
+    mutationFn: (inviteId: string) => teamsApi.declineInvite(inviteId),
+    onMutate: async (inviteId) => {
+      await qc.cancelQueries({ queryKey: qk.team.invites });
+      const previous = qc.getQueryData<TeamInvite[]>(qk.team.invites);
+      qc.setQueryData<TeamInvite[]>(qk.team.invites, (old) =>
+        old?.filter((inv) => inv.id !== inviteId) ?? [],
+      );
+      return { previous };
+    },
+    onError: (_err, _id, ctx) => {
+      if (ctx?.previous) qc.setQueryData(qk.team.invites, ctx.previous);
+    },
+  });
+
+  const removeMemberMutation = useMutation({
+    mutationFn: (userId: string) => teamsApi.removeMember(userId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.team.mine });
+    },
+  });
 
   return {
-    team,
-    invites,
-    isLoading,
-    searchResults,
-    isSearching,
-    createTeam,
-    dissolveTeam,
-    searchTeammates,
-    sendInvite,
-    acceptInvite,
-    declineInvite,
-    removeMember: handleRemoveMember,
+    team: teamQuery.data ?? null,
+    invites: invitesQuery.data ?? [],
+    isLoading: teamQuery.isPending,
+
+    searchTeammates: setSearchQuery,
+    searchResults: searchResultsQuery.data ?? [],
+    isSearching: searchResultsQuery.isFetching,
+
+    createTeam: createTeamMutation.mutateAsync,
+    dissolveTeam: dissolveTeamMutation.mutateAsync,
+    sendInvite: sendInviteMutation.mutateAsync,
+    acceptInvite: acceptInviteMutation.mutateAsync,
+    declineInvite: declineInviteMutation.mutateAsync,
+    removeMember: removeMemberMutation.mutateAsync,
   };
 }

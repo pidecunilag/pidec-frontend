@@ -14,21 +14,6 @@ export interface SubmissionFile {
   uploadedAt: string;
 }
 
-export interface Submission {
-  id: string;
-  teamId: string;
-  editionId: string;
-  stage: Stage;
-  formData: Record<string, unknown>;
-  files: SubmissionFile[];
-  videoLink?: string;
-  submittedAt: string;
-  submittedBy?: string;
-  status: SubmissionStatus;
-  isLocked: boolean;
-  deletedAt?: string;
-}
-
 // Stage 1: Proposal submission
 export interface Stage1FormData {
   problem_statement: string;
@@ -68,3 +53,34 @@ export interface Stage3SubmissionRequest {
   formData: Stage3FormData;
   fileIds: string[];
 }
+
+// Discriminated union — switch on `stage` to narrow `formData` exhaustively.
+interface SubmissionBase {
+  id: string;
+  teamId: string;
+  editionId: string;
+  files: SubmissionFile[];
+  videoLink?: string;
+  submittedAt: string;
+  submittedBy?: string;
+  status: SubmissionStatus;
+  isLocked: boolean;
+  deletedAt?: string;
+}
+
+export interface Stage1Submission extends SubmissionBase {
+  stage: 1;
+  formData: Stage1FormData;
+}
+
+export interface Stage2Submission extends SubmissionBase {
+  stage: 2;
+  formData: Stage2FormData;
+}
+
+export interface Stage3Submission extends SubmissionBase {
+  stage: 3;
+  formData: Stage3FormData;
+}
+
+export type Submission = Stage1Submission | Stage2Submission | Stage3Submission;
