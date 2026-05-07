@@ -1,30 +1,45 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { authApi } from '@/lib/api/auth';
-import { extractApiError } from '@/lib/api/client';
-import { qk } from '@/lib/api/query-keys';
-import { useAuthStore } from '@/lib/stores/auth-store';
-import type { LoginRequest, RegisterRequest, User } from '@/lib/types';
+import { authApi } from "@/lib/api/auth";
+import { extractApiError } from "@/lib/api/client";
+import { qk } from "@/lib/api/query-keys";
+import { hasAccessToken } from "@/lib/auth/token-storage";
+import { useAuthStore } from "@/lib/stores/auth-store";
+import type { LoginRequest, RegisterRequest, User } from "@/lib/types";
 
 export function useAuth() {
   const router = useRouter();
   const qc = useQueryClient();
-  const { user, isAuthenticated, isLoading, verificationStatus, setUser, clearUser, setLoading } =
-    useAuthStore();
+  const {
+    user,
+    isAuthenticated,
+    isLoading,
+    verificationStatus,
+    setUser,
+    clearUser,
+    setLoading,
+  } = useAuthStore();
 
-  // Hydrate session from /auth/me. The store remains the sync source of truth for components;
-  // the query exists so login/logout/refresh all flow through one cache key.
+  // Hydrate session from /auth/me. Skipped entirely when no access token exists in
+  // storage — there's nothing to verify and we'd just burn a guaranteed-401 request.
   const meQuery = useQuery({
     queryKey: qk.me,
     queryFn: authApi.getMe,
-    enabled: isLoading && !isAuthenticated,
+    enabled: isLoading && !isAuthenticated && hasAccessToken(),
     staleTime: Infinity,
     retry: false,
   });
+
+  // Short-circuit unauthenticated state when there's no token to even try with.
+  useEffect(() => {
+    if (isLoading && !isAuthenticated && !hasAccessToken()) {
+      clearUser();
+    }
+  }, [isLoading, isAuthenticated, clearUser]);
 
   useEffect(() => {
     if (meQuery.isSuccess && meQuery.data) {
@@ -32,7 +47,13 @@ export function useAuth() {
     } else if (meQuery.isError) {
       clearUser();
     }
-  }, [meQuery.isSuccess, meQuery.isError, meQuery.data, setUser, clearUser]);
+  }, [
+    meQuery.isSuccess,
+    meQuery.isError,
+    meQuery.data,
+    setUser,
+    clearUser,
+  ]);
 
   const loginMutation = useMutation({
     mutationFn: (data: LoginRequest) => authApi.login(data),
@@ -41,14 +62,14 @@ export function useAuth() {
       qc.setQueryData<User>(qk.me, me);
       setUser(me);
       switch (me.role) {
-        case 'admin':
-          router.push('/admin');
+        case "admin":
+          router.push("/admin");
           break;
-        case 'judge':
-          router.push('/judge');
+        case "judge":
+          router.push("/judge");
           break;
         default:
-          router.push('/dashboard');
+          router.push("/dashboard");
       }
     },
     onError: () => setLoading(false),
@@ -70,7 +91,7 @@ export function useAuth() {
       qc.removeQueries({ queryKey: qk.me });
       qc.clear();
       clearUser();
-      router.push('/login');
+      router.push("/login");
     },
   });
 

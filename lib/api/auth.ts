@@ -9,26 +9,67 @@ import type {
 } from '@/lib/types';
 
 import { apiClient, unwrap } from './client';
+import { clearTokens, getRefreshToken, setTokens } from '@/lib/auth/token-storage';
+
+// Login/register return user + token pair. /auth/me only returns user.
+type UserEnvelope = { user: User };
+type AuthEnvelope = UserEnvelope & {
+  accessToken: string;
+  refreshToken: string;
+};
+type RefreshEnvelope = {
+  accessToken: string;
+  refreshToken: string;
+};
 
 export const authApi = {
   register(data: RegisterRequest) {
-    return apiClient.post<ApiResponse<User>>('/auth/register', data).then(unwrap);
+    return apiClient
+      .post<ApiResponse<AuthEnvelope>>('/auth/register', data)
+      .then(unwrap)
+      .then((d) => {
+        setTokens(d.accessToken, d.refreshToken);
+        return d.user;
+      });
   },
 
   login(data: LoginRequest) {
-    return apiClient.post<ApiResponse<User>>('/auth/login', data).then(unwrap);
+    return apiClient
+      .post<ApiResponse<AuthEnvelope>>('/auth/login', data)
+      .then(unwrap)
+      .then((d) => {
+        setTokens(d.accessToken, d.refreshToken);
+        return d.user;
+      });
   },
 
   logout() {
-    return apiClient.post<ApiResponse<null>>('/auth/logout').then(unwrap);
+    // Clear tokens regardless of server outcome — the user wanted out.
+    return apiClient
+      .post<ApiResponse<null>>('/auth/logout')
+      .then(unwrap)
+      .finally(() => clearTokens());
   },
 
   refresh() {
-    return apiClient.post<ApiResponse<null>>('/auth/refresh').then(unwrap);
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) {
+      return Promise.reject(new Error('No refresh token in storage'));
+    }
+    return apiClient
+      .post<ApiResponse<RefreshEnvelope>>('/auth/refresh', { refreshToken })
+      .then(unwrap)
+      .then((d) => {
+        setTokens(d.accessToken, d.refreshToken);
+        return d;
+      });
   },
 
   getMe() {
-    return apiClient.get<ApiResponse<User>>('/auth/me').then(unwrap);
+    return apiClient
+      .get<ApiResponse<UserEnvelope>>('/auth/me')
+      .then(unwrap)
+      .then((d) => d.user);
   },
 
   verifyEmail(data: VerifyEmailRequest) {

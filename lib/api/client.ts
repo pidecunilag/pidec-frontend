@@ -2,11 +2,17 @@ import axios, {
   type AxiosError,
   type AxiosInstance,
   type InternalAxiosRequestConfig,
-} from 'axios';
+} from "axios";
 
-import type { ApiError, ApiResponse } from '@/lib/types';
+import type { ApiError, ApiResponse } from "@/lib/types";
+import {
+  clearTokens,
+  getAccessToken,
+  getRefreshToken,
+  setTokens,
+} from "@/lib/auth/token-storage";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://pidec-backend-api.onrender.com/api/v1';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 let isRefreshing = false;
 let failedQueue: Array<{
@@ -27,26 +33,49 @@ function processQueue(error: unknown) {
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: BASE_URL,
-  withCredentials: true,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   timeout: 30_000,
 });
 
-// Response interceptor — handle 401 refresh flow
+// Request interceptor — attach the bearer token from storage to every outgoing call.
+// FormData uploads inherit the same header; axios sets the multipart Content-Type itself.
+apiClient.interceptors.request.use((config) => {
+  const token = getAccessToken();
+  if (token) {
+    config.headers.set("Authorization", `Bearer ${token}`);
+  }
+  return config;
+});
+
+// Response interceptor — on 401, rotate tokens via /auth/refresh and replay the original request.
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiError>) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
 
     if (error.response?.status !== 401 || originalRequest._retry) {
       return Promise.reject(error);
     }
 
-    // Skip refresh attempts for auth endpoints to prevent loops
-    const skipRefreshPaths = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout'];
+    // Don't recurse: a 401 on an auth endpoint is terminal — never try to refresh those.
+    const skipRefreshPaths = [
+      "/auth/login",
+      "/auth/register",
+      "/auth/refresh",
+      "/auth/logout",
+    ];
     if (skipRefreshPaths.some((path) => originalRequest.url?.includes(path))) {
+      return Promise.reject(error);
+    }
+
+    // No refresh token in storage → can't refresh. Drop straight to redirect.
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) {
+      redirectToLoginIfProtected();
       return Promise.reject(error);
     }
 
@@ -60,20 +89,18 @@ apiClient.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      await apiClient.post('/auth/refresh');
+      const refreshResponse = await apiClient.post<
+        ApiResponse<{ accessToken: string; refreshToken: string }>
+      >("/auth/refresh", { refreshToken });
+      const { accessToken: newAccess, refreshToken: newRefresh } =
+        refreshResponse.data.data;
+      setTokens(newAccess, newRefresh);
       processQueue(null);
       return apiClient(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError);
-
-      // Redirect to login on refresh failure (client-side only), but not if already on auth pages
-      if (typeof window !== 'undefined') {
-        const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/'];
-        if (!publicPaths.includes(window.location.pathname)) {
-          window.location.href = '/login';
-        }
-      }
-
+      clearTokens();
+      redirectToLoginIfProtected();
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
@@ -81,17 +108,35 @@ apiClient.interceptors.response.use(
   },
 );
 
+function redirectToLoginIfProtected() {
+  if (typeof window === "undefined") return;
+  const publicPaths = [
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/reset-password",
+    "/verify-email",
+    "/",
+  ];
+  if (!publicPaths.includes(window.location.pathname)) {
+    window.location.href = "/login";
+  }
+}
+
 /**
  * Extract typed error from an Axios error response.
  */
-export function extractApiError(error: unknown): { code: string; message: string } {
+export function extractApiError(error: unknown): {
+  code: string;
+  message: string;
+} {
   // Check if error is already extracted
   if (
     error &&
-    typeof error === 'object' &&
-    'code' in error &&
-    'message' in error &&
-    typeof (error as any).code === 'string'
+    typeof error === "object" &&
+    "code" in error &&
+    "message" in error &&
+    typeof (error as any).code === "string"
   ) {
     return error as { code: string; message: string };
   }
@@ -101,9 +146,9 @@ export function extractApiError(error: unknown): { code: string; message: string
     if (data?.error) {
       return { code: data.error.code, message: data.error.message };
     }
-    return { code: 'NETWORK_ERROR', message: error.message };
+    return { code: "NETWORK_ERROR", message: error.message };
   }
-  return { code: 'UNKNOWN_ERROR', message: 'An unexpected error occurred' };
+  return { code: "UNKNOWN_ERROR", message: "An unexpected error occurred" };
 }
 
 /**

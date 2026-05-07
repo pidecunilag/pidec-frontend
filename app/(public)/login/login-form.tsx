@@ -27,10 +27,9 @@ export function LoginForm() {
   const router = useRouter();
   const { login, isAuthenticated, user, isLoading: isAuthLoading } = useAuth();
 
-  const [persistedData, setPersistedData, clearStorage] = useLocalStorageState<Partial<LoginFormValues>>(
-    "pidec_login_form",
-    { email: "", password: "" }
-  );
+  const [persistedData, setPersistedData, clearStorage] = useLocalStorageState<
+    Partial<LoginFormValues>
+  >("pidec_login_form", { email: "", password: "" });
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema) as any,
@@ -61,7 +60,9 @@ export function LoginForm() {
       clearStorage();
       toast.success("Welcome back!");
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign in. Please check your credentials.");
+      toast.error(
+        error.message || "Failed to sign in. Please check your credentials.",
+      );
     }
   };
 
