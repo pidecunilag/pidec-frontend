@@ -54,18 +54,39 @@ export interface Stage3SubmissionRequest {
   fileIds: string[];
 }
 
+// Compact joins: admin list endpoints embed a stripped-down team and submitter alongside
+// each submission. Both are optional because student-facing endpoints don't include them.
+export interface SubmissionTeamPreview {
+  id: string;
+  name: string;
+  status: string;
+  department: string;
+}
+
+export interface SubmissionUserPreview {
+  id: string;
+  name: string;
+  email: string;
+}
+
 // Discriminated union — switch on `stage` to narrow `formData` exhaustively.
 interface SubmissionBase {
   id: string;
   teamId: string;
   editionId: string;
   files: SubmissionFile[];
-  videoLink?: string;
+  videoLink?: string | null;
   submittedAt: string;
   submittedBy?: string;
   status: SubmissionStatus;
   isLocked: boolean;
-  deletedAt?: string;
+  tokenId?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string | null;
+  // Joined records on admin list responses.
+  teams?: SubmissionTeamPreview;
+  users?: SubmissionUserPreview;
 }
 
 export interface Stage1Submission extends SubmissionBase {

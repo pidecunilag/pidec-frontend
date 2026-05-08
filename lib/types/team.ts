@@ -13,6 +13,13 @@ export interface TeamMember {
   verificationStatus: string;
 }
 
+// Compact join: list endpoints embed a stripped-down leader record alongside the team.
+export interface TeamLeaderPreview {
+  id: string;
+  name: string;
+  email: string;
+}
+
 export interface Team {
   id: string;
   name: string;
@@ -21,11 +28,18 @@ export interface Team {
   editionId: string;
   currentStage: number;
   status: TeamStatus;
-  disqualifiedAtStage?: number;
-  disqualifiedAt?: string;
-  members: TeamMember[];
+  disqualifiedAtStage?: number | null;
+  disqualifiedAt?: string | null;
+  disqualifiedReason?: string | null;
+  isStage2Representative?: boolean;
+  // Optional: list endpoints return `leader` (compact) + `memberCount`; detail endpoints
+  // return `members` (full TeamMember[]). Treat both as optional and read what's there.
+  leader?: TeamLeaderPreview;
+  memberCount?: number;
+  members?: TeamMember[];
   createdAt: string;
-  deletedAt?: string;
+  updatedAt?: string;
+  deletedAt?: string | null;
 }
 
 export interface TeamInvite {

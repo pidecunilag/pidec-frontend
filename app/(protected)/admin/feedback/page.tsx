@@ -1,11 +1,11 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+// Submission rows include joined `teams` and `users` records — no separate teams query needed.
 import { Search, Send, Eye } from 'lucide-react';
 
 import {
   useAdminSubmissions,
-  useAdminTeams,
   usePublishFeedback,
   usePublishBulkFeedback,
 } from '@/lib/hooks/use-admin';
@@ -44,7 +44,6 @@ export default function FeedbackPage() {
   const { data: submissionsData, isPending: submissionsLoading } = useAdminSubmissions(
     Object.keys(params).length > 0 ? params : undefined,
   );
-  const { data: teamsData } = useAdminTeams();
 
   const publish = usePublishFeedback();
   const publishBulk = usePublishBulkFeedback();
@@ -54,13 +53,6 @@ export default function FeedbackPage() {
   const [singleId, setSingleId] = useState<string | null>(null);
 
   const submissions = submissionsData?.data ?? [];
-
-  // Build a teamId → team name lookup so the table reads as something a human recognises.
-  const teamNameById = useMemo(() => {
-    const map = new Map<string, string>();
-    teamsData?.data?.forEach((t) => map.set(t.id, t.name));
-    return map;
-  }, [teamsData]);
 
   // The 'unpublished' filter is purely client-side — the backend doesn't have a single status
   // for "anything not yet published," so we filter the result.
@@ -208,7 +200,7 @@ export default function FeedbackPage() {
                         />
                       </td>
                       <td className="px-4 py-3 font-medium">
-                        {teamNameById.get(s.teamId) ?? s.teamId}
+                        {s.teams?.name ?? <span className="text-muted-foreground font-mono text-xs">{s.teamId}</span>}
                       </td>
                       <td className="px-4 py-3">Stage {s.stage}</td>
                       <td className="px-4 py-3">

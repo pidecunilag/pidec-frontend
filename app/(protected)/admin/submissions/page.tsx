@@ -1,9 +1,9 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Search } from 'lucide-react';
 
-import { useAdminSubmissions, useAdminTeams } from '@/lib/hooks/use-admin';
+import { useAdminSubmissions } from '@/lib/hooks/use-admin';
 import { DEPARTMENTS } from '@/lib/constants';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -30,15 +30,8 @@ export default function SubmissionsPage() {
   const { data, isPending } = useAdminSubmissions(
     Object.keys(params).length > 0 ? params : undefined,
   );
-  const { data: teamsData } = useAdminTeams();
 
   const submissions = data?.data ?? [];
-
-  const teamNameById = useMemo(() => {
-    const map = new Map<string, string>();
-    teamsData?.data?.forEach((t) => map.set(t.id, t.name));
-    return map;
-  }, [teamsData]);
 
   return (
     <div className="space-y-6">
@@ -90,6 +83,8 @@ export default function SubmissionsPage() {
               <thead className="bg-muted/50">
                 <tr>
                   <th className="text-left px-4 py-3 font-medium">Team</th>
+                  <th className="text-left px-4 py-3 font-medium">Department</th>
+                  <th className="text-left px-4 py-3 font-medium">Submitted by</th>
                   <th className="text-left px-4 py-3 font-medium">Stage</th>
                   <th className="text-left px-4 py-3 font-medium">Status</th>
                   <th className="text-left px-4 py-3 font-medium">Submitted</th>
@@ -99,11 +94,28 @@ export default function SubmissionsPage() {
                 {submissions.map((s) => (
                   <tr key={s.id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-4 py-3 font-medium">
-                      {teamNameById.get(s.teamId) ?? s.teamId}
+                      {s.teams?.name ?? <span className="text-muted-foreground font-mono text-xs">{s.teamId}</span>}
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">{s.teams?.department ?? '—'}</td>
+                    <td className="px-4 py-3">
+                      {s.users ? (
+                        <div>
+                          <p className="font-medium">{s.users.name}</p>
+                          <p className="text-xs text-muted-foreground">{s.users.email}</p>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-3">Stage {s.stage}</td>
                     <td className="px-4 py-3">
-                      <Badge variant={s.status === 'submitted' ? 'default' : 'secondary'}>
+                      <Badge
+                        variant={
+                          s.status === 'feedback_available' ? 'default' :
+                          s.status === 'submitted' ? 'secondary' :
+                          'outline'
+                        }
+                      >
                         {s.status}
                       </Badge>
                     </td>

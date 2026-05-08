@@ -8,8 +8,10 @@ import type {
 
 import { apiClient, unwrap } from '../client';
 
+// Backend wraps the student list under `users` (admin-perspective: User records),
+// not the resource-named `students`.
 type StudentsEnvelope = {
-  students: User[];
+  users: User[];
   pagination?: PaginationMeta;
 };
 
@@ -18,7 +20,7 @@ export const studentsApi = {
     return apiClient
       .get<ApiResponse<StudentsEnvelope>>('/admin/students', { params })
       .then(unwrap)
-      .then(({ students, pagination }) => ({ data: students, meta: pagination }));
+      .then(({ users, pagination }) => ({ data: users, meta: pagination }));
   },
 
   suspendStudent(userId: string, data: SuspendUserRequest) {

@@ -146,6 +146,7 @@ export default function TeamsPage() {
                 <tr>
                   <th className="text-left px-4 py-3 font-medium">Team</th>
                   <th className="text-left px-4 py-3 font-medium">Department</th>
+                  <th className="text-left px-4 py-3 font-medium">Leader</th>
                   <th className="text-left px-4 py-3 font-medium">Members</th>
                   <th className="text-left px-4 py-3 font-medium">Stage</th>
                   <th className="text-left px-4 py-3 font-medium">Status</th>
@@ -157,7 +158,17 @@ export default function TeamsPage() {
                   <tr key={t.id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-4 py-3 font-medium">{t.name}</td>
                     <td className="px-4 py-3">{t.department}</td>
-                    <td className="px-4 py-3">{t.members?.length ?? '—'}</td>
+                    <td className="px-4 py-3">
+                      {t.leader ? (
+                        <div>
+                          <p className="font-medium">{t.leader.name}</p>
+                          <p className="text-xs text-muted-foreground">{t.leader.email}</p>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">{t.memberCount ?? t.members?.length ?? 0}</td>
                     <td className="px-4 py-3">Stage {t.currentStage ?? 0}</td>
                     <td className="px-4 py-3">
                       <Badge variant={t.status === 'disqualified' ? 'destructive' : t.status === 'under_review' ? 'outline' : 'default'}>

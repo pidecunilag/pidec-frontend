@@ -1,43 +1,50 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Search, ShieldBan, ShieldCheck } from 'lucide-react';
+import { useState } from "react";
+import { Search, ShieldBan, ShieldCheck } from "lucide-react";
 
-import { useAdminStudents, useSuspendStudent, useUnsuspendStudent } from '@/lib/hooks/use-admin';
-import { DEPARTMENTS } from '@/lib/constants';
-import { ConfirmationDialog } from '@/components/admin/confirmation-dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import {
+  useAdminStudents,
+  useSuspendStudent,
+  useUnsuspendStudent,
+} from "@/lib/hooks/use-admin";
+import { DEPARTMENTS } from "@/lib/constants";
+import { ConfirmationDialog } from "@/components/admin/confirmation-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 
-import type { User } from '@/lib/types';
+import type { User } from "@/lib/types";
 
-const STATUS_COLORS: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  verified: 'default',
-  pending: 'secondary',
-  rejected: 'destructive',
-  flagged: 'outline',
+const STATUS_COLORS: Record<
+  string,
+  "default" | "secondary" | "destructive" | "outline"
+> = {
+  verified: "default",
+  pending: "secondary",
+  rejected: "destructive",
+  flagged: "outline",
 };
 
 export default function StudentsPage() {
-  const [search, setSearch] = useState('');
-  const [department, setDepartment] = useState('all');
-  const [verStatus, setVerStatus] = useState('all');
+  const [search, setSearch] = useState("");
+  const [department, setDepartment] = useState("all");
+  const [verStatus, setVerStatus] = useState("all");
 
   const params = {
     ...(search && { q: search }),
-    ...(department !== 'all' && { department }),
-    ...(verStatus !== 'all' && { verificationStatus: verStatus }),
+    ...(department !== "all" && { department }),
+    ...(verStatus !== "all" && { verificationStatus: verStatus }),
   };
 
   const { data, isPending } = useAdminStudents(
@@ -47,27 +54,30 @@ export default function StudentsPage() {
   const unsuspend = useUnsuspendStudent();
 
   const [targetUser, setTargetUser] = useState<User | null>(null);
-  const [action, setAction] = useState<'suspend' | 'unsuspend' | null>(null);
-  const [suspendReason, setSuspendReason] = useState('');
+  const [action, setAction] = useState<"suspend" | "unsuspend" | null>(null);
+  const [suspendReason, setSuspendReason] = useState("");
 
   const students = data?.data ?? [];
 
   function handleAction() {
     if (!targetUser || !action) return;
-    if (action === 'suspend') {
+    if (action === "suspend") {
       suspend.mutate(
         { userId: targetUser.id, data: { reason: suspendReason.trim() } },
         {
           onSettled: () => {
             setTargetUser(null);
             setAction(null);
-            setSuspendReason('');
+            setSuspendReason("");
           },
         },
       );
     } else {
       unsuspend.mutate(targetUser.id, {
-        onSettled: () => { setTargetUser(null); setAction(null); },
+        onSettled: () => {
+          setTargetUser(null);
+          setAction(null);
+        },
       });
     }
   }
@@ -99,7 +109,9 @@ export default function StudentsPage() {
           <SelectContent>
             <SelectItem value="all">All Departments</SelectItem>
             {DEPARTMENTS.map((d) => (
-              <SelectItem key={d} value={d}>{d}</SelectItem>
+              <SelectItem key={d} value={d}>
+                {d}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -139,7 +151,9 @@ export default function StudentsPage() {
                 <tr>
                   <th className="text-left px-4 py-3 font-medium">Name</th>
                   <th className="text-left px-4 py-3 font-medium">Matric</th>
-                  <th className="text-left px-4 py-3 font-medium">Department</th>
+                  <th className="text-left px-4 py-3 font-medium">
+                    Department
+                  </th>
                   <th className="text-left px-4 py-3 font-medium">Level</th>
                   <th className="text-left px-4 py-3 font-medium">Status</th>
                   <th className="text-right px-4 py-3 font-medium">Actions</th>
@@ -147,22 +161,35 @@ export default function StudentsPage() {
               </thead>
               <tbody className="divide-y">
                 {students.map((s) => (
-                  <tr key={s.id} className="hover:bg-muted/30 transition-colors">
+                  <tr
+                    key={s.id}
+                    className="hover:bg-muted/30 transition-colors"
+                  >
                     <td className="px-4 py-3">
                       <div>
                         <p className="font-medium">{s.name}</p>
-                        <p className="text-xs text-muted-foreground">{s.email}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {s.email}
+                        </p>
                       </div>
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs">{s.matricNumber}</td>
+                    <td className="px-4 py-3 font-mono text-xs">
+                      {s.matricNumber}
+                    </td>
                     <td className="px-4 py-3">{s.department}</td>
                     <td className="px-4 py-3">{s.level}</td>
                     <td className="px-4 py-3">
-                      <Badge variant={STATUS_COLORS[s.verificationStatus] ?? 'secondary'}>
+                      <Badge
+                        variant={
+                          STATUS_COLORS[s.verificationStatus] ?? "secondary"
+                        }
+                      >
                         {s.verificationStatus}
                       </Badge>
                       {s.isSuspended && (
-                        <Badge variant="destructive" className="ml-1">Suspended</Badge>
+                        <Badge variant="destructive" className="ml-1">
+                          Suspended
+                        </Badge>
                       )}
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -170,7 +197,10 @@ export default function StudentsPage() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => { setTargetUser(s); setAction('unsuspend'); }}
+                          onClick={() => {
+                            setTargetUser(s);
+                            setAction("unsuspend");
+                          }}
                         >
                           <ShieldCheck className="mr-1.5 h-3.5 w-3.5" />
                           Unsuspend
@@ -180,7 +210,10 @@ export default function StudentsPage() {
                           size="sm"
                           variant="ghost"
                           className="text-destructive hover:text-destructive"
-                          onClick={() => { setTargetUser(s); setAction('suspend'); }}
+                          onClick={() => {
+                            setTargetUser(s);
+                            setAction("suspend");
+                          }}
                         >
                           <ShieldBan className="mr-1.5 h-3.5 w-3.5" />
                           Suspend
@@ -196,7 +229,7 @@ export default function StudentsPage() {
       )}
 
       <ConfirmationDialog
-        open={action === 'suspend'}
+        open={action === "suspend"}
         onOpenChange={(open) => !open && setAction(null)}
         title="Suspend Student"
         description={`Suspend ${targetUser?.name}? They will lose platform access.`}
@@ -219,7 +252,7 @@ export default function StudentsPage() {
       </ConfirmationDialog>
 
       <ConfirmationDialog
-        open={action === 'unsuspend'}
+        open={action === "unsuspend"}
         onOpenChange={(open) => !open && setAction(null)}
         title="Unsuspend Student"
         description={`Restore access for ${targetUser?.name}?`}
