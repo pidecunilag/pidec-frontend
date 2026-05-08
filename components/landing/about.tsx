@@ -1,54 +1,46 @@
 'use client';
 
-import { Reveal, StaggerGroup, StaggerItem } from './motion-primitives';
-
-const PILLARS = [
-  {
-    title: 'Department-Driven',
-    body: 'Each of the 10 engineering departments fields its strongest team. No cross-department mixing - every solution carries a discipline.',
-  },
-  {
-    title: 'Three Stages',
-    body: 'A written proposal, a working prototype with video demonstration, and a live Grand Finale presentation.',
-  },
-  {
-    title: 'Independent Judging',
-    body: 'A dedicated judge per department per stage. Scoring runs in a sealed Judge Portal - admin only publishes once review is complete.',
-  },
-];
+import { Reveal } from './motion-primitives';
 
 export function About() {
   return (
     <section id="about" className="px-6 py-24 sm:py-32">
       <div className="mx-auto max-w-6xl">
-        <Reveal>
-          <span className="brand-kicker text-[var(--brand-purple)]">Story Foundation</span>
-          <h2 className="mt-4 max-w-3xl text-balance font-heading text-4xl font-semibold tracking-[-0.07em] text-foreground sm:text-5xl">
-            PIDEC is where technical depth meets competitive showmanship.
-          </h2>
-          <p className="mt-5 max-w-3xl text-pretty text-base leading-8 text-muted-foreground sm:text-lg">
-            The platform is not just a submission portal. It is the digital home
-            of the challenge, designed to feel intentional, credible, and alive
-            with the same energy the brand guide carries.
-          </p>
-        </Reveal>
+        <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-14">
+          <div className="lg:min-h-[calc(100vh-10rem)]">
+            <Reveal className="lg:sticky lg:top-32">
+              <h2 className="max-w-md text-balance font-heading text-4xl font-semibold tracking-[-0.07em] text-foreground sm:text-5xl">
+                What is PIDEC?
+              </h2>
+            </Reveal>
+          </div>
 
-        <StaggerGroup className="mt-14 grid gap-6 lg:grid-cols-[1.1fr_0.9fr_0.9fr]">
-          {PILLARS.map((p) => (
-            <StaggerItem
-              key={p.title}
-              className="brand-panel rounded-[2rem] p-7 transition-transform duration-300 hover:-translate-y-1"
-            >
-              <div className="h-2 w-20 rounded-full bg-[var(--brand-gradient)]" />
-              <h3 className="mt-6 font-heading text-2xl font-semibold tracking-[-0.05em] text-foreground">
-                {p.title}
-              </h3>
-              <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-base">
-                {p.body}
-              </p>
-            </StaggerItem>
-          ))}
-        </StaggerGroup>
+          <div className="lg:min-h-[calc(100vh-10rem)]">
+            <Reveal delay={0.05}>
+              <div className="brand-panel motion-surface motion-surface-hover rounded-[2rem] p-7 sm:p-8 lg:sticky lg:top-28">
+                <p className="text-base leading-8 text-muted-foreground sm:text-lg">
+                  PIDEC means Prototype Inter Departmental Engineering Challenge. It is a
+                  faculty wide engineering competition created for students in the
+                  University of Lagos.
+                </p>
+                <p className="mt-5 text-base leading-8 text-muted-foreground sm:text-lg">
+                  The competition is organised by ULES, the University of Lagos Engineering
+                  Society, to showcase engineering talent, encourage practical problem
+                  solving, and give departments a strong platform to build solutions with
+                  real world relevance.
+                </p>
+                <p className="mt-5 text-base leading-8 text-muted-foreground sm:text-lg">
+                  It exists to help students move from theory to working ideas, connect
+                  talent with industry visibility, and create room for solutions that are
+                  useful, inclusive, and sustainable.
+                </p>
+                <p className="mt-6 font-semibold text-[var(--brand-plum)]">
+                  Open to all 10 engineering departments at UNILAG.
+                </p>
+              </div>
+            </Reveal>
+          </div>
+        </div>
       </div>
     </section>
   );

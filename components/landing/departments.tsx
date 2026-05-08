@@ -1,38 +1,66 @@
 'use client';
 
-import { DEPARTMENTS } from '@/lib/constants';
+import {
+  Cpu,
+  Drill,
+  Factory,
+  Flame,
+  HeartPulse,
+  Landmark,
+  Map,
+  MonitorCog,
+  RadioTower,
+  Wrench,
+  type LucideIcon,
+} from 'lucide-react';
 
 import { Reveal, StaggerGroup, StaggerItem } from './motion-primitives';
 
+type DepartmentCard = {
+  name: string;
+  Icon: LucideIcon;
+  accent: string;
+};
+
+const DEPARTMENT_CARDS: DepartmentCard[] = [
+  { name: 'Civil Engineering', Icon: Landmark, accent: 'var(--brand-purple)' },
+  { name: 'Mechanical Engineering', Icon: Wrench, accent: 'var(--brand-orange-warm)' },
+  { name: 'Metallurgical & Materials Engineering', Icon: Factory, accent: 'var(--brand-pink)' },
+  { name: 'Chemical Engineering', Icon: Flame, accent: 'var(--brand-cyan)' },
+  { name: 'Petroleum & Gas Engineering', Icon: Drill, accent: 'var(--brand-orange)' },
+  { name: 'Biomedical Engineering', Icon: HeartPulse, accent: 'var(--brand-pink)' },
+  { name: 'Computer Engineering', Icon: Cpu, accent: 'var(--brand-purple)' },
+  { name: 'Electrical & Electronics Engineering', Icon: RadioTower, accent: 'var(--brand-cyan)' },
+  { name: 'Systems Engineering', Icon: MonitorCog, accent: 'var(--brand-plum)' },
+  { name: 'Surveying & Geoinformatics', Icon: Map, accent: 'var(--brand-orange-warm)' },
+];
+
 export function Departments() {
   return (
-    <section className="px-6 py-24 sm:py-32">
+    <section id="departments" className="px-6 py-24 sm:py-32">
       <div className="mx-auto max-w-6xl">
         <Reveal>
-          <span className="brand-kicker text-[var(--brand-cyan)]">Participating Departments</span>
-          <h2 className="mt-4 max-w-3xl text-balance font-heading text-4xl font-semibold tracking-[-0.07em] text-foreground sm:text-5xl">
-            Ten engineering departments. Ten clear identities on one stage.
+          <h2 className="max-w-3xl text-balance font-heading text-4xl font-semibold tracking-[-0.07em] text-foreground sm:text-5xl">
+            10 Departments. One Competition.
           </h2>
         </Reveal>
 
-        <StaggerGroup as="ul" className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {DEPARTMENTS.map((dept, index) => (
+        <StaggerGroup as="ul" className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {DEPARTMENT_CARDS.map((dept) => (
             <StaggerItem
-              key={dept}
+              key={dept.name}
               as="li"
-              className={[
-                'brand-panel rounded-[1.6rem] px-5 py-5 text-sm font-semibold text-foreground transition-transform duration-300 hover:-translate-y-1',
-                index % 3 === 0 &&
-                  'bg-[linear-gradient(135deg,rgba(142,77,255,0.14),rgba(255,255,255,0.9))]',
-                index % 3 === 1 &&
-                  'bg-[linear-gradient(135deg,rgba(18,183,234,0.16),rgba(255,255,255,0.9))]',
-                index % 3 === 2 &&
-                  'bg-[linear-gradient(135deg,rgba(244,3,91,0.12),rgba(255,255,255,0.92))]',
-              ]
-                .filter(Boolean)
-                .join(' ')}
+              className="brand-panel motion-surface motion-surface-hover rounded-[1.6rem] p-5"
             >
-              {dept}
+              <div
+                className="flex h-12 w-12 items-center justify-center rounded-2xl"
+                style={{ backgroundColor: dept.accent, color: dept.accent === 'var(--brand-cyan)' ? 'var(--brand-plum)' : 'white' }}
+              >
+                <dept.Icon className="h-6 w-6" />
+              </div>
+              <p className="mt-5 text-sm font-semibold leading-6 text-foreground">
+                {dept.name}
+              </p>
             </StaggerItem>
           ))}
         </StaggerGroup>

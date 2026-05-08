@@ -25,20 +25,22 @@ export function ThemeSection() {
         }}
       />
 
-      <div className="relative mx-auto max-w-5xl rounded-[2.5rem] border border-white/20 bg-[rgba(42,0,59,0.72)] px-6 py-14 text-center text-white shadow-[0_32px_90px_rgba(42,0,59,0.2)] backdrop-blur sm:px-10">
+      <div className="motion-surface relative mx-auto max-w-5xl rounded-[2.5rem] border border-white/20 bg-[rgba(42,0,59,0.78)] px-6 py-14 text-center text-white shadow-[0_32px_90px_rgba(42,0,59,0.2)] backdrop-blur sm:px-10">
         <Reveal>
-          <span className="brand-kicker text-white/64">PIDEC 1.0 Theme</span>
-        </Reveal>
-        <Reveal delay={0.1}>
-          <h2 className="mt-4 text-balance font-heading text-4xl font-semibold leading-tight tracking-[-0.07em] sm:text-6xl">
-            Engineering for a sustainable, self-reliant Nigeria.
+          <h2 className="text-balance font-heading text-4xl font-semibold leading-tight tracking-[-0.07em] sm:text-6xl">
+            This Year&apos;s Theme
           </h2>
         </Reveal>
+        <Reveal delay={0.1}>
+          <p className="mx-auto mt-6 max-w-4xl text-balance font-heading text-3xl font-semibold tracking-[-0.05em] text-[var(--brand-cyan-soft)] sm:text-4xl">
+            Engineering for Impact: Building Inclusive Solutions for a Sustainable Future
+          </p>
+        </Reveal>
         <Reveal delay={0.2}>
-          <p className="mx-auto mt-6 max-w-3xl text-balance text-base leading-8 text-white/76 sm:text-lg">
-            Solutions that solve real problems faced by Nigerian communities,
-            using the constraints and resources available locally. Judged on
-            originality, feasibility, and engineering rigour.
+          <p className="mx-auto mt-6 max-w-3xl text-balance text-base leading-8 text-white/78 sm:text-lg">
+            This theme asks teams to think beyond technical correctness alone.
+            The strongest entries should solve meaningful problems in ways that are
+            inclusive, sustainable, and firmly grounded in their engineering discipline.
           </p>
         </Reveal>
       </div>

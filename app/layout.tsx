@@ -24,11 +24,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "PIDEC 1.0 - University of Lagos Engineering Society",
+    default: "PIDEC 1.0 | ULES",
     template: "%s | PIDEC 1.0",
   },
   description:
-    "PIDEC is the Prototype Inter-Departmental Engineering Challenge by the University of Lagos Engineering Society, uniting bold engineering teams across three competitive stages.",
+    "PIDEC 1.0 is the Prototype Inter Departmental Engineering Challenge by ULES for all ten engineering departments at UNILAG.",
   applicationName: "PIDEC 1.0",
   authors: [{ name: "ULES Competitions & Technical Team" }],
   keywords: [
@@ -44,9 +44,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "PIDEC 1.0",
-    title: "PIDEC 1.0 - University of Lagos Engineering Society",
+    title: "PIDEC 1.0 | ULES",
     description:
-      "A brand-led digital home for the Prototype Inter-Departmental Engineering Challenge.",
+      "The official landing page for the Prototype Inter Departmental Engineering Challenge.",
   },
   twitter: {
     card: "summary_large_image",

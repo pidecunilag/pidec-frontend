@@ -85,12 +85,22 @@
   --brand-plum-soft: #431158;
   --brand-purple: #8e4dff;
   --brand-purple-soft: #cfb3fb;
+  --brand-purple-mist: #ecdcff;
   --brand-pink: #f4035b;
+  --brand-pink-soft: #ff7aa3;
+  --brand-pink-mist: #ffd5e3;
   --brand-cyan: #12b7ea;
-  --brand-orange: #ff7a21;
+  --brand-cyan-soft: #7ddfff;
+  --brand-cyan-mist: #c4f0ff;
+  --brand-orange: #ff5500;
+  --brand-orange-warm: #ff7a21;
+  --brand-orange-soft: #ffa564;
+  --brand-orange-mist: #ffd9b8;
   --brand-surface: rgba(255, 255, 255, 0.76);
   --brand-grid: rgba(97, 47, 134, 0.08);
   --brand-gradient: linear-gradient(135deg, #7037ff 0%, #9d67ff 42%, #14b8ec 100%);
+  --brand-gradient-warm: linear-gradient(135deg, #f4035b 0%, #ff5500 55%, #ffa564 100%);
+  --brand-gradient-cool: linear-gradient(135deg, #8e4dff 0%, #f4035b 50%, #ff5500 100%);
 }
 
 .dark {
@@ -138,10 +148,15 @@
 
   body {
     @apply bg-background text-foreground;
+    text-rendering: optimizeLegibility;
     background-image:
       linear-gradient(90deg, transparent 0, transparent 59px, var(--brand-grid) 59px, var(--brand-grid) 60px),
       linear-gradient(transparent 0, transparent 59px, var(--brand-grid) 59px, var(--brand-grid) 60px);
     background-size: 60px 60px;
+  }
+
+  section[id] {
+    scroll-margin-top: 7rem;
   }
 
   h1,
@@ -166,6 +181,23 @@
   backdrop-filter: blur(22px);
   border: 1px solid rgba(42, 0, 59, 0.12);
   box-shadow: 0 24px 70px rgba(42, 0, 59, 0.12);
+}
+
+@utility motion-surface {
+  transition:
+    transform 240ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 240ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 220ms ease,
+    background-color 220ms ease;
+  transform-origin: center;
+}
+
+@utility motion-surface-hover {
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 48px rgba(42, 0, 59, 0.12);
+    border-color: rgba(42, 0, 59, 0.18);
+  }
 }
 
 @utility brand-kicker {

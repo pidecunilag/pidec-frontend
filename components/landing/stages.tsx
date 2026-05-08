@@ -4,58 +4,74 @@ import { Reveal, StaggerGroup, StaggerItem } from './motion-primitives';
 
 const STAGES = [
   {
-    n: 1,
-    name: 'Proposals',
-    blurb:
-      'Every team submits a written proposal: problem, solution, theme alignment, feasibility, and departmental relevance.',
-    detail: 'Unlimited stage 1 entries per department.',
+    number: 'Stage 1',
+    name: 'Preliminary Entry',
+    dates: '18 to 24 May 2026',
+    description:
+      'Teams submit engineering proposals. One judge selects the best team from each department.',
+    status: 'Upcoming',
+    accent: 'var(--brand-purple)',
   },
   {
-    n: 2,
-    name: 'Prototypes',
-    blurb:
-      'Department representatives advance. Each team uploads a video demonstration alongside design documentation.',
-    detail: 'One representative team per department.',
+    number: 'Stage 2',
+    name: 'Prototype Development',
+    dates: '25 May to 7 June 2026',
+    description:
+      'Ten representative teams build and demonstrate working solutions. The top five teams advance.',
+    status: 'Upcoming',
+    accent: 'var(--brand-cyan)',
   },
   {
-    n: 3,
+    number: 'Stage 3',
     name: 'Grand Finale',
-    blurb:
-      'Top five teams present physical prototypes live on stage. The platform handles pre-finale documentation only.',
-    detail: 'Live presentation. One winner.',
+    dates: '4 July 2026',
+    description:
+      'Five finalists present live and the winners are announced on the day.',
+    status: 'Upcoming',
+    accent: 'var(--brand-pink)',
   },
 ];
 
 export function Stages() {
   return (
     <section id="stages" className="px-6 py-24 sm:py-32">
-      <div className="mx-auto max-w-6xl rounded-[2.5rem] bg-[var(--brand-plum)] px-6 py-14 text-white shadow-[0_32px_90px_rgba(42,0,59,0.22)] sm:px-8 lg:px-12">
+      <div className="mx-auto max-w-6xl">
         <Reveal>
-          <span className="brand-kicker text-[rgba(215,179,251,0.82)]">Competition Stages</span>
-          <h2 className="mt-4 max-w-3xl text-balance font-heading text-4xl font-semibold tracking-[-0.07em] text-white sm:text-5xl">
-            Three deliberate rounds from concept signal to live-build proof.
+          <h2 className="max-w-3xl text-balance font-heading text-4xl font-semibold tracking-[-0.07em] text-foreground sm:text-5xl">
+            How the Competition Works
           </h2>
         </Reveal>
 
-        <StaggerGroup as="ol" className="mt-14 grid gap-6 md:grid-cols-3 md:gap-8">
-          {STAGES.map((s) => (
+        <StaggerGroup as="ol" className="mt-14 grid gap-6 lg:grid-cols-3">
+          {STAGES.map((stage) => (
             <StaggerItem
-              key={s.n}
+              key={stage.number}
               as="li"
-              className="relative flex flex-col rounded-[2rem] border border-white/10 bg-white/7 p-8 backdrop-blur"
+              className="brand-panel motion-surface motion-surface-hover rounded-[2rem] p-7"
             >
-              <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-base font-bold text-[var(--brand-plum)]">
-                  {s.n}
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  {stage.number}
+                </p>
+                <span
+                  className="rounded-full px-3 py-1 text-xs font-semibold"
+                  style={{
+                    backgroundColor: stage.accent,
+                    color: stage.accent === 'var(--brand-cyan)' ? 'var(--brand-plum)' : 'white',
+                  }}
+                >
+                  {stage.status}
                 </span>
-                <span className="brand-kicker text-white/60">Stage {s.n}</span>
               </div>
-              <h3 className="mt-6 font-heading text-2xl font-semibold tracking-[-0.05em] text-white">
-                {s.name}
+
+              <h3 className="mt-5 font-heading text-2xl font-semibold tracking-[-0.05em] text-foreground">
+                {stage.name}
               </h3>
-              <p className="mt-3 text-sm leading-7 text-white/72">{s.blurb}</p>
-              <p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand-cyan)]">
-                {s.detail}
+              <p className="mt-3 text-sm font-semibold text-[var(--brand-plum)]">
+                {stage.dates}
+              </p>
+              <p className="mt-4 text-sm leading-7 text-muted-foreground sm:text-base">
+                {stage.description}
               </p>
             </StaggerItem>
           ))}
