@@ -61,7 +61,7 @@ export function Hero() {
               {SIGNUPS_OPEN ? (
                 <Button
                   asChild
-                  className="rounded-full border-0 bg-white px-5 text-[var(--brand-plum)] hover:bg-white/90"
+                  className="rounded-full border-0 bg-[linear-gradient(135deg,#6d2dff_0%,#8e4dff_48%,#b57cff_100%)] bg-[length:140%_140%] px-5 text-white shadow-[0_14px_28px_rgba(109,45,255,0.22)] hover:bg-[position:100%_50%] hover:shadow-[0_18px_36px_rgba(109,45,255,0.28)]"
                 >
                   <Link href="/register">Register Now</Link>
                 </Button>
@@ -93,7 +93,7 @@ export function Hero() {
               {SIGNUPS_OPEN ? (
                 <Button
                   asChild
-                  className="mt-2 rounded-full border-0 bg-white text-[var(--brand-plum)] hover:bg-white/90"
+                  className="mt-2 rounded-full border-0 bg-[linear-gradient(135deg,#6d2dff_0%,#8e4dff_48%,#b57cff_100%)] bg-[length:140%_140%] text-white shadow-[0_14px_28px_rgba(109,45,255,0.22)] hover:bg-[position:100%_50%] hover:shadow-[0_18px_36px_rgba(109,45,255,0.28)]"
                 >
                   <Link href="/register" onClick={() => setMobileOpen(false)}>
                     Register Now
@@ -122,7 +122,7 @@ export function Hero() {
 
             <motion.p
               variants={fadeUp}
-              className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-[var(--brand-cyan)] sm:text-2xl"
+              className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-[var(--brand-orange)] sm:text-2xl"
             >
               Engineering for Impact: Building Inclusive Solutions for a Sustainable Future
             </motion.p>
@@ -140,7 +140,7 @@ export function Hero() {
                 <Button
                   asChild
                   size="lg"
-                  className="rounded-full border-0 bg-[linear-gradient(135deg,var(--brand-pink)_0%,var(--brand-orange)_55%,var(--brand-orange-soft)_100%)] px-6 text-white shadow-[0_16px_32px_rgba(244,3,91,0.2)] hover:brightness-105"
+                  className="rounded-full border-0 bg-[linear-gradient(135deg,#6d2dff_0%,#8e4dff_48%,#b57cff_100%)] bg-[length:145%_145%] px-6 text-white shadow-[0_18px_34px_rgba(109,45,255,0.24)] hover:bg-[position:100%_50%] hover:shadow-[0_22px_42px_rgba(109,45,255,0.3)]"
                 >
                   <Link href="/register">
                     Register Now
