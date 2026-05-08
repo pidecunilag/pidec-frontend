@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
-import { Skeleton } from '@/components/ui/skeleton';
-import { useAuth } from '@/lib/hooks/use-auth';
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/lib/hooks/use-auth";
 
 const ROLE_HOME: Record<string, string> = {
-  student: '/dashboard',
-  judge: '/judge',
-  admin: '/admin',
+  student: "/dashboard",
+  judge: "/judge",
+  admin: "/admin",
 };
 
 function rootSegment(pathname: string): string {
-  return '/' + (pathname.split('/').filter(Boolean)[0] ?? '');
+  return "/" + (pathname.split("/").filter(Boolean)[0] ?? "");
 }
 
 export function ProtectedShell({ children }: { children: React.ReactNode }) {
@@ -26,7 +26,7 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
     if (isLoading) return;
 
     if (!isAuthenticated || !user) {
-      router.replace('/login');
+      router.replace("/login");
       return;
     }
 
@@ -36,7 +36,14 @@ export function ProtectedShell({ children }: { children: React.ReactNode }) {
     }
   }, [isLoading, isAuthenticated, user, pathname, router]);
 
-  if (isLoading || !isAuthenticated || !user) {
+  // Block render if: loading, unauthenticated, OR authenticated but on the wrong role surface.
+  // Without the role check, children would briefly flash before the useEffect redirect fires.
+  const isWrongSurface =
+    user &&
+    ROLE_HOME[user.role] &&
+    rootSegment(pathname) !== ROLE_HOME[user.role];
+
+  if (isLoading || !isAuthenticated || !user || isWrongSurface) {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-background p-6">
         <div className="w-full max-w-md space-y-4">
