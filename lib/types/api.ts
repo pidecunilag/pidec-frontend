@@ -15,6 +15,7 @@ export interface ApiError {
 
 export interface PaginationMeta {
   cursor?: string;
+  offset?: number;
   limit: number;
   hasMore: boolean;
   total?: number;

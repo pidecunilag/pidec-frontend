@@ -11,6 +11,7 @@ import {
   getRefreshToken,
   setTokens,
 } from "@/lib/auth/token-storage";
+import { toCamelCase } from "./case-transform";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -49,7 +50,18 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor — on 401, rotate tokens via /auth/refresh and replay the original request.
+// Response interceptor (1 of 2) — normalize backend's snake_case JSON to camelCase
+// so the rest of the frontend (types, hooks, components) can stay camelCase end-to-end.
+// Runs before the 401-refresh interceptor; blob/binary responses (exports) are skipped.
+apiClient.interceptors.response.use((response) => {
+  if (response.config.responseType === "blob") return response;
+  if (response.data && typeof response.data === "object") {
+    response.data = toCamelCase(response.data);
+  }
+  return response;
+});
+
+// Response interceptor (2 of 2) — on 401, rotate tokens via /auth/refresh and replay the original request.
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiError>) => {
@@ -136,7 +148,7 @@ export function extractApiError(error: unknown): {
     typeof error === "object" &&
     "code" in error &&
     "message" in error &&
-    typeof (error as any).code === "string"
+    typeof (error as { code: unknown }).code === "string"
   ) {
     return error as { code: string; message: string };
   }
