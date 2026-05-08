@@ -5,7 +5,7 @@ import { Reveal, StaggerGroup, StaggerItem } from './motion-primitives';
 const PILLARS = [
   {
     title: 'Department-Driven',
-    body: 'Each of the 10 engineering departments fields its strongest team. No cross-department mixing — every solution carries a discipline.',
+    body: 'Each of the 10 engineering departments fields its strongest team. No cross-department mixing - every solution carries a discipline.',
   },
   {
     title: 'Three Stages',
@@ -13,36 +13,37 @@ const PILLARS = [
   },
   {
     title: 'Independent Judging',
-    body: 'A dedicated judge per department per stage. Scoring runs in a sealed Judge Portal — admin only publishes once review is complete.',
+    body: 'A dedicated judge per department per stage. Scoring runs in a sealed Judge Portal - admin only publishes once review is complete.',
   },
 ];
 
 export function About() {
   return (
-    <section id="about" className="bg-background px-6 py-24 sm:py-32">
-      <div className="mx-auto max-w-5xl">
+    <section id="about" className="px-6 py-24 sm:py-32">
+      <div className="mx-auto max-w-6xl">
         <Reveal>
-          <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            About
-          </span>
-          <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            A platform built for verifiable engineering competition.
+          <span className="brand-kicker text-[var(--brand-purple)]">Story Foundation</span>
+          <h2 className="mt-4 max-w-3xl text-balance font-heading text-4xl font-semibold tracking-[-0.07em] text-foreground sm:text-5xl">
+            PIDEC is where technical depth meets competitive showmanship.
           </h2>
-          <p className="mt-4 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground">
-            PIDEC replaces manual submission workflows with a digital-first
-            experience that is auditable end-to-end. Built and operated by the
-            ULES Competitions &amp; Technical Team.
+          <p className="mt-5 max-w-3xl text-pretty text-base leading-8 text-muted-foreground sm:text-lg">
+            The platform is not just a submission portal. It is the digital home
+            of the challenge, designed to feel intentional, credible, and alive
+            with the same energy the brand guide carries.
           </p>
         </Reveal>
 
-        <StaggerGroup className="mt-12 grid gap-6 sm:grid-cols-3">
+        <StaggerGroup className="mt-14 grid gap-6 lg:grid-cols-[1.1fr_0.9fr_0.9fr]">
           {PILLARS.map((p) => (
             <StaggerItem
               key={p.title}
-              className="rounded-2xl border border-border bg-card p-6 transition-colors hover:bg-accent/40"
+              className="brand-panel rounded-[2rem] p-7 transition-transform duration-300 hover:-translate-y-1"
             >
-              <h3 className="text-base font-semibold text-foreground">{p.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              <div className="h-2 w-20 rounded-full bg-[var(--brand-gradient)]" />
+              <h3 className="mt-6 font-heading text-2xl font-semibold tracking-[-0.05em] text-foreground">
+                {p.title}
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-base">
                 {p.body}
               </p>
             </StaggerItem>

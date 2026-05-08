@@ -1,9 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
+
+import { QueryProvider } from "@/components/providers/query-provider";
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const pidecSans = Plus_Jakarta_Sans({
+  variable: "--font-pidec-sans",
+  subsets: ["latin"],
+});
+
+const pidecDisplay = Space_Grotesk({
+  variable: "--font-pidec-display",
   subsets: ["latin"],
 });
 
@@ -14,41 +24,36 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "PIDEC 1.0 — University of Lagos Engineering Society",
-    template: "%s · PIDEC 1.0",
+    default: "PIDEC 1.0 - University of Lagos Engineering Society",
+    template: "%s | PIDEC 1.0",
   },
   description:
-    "The Prototype Inter-Departmental Engineering Challenge. Ten engineering departments, three stages, one platform — operated by the ULES Competitions & Technical Team.",
+    "PIDEC is the Prototype Inter-Departmental Engineering Challenge by the University of Lagos Engineering Society, uniting bold engineering teams across three competitive stages.",
   applicationName: "PIDEC 1.0",
   authors: [{ name: "ULES Competitions & Technical Team" }],
   keywords: [
     "PIDEC",
     "PIDEC 1.0",
+    "University of Lagos Engineering Society",
     "ULES",
-    "University of Lagos",
-    "UNILAG Engineering",
     "engineering competition",
+    "prototype challenge",
     "student engineering challenge",
-    "Nigerian engineering",
+    "UNILAG engineering",
   ],
   openGraph: {
     type: "website",
     siteName: "PIDEC 1.0",
-    title: "PIDEC 1.0 — University of Lagos Engineering Society",
+    title: "PIDEC 1.0 - University of Lagos Engineering Society",
     description:
-      "The Prototype Inter-Departmental Engineering Challenge. Ten departments, three stages, one chance to represent your discipline.",
+      "A brand-led digital home for the Prototype Inter-Departmental Engineering Challenge.",
   },
   twitter: {
     card: "summary_large_image",
     title: "PIDEC 1.0",
-    description:
-      "Proving Innovation, Design, and Engineering Competence. ULES PIDEC 1.0.",
+    description: "Proving Innovation, Design, and Engineering Competence.",
   },
 };
-
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryProvider } from "@/components/providers/query-provider";
 
 export default function RootLayout({
   children,
@@ -58,13 +63,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${pidecSans.variable} ${pidecDisplay.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
         <QueryProvider>
-          <TooltipProvider delayDuration={0}>
-            {children}
-          </TooltipProvider>
+          <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
           <Toaster />
         </QueryProvider>
       </body>
