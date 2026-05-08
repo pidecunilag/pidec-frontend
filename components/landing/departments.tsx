@@ -1,32 +1,66 @@
 'use client';
 
-import { DEPARTMENTS } from '@/lib/constants';
+import {
+  Cpu,
+  Drill,
+  Factory,
+  Flame,
+  HeartPulse,
+  Landmark,
+  Map,
+  MonitorCog,
+  RadioTower,
+  Wrench,
+  type LucideIcon,
+} from 'lucide-react';
+
 import { Reveal, StaggerGroup, StaggerItem } from './motion-primitives';
+
+type DepartmentCard = {
+  name: string;
+  Icon: LucideIcon;
+  accent: string;
+};
+
+const DEPARTMENT_CARDS: DepartmentCard[] = [
+  { name: 'Civil Engineering', Icon: Landmark, accent: 'var(--brand-purple)' },
+  { name: 'Mechanical Engineering', Icon: Wrench, accent: 'var(--brand-orange-warm)' },
+  { name: 'Metallurgical & Materials Engineering', Icon: Factory, accent: 'var(--brand-pink)' },
+  { name: 'Chemical Engineering', Icon: Flame, accent: 'var(--brand-cyan)' },
+  { name: 'Petroleum & Gas Engineering', Icon: Drill, accent: 'var(--brand-orange)' },
+  { name: 'Biomedical Engineering', Icon: HeartPulse, accent: 'var(--brand-pink)' },
+  { name: 'Computer Engineering', Icon: Cpu, accent: 'var(--brand-purple)' },
+  { name: 'Electrical & Electronics Engineering', Icon: RadioTower, accent: 'var(--brand-cyan)' },
+  { name: 'Systems Engineering', Icon: MonitorCog, accent: 'var(--brand-plum)' },
+  { name: 'Surveying & Geoinformatics', Icon: Map, accent: 'var(--brand-orange-warm)' },
+];
 
 export function Departments() {
   return (
-    <section className="bg-background px-6 py-24 sm:py-32">
-      <div className="mx-auto max-w-5xl">
+    <section id="departments" className="px-6 pb-24 pt-10 sm:pb-32 sm:pt-12">
+      <div className="mx-auto max-w-6xl">
         <Reveal>
-          <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            Participating Departments
-          </span>
-          <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Ten engineering departments. Ten representative teams.
+          <h2 className="max-w-3xl text-balance font-heading text-4xl font-semibold tracking-[-0.07em] text-foreground sm:text-5xl">
+            10 Departments. One Competition.
           </h2>
         </Reveal>
 
-        <StaggerGroup
-          as="ul"
-          className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
-        >
-          {DEPARTMENTS.map((dept) => (
+        <StaggerGroup as="ul" className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {DEPARTMENT_CARDS.map((dept) => (
             <StaggerItem
-              key={dept}
+              key={dept.name}
               as="li"
-              className="rounded-xl border border-border bg-card px-5 py-4 text-sm font-medium text-foreground transition-colors hover:bg-accent/40"
+              className="brand-panel motion-surface motion-surface-hover rounded-[1.6rem] p-5"
             >
-              {dept}
+              <div
+                className="flex h-12 w-12 items-center justify-center rounded-2xl"
+                style={{ backgroundColor: dept.accent, color: dept.accent === 'var(--brand-cyan)' ? 'var(--brand-plum)' : 'white' }}
+              >
+                <dept.Icon className="h-6 w-6" />
+              </div>
+              <p className="mt-5 text-sm font-semibold leading-6 text-foreground">
+                {dept.name}
+              </p>
             </StaggerItem>
           ))}
         </StaggerGroup>

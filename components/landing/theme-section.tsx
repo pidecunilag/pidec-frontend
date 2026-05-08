@@ -1,41 +1,46 @@
 'use client';
 
 import { motion } from 'motion/react';
+
 import { Reveal } from './motion-primitives';
 
 export function ThemeSection() {
   return (
-    <section className="relative overflow-hidden bg-foreground px-6 py-24 text-background sm:py-32">
+    <section id="theme" className="relative overflow-hidden px-6 py-24 sm:py-32">
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-0 opacity-[0.06]"
+        className="pointer-events-none absolute inset-0 -z-20 bg-[linear-gradient(135deg,#f4035b_0%,#ff7a21_52%,#12b7ea_100%)]"
+      />
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.12]"
         initial={{ scale: 1.1, opacity: 0 }}
-        whileInView={{ scale: 1, opacity: 0.06 }}
+        whileInView={{ scale: 1, opacity: 0.12 }}
         viewport={{ once: true, amount: 0.3 }}
         transition={{ duration: 1.2, ease: 'easeOut' }}
         style={{
           backgroundImage:
-            'radial-gradient(circle at 20% 30%, currentColor 1px, transparent 1px), radial-gradient(circle at 80% 70%, currentColor 1px, transparent 1px)',
+            'radial-gradient(circle at 20% 30%, white 1px, transparent 1px), radial-gradient(circle at 80% 70%, white 1px, transparent 1px)',
           backgroundSize: '48px 48px, 64px 64px',
         }}
       />
 
-      <div className="relative mx-auto max-w-4xl text-center">
+      <div className="motion-surface relative mx-auto max-w-5xl rounded-[2.5rem] border border-white/20 bg-[rgba(42,0,59,0.78)] px-6 py-14 text-center text-white shadow-[0_32px_90px_rgba(42,0,59,0.2)] backdrop-blur sm:px-10">
         <Reveal>
-          <span className="text-xs font-semibold uppercase tracking-widest text-background/60">
-            PIDEC 1.0 Theme
-          </span>
-        </Reveal>
-        <Reveal delay={0.1}>
-          <h2 className="mt-4 text-balance text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
-            Engineering for a sustainable, self-reliant Nigeria.
+          <h2 className="text-balance font-heading text-4xl font-semibold leading-tight tracking-[-0.07em] sm:text-6xl">
+            This Year&apos;s Theme
           </h2>
         </Reveal>
+        <Reveal delay={0.1}>
+          <p className="mx-auto mt-6 max-w-4xl text-balance font-heading text-3xl font-semibold tracking-[-0.05em] text-[var(--brand-cyan-soft)] sm:text-4xl">
+            Engineering for Impact: Building Inclusive Solutions for a Sustainable Future
+          </p>
+        </Reveal>
         <Reveal delay={0.2}>
-          <p className="mx-auto mt-6 max-w-2xl text-balance text-base leading-relaxed text-background/70">
-            Solutions that solve real problems faced by Nigerian communities,
-            using the constraints and resources available locally. Judged on
-            originality, feasibility, and engineering rigour.
+          <p className="mx-auto mt-6 max-w-3xl text-balance text-base leading-8 text-white/78 sm:text-lg">
+            This theme asks teams to think beyond technical correctness alone.
+            The strongest entries should solve meaningful problems in ways that are
+            inclusive, sustainable, and firmly grounded in their engineering discipline.
           </p>
         </Reveal>
       </div>

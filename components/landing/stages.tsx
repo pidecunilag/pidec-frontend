@@ -4,65 +4,74 @@ import { Reveal, StaggerGroup, StaggerItem } from './motion-primitives';
 
 const STAGES = [
   {
-    n: 1,
-    name: 'Proposals',
-    blurb:
-      'Every team submits a written proposal: problem, solution, theme alignment, feasibility, departmental relevance.',
-    detail: 'Unlimited Stage 1 entries per department.',
+    number: 'Stage 1',
+    name: 'Preliminary Entry',
+    dates: '18 to 24 May 2026',
+    description:
+      'Teams submit engineering proposals. One judge selects the best team from each department.',
+    status: 'Upcoming',
+    accent: 'var(--brand-purple)',
   },
   {
-    n: 2,
-    name: 'Prototypes',
-    blurb:
-      'Department representatives advance. Each team uploads a video demonstration alongside design documentation.',
-    detail: 'One representative team per department.',
+    number: 'Stage 2',
+    name: 'Prototype Development',
+    dates: '25 May to 7 June 2026',
+    description:
+      'Ten representative teams build and demonstrate working solutions. The top five teams advance.',
+    status: 'Upcoming',
+    accent: 'var(--brand-cyan)',
   },
   {
-    n: 3,
+    number: 'Stage 3',
     name: 'Grand Finale',
-    blurb:
-      'Top five teams present physical prototypes live on stage. The platform handles pre-Finale documentation only.',
-    detail: 'Live presentation. One winner.',
+    dates: '4 July 2026',
+    description:
+      'Five finalists present live and the winners are announced on the day.',
+    status: 'Upcoming',
+    accent: 'var(--brand-pink)',
   },
 ];
 
 export function Stages() {
   return (
-    <section className="bg-muted/30 px-6 py-24 sm:py-32">
-      <div className="mx-auto max-w-5xl">
+    <section id="stages" className="px-6 pb-10 pt-20 sm:pb-12 sm:pt-24">
+      <div className="mx-auto max-w-6xl">
         <Reveal>
-          <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            Competition Stages
-          </span>
-          <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Three stages. One arc from proposal to prototype to finale.
+          <h2 className="max-w-3xl text-balance font-heading text-4xl font-semibold tracking-[-0.07em] text-foreground sm:text-5xl">
+            How the Competition Works
           </h2>
         </Reveal>
 
-        <StaggerGroup
-          as="ol"
-          className="mt-14 grid gap-6 md:grid-cols-3 md:gap-8"
-        >
-          {STAGES.map((s) => (
+        <StaggerGroup as="ol" className="mt-14 grid gap-6 lg:grid-cols-3">
+          {STAGES.map((stage) => (
             <StaggerItem
-              key={s.n}
+              key={stage.number}
               as="li"
-              className="relative flex flex-col rounded-3xl border border-border bg-card p-8"
+              className="brand-panel motion-surface motion-surface-hover rounded-[2rem] p-7"
             >
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-sm font-bold text-background">
-                  {s.n}
-                </span>
-                <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                  Stage {s.n}
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  {stage.number}
+                </p>
+                <span
+                  className="rounded-full px-3 py-1 text-xs font-semibold"
+                  style={{
+                    backgroundColor: stage.accent,
+                    color: stage.accent === 'var(--brand-cyan)' ? 'var(--brand-plum)' : 'white',
+                  }}
+                >
+                  {stage.status}
                 </span>
               </div>
-              <h3 className="mt-6 text-xl font-semibold text-foreground">{s.name}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                {s.blurb}
+
+              <h3 className="mt-5 font-heading text-2xl font-semibold tracking-[-0.05em] text-foreground">
+                {stage.name}
+              </h3>
+              <p className="mt-3 text-sm font-semibold text-[var(--brand-plum)]">
+                {stage.dates}
               </p>
-              <p className="mt-6 text-xs font-medium text-foreground/70">
-                {s.detail}
+              <p className="mt-4 text-sm leading-7 text-muted-foreground sm:text-base">
+                {stage.description}
               </p>
             </StaggerItem>
           ))}

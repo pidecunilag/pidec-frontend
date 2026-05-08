@@ -1,20 +1,20 @@
 import type { Metadata } from 'next';
 
-import { Hero } from '@/components/landing/hero';
 import { About } from '@/components/landing/about';
-import { Stages } from '@/components/landing/stages';
-import { ThemeSection } from '@/components/landing/theme-section';
 import { Departments } from '@/components/landing/departments';
 import { FAQ } from '@/components/landing/faq';
 import { Footer } from '@/components/landing/footer';
+import { Hero } from '@/components/landing/hero';
+import { Sponsors } from '@/components/landing/sponsors';
+import { Stages } from '@/components/landing/stages';
+import { ThemeSection } from '@/components/landing/theme-section';
 
 export const metadata: Metadata = {
-  // Override the default title — the landing page is the brand statement, not "Home · PIDEC 1.0".
   title: {
-    absolute: 'PIDEC 1.0 — Proving Innovation, Design, and Engineering Competence',
+    absolute: 'PIDEC 1.0 | Prototype Inter Departmental Engineering Challenge',
   },
   description:
-    'PIDEC 1.0 is the inter-departmental engineering challenge run by the University of Lagos Engineering Society. Register your team, submit across three stages, and represent your department.',
+    'PIDEC 1.0 is the Prototype Inter Departmental Engineering Challenge by ULES for all ten engineering departments at UNILAG.',
   alternates: { canonical: '/' },
 };
 
@@ -24,8 +24,9 @@ export default function Home() {
       <Hero />
       <About />
       <Stages />
-      <ThemeSection />
       <Departments />
+      <ThemeSection />
+      <Sponsors />
       <FAQ />
       <Footer />
     </main>
