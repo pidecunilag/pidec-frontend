@@ -34,7 +34,7 @@ const STAGES = [
 
 export function Stages() {
   return (
-    <section id="stages" className="px-6 py-24 sm:py-32">
+    <section id="stages" className="px-6 pb-10 pt-20 sm:pb-12 sm:pt-24">
       <div className="mx-auto max-w-6xl">
         <Reveal>
           <h2 className="max-w-3xl text-balance font-heading text-4xl font-semibold tracking-[-0.07em] text-foreground sm:text-5xl">

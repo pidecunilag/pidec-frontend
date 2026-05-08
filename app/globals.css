@@ -172,7 +172,6 @@
 
 @utility brand-shell {
   position: relative;
-  isolation: isolate;
   overflow: hidden;
 }
 

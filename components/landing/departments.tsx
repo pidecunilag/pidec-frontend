@@ -37,7 +37,7 @@ const DEPARTMENT_CARDS: DepartmentCard[] = [
 
 export function Departments() {
   return (
-    <section id="departments" className="px-6 py-24 sm:py-32">
+    <section id="departments" className="px-6 pb-24 pt-10 sm:pb-32 sm:pt-12">
       <div className="mx-auto max-w-6xl">
         <Reveal>
           <h2 className="max-w-3xl text-balance font-heading text-4xl font-semibold tracking-[-0.07em] text-foreground sm:text-5xl">

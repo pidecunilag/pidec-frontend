@@ -4,11 +4,11 @@ import { Reveal } from './motion-primitives';
 
 export function About() {
   return (
-    <section id="about" className="px-6 py-24 sm:py-32">
+    <section id="about" className="px-6 py-16 sm:py-24">
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-14">
           <div className="lg:min-h-[calc(100vh-10rem)]">
-            <Reveal className="lg:sticky lg:top-32">
+            <Reveal className="lg:sticky lg:top-40">
               <h2 className="max-w-md text-balance font-heading text-4xl font-semibold tracking-[-0.07em] text-foreground sm:text-5xl">
                 What is PIDEC?
               </h2>
@@ -17,7 +17,7 @@ export function About() {
 
           <div className="lg:min-h-[calc(100vh-10rem)]">
             <Reveal delay={0.05}>
-              <div className="brand-panel motion-surface motion-surface-hover rounded-[2rem] p-7 sm:p-8 lg:sticky lg:top-28">
+              <div className="brand-panel motion-surface motion-surface-hover rounded-[2rem] p-7 sm:p-8 lg:sticky lg:top-40">
                 <p className="text-base leading-8 text-muted-foreground sm:text-lg">
                   PIDEC means Prototype Inter Departmental Engineering Challenge. It is a
                   faculty wide engineering competition created for students in the

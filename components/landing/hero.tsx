@@ -27,22 +27,19 @@ export function Hero() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <section className="brand-shell bg-[#fcfbfe] text-[var(--brand-plum)]">
+    <section className="brand-shell overflow-hidden bg-[#fcfbfe] text-[var(--brand-plum)]">
       <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_top_left,rgba(18,183,234,0.12),transparent_28%),radial-gradient(circle_at_top_right,rgba(255,122,33,0.1),transparent_24%),linear-gradient(180deg,#fcfbfe_0%,#f7f3fb_100%)]" />
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,transparent_0,transparent_59px,rgba(42,0,59,0.05)_59px,rgba(42,0,59,0.05)_60px),linear-gradient(transparent_0,transparent_59px,rgba(42,0,59,0.05)_59px,rgba(42,0,59,0.05)_60px)] bg-[size:60px_60px]" />
       <div className="absolute -top-20 left-[10%] h-72 w-72 rounded-full bg-[rgba(18,183,234,0.12)] blur-3xl" />
       <div className="absolute right-[-6rem] bottom-[-10rem] h-96 w-96 rounded-full bg-[rgba(255,122,33,0.12)] blur-3xl" />
 
-      <motion.div
-        className="mx-auto flex max-w-6xl flex-col px-6 pb-24"
-        variants={stagger}
+      <motion.header
+        variants={fadeUp}
         initial="hidden"
         animate="visible"
+        className="fixed inset-x-0 top-6 z-[120] px-6"
       >
-        <motion.header
-          variants={fadeUp}
-          className="motion-surface sticky top-0 z-30 mt-6 rounded-[1.75rem] border border-[rgba(42,0,59,0.09)] bg-[rgba(255,255,255,0.82)] px-5 py-4 backdrop-blur"
-        >
+        <div className="mx-auto max-w-6xl rounded-[1.75rem] border border-[rgba(42,0,59,0.09)] bg-[rgba(255,255,255,0.82)] px-5 py-4 backdrop-blur">
           <div className="flex items-center justify-between gap-4">
             <Link
               href="/"
@@ -105,10 +102,17 @@ export function Hero() {
               ) : null}
             </div>
           ) : null}
-        </motion.header>
+        </div>
+      </motion.header>
 
-        <div className="grid gap-10 pt-20 lg:grid-cols-[1.1fr_0.9fr] lg:items-end lg:pt-24">
-          <div className="max-w-3xl">
+      <motion.div
+        className="mx-auto flex max-w-6xl flex-col px-6 pb-12 pt-36 sm:pt-40"
+        variants={stagger}
+        initial="hidden"
+        animate="visible"
+      >
+        <div className="flex min-h-[calc(78vh-7rem)] items-center justify-center py-6 sm:min-h-[calc(82vh-7rem)]">
+          <div className="mx-auto max-w-4xl text-center">
             <motion.h1
               variants={fadeUp}
               className="text-balance font-heading text-6xl font-semibold tracking-[-0.08em] text-[var(--brand-plum)] sm:text-7xl lg:text-8xl"
@@ -118,27 +122,25 @@ export function Hero() {
 
             <motion.p
               variants={fadeUp}
-              className="mt-5 max-w-2xl text-lg leading-8 text-[var(--brand-cyan)] sm:text-2xl"
+              className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-[var(--brand-cyan)] sm:text-2xl"
             >
               Engineering for Impact: Building Inclusive Solutions for a Sustainable Future
             </motion.p>
 
             <motion.p
               variants={fadeUp}
-              className="mt-7 max-w-2xl text-balance text-base leading-8 text-[var(--brand-plum-soft)] sm:text-lg"
+              className="mx-auto mt-7 max-w-2xl text-balance text-base leading-8 text-[var(--brand-plum-soft)] sm:text-lg"
             >
-              PIDEC 1.0 is a faculty wide engineering competition for students across
-              all ten engineering departments at UNILAG. It gives teams a real platform
-              to present ideas, build prototypes, and solve practical problems with
-              strong engineering thinking.
+              A faculty wide engineering competition for students across all ten
+              engineering departments at UNILAG.
             </motion.p>
 
-            <motion.div variants={fadeUp} className="mt-10 flex flex-col gap-3 sm:flex-row">
+            <motion.div variants={fadeUp} className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               {SIGNUPS_OPEN ? (
                 <Button
                   asChild
                   size="lg"
-                  className="rounded-full border-0 bg-white px-6 text-[var(--brand-plum)] hover:bg-white/90"
+                  className="rounded-full border-0 bg-[linear-gradient(135deg,var(--brand-pink)_0%,var(--brand-orange)_55%,var(--brand-orange-soft)_100%)] px-6 text-white shadow-[0_16px_32px_rgba(244,3,91,0.2)] hover:brightness-105"
                 >
                   <Link href="/register">
                     Register Now
@@ -150,7 +152,7 @@ export function Hero() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="rounded-full border-[rgba(42,0,59,0.12)] bg-white px-6 text-[var(--brand-plum)] hover:bg-[var(--brand-purple-mist)] hover:text-[var(--brand-plum)]"
+                className="rounded-full border-[rgba(18,183,234,0.18)] bg-[linear-gradient(135deg,rgba(18,183,234,0.14)_0%,rgba(142,77,255,0.12)_100%)] px-6 text-[var(--brand-plum)] shadow-[0_14px_28px_rgba(18,183,234,0.08)] hover:bg-[linear-gradient(135deg,rgba(18,183,234,0.22)_0%,rgba(142,77,255,0.18)_100%)] hover:text-[var(--brand-plum)]"
               >
                 <Link href="#about">Learn More</Link>
               </Button>
@@ -158,7 +160,7 @@ export function Hero() {
 
             <motion.div
               variants={fadeUp}
-              className="mt-12 grid gap-4 sm:grid-cols-3"
+              className="mx-auto mt-12 grid max-w-3xl gap-4 sm:grid-cols-3"
             >
               {STATS.map((stat) => (
                 <div
@@ -173,41 +175,6 @@ export function Hero() {
               ))}
             </motion.div>
           </div>
-
-          <motion.aside
-            variants={fadeUp}
-            className="relative overflow-hidden rounded-[2rem] border border-[rgba(42,0,59,0.1)] bg-[var(--brand-plum)] p-6 text-white shadow-[0_24px_60px_rgba(42,0,59,0.16)] sm:p-7"
-          >
-            <div className="absolute inset-x-0 top-0 h-1 bg-[var(--brand-gradient)]" />
-            <div className="grid gap-5">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--brand-cyan-soft)]">
-                  This Year
-                </p>
-                <p className="mt-3 font-heading text-3xl font-semibold tracking-[-0.06em] text-white">
-                  A sharper stage for ideas that can become real solutions.
-                </p>
-              </div>
-
-              <div className="grid gap-3">
-                {[
-                  ['18 to 24 May 2026', 'Preliminary Entry'],
-                  ['25 May to 7 June 2026', 'Prototype Development'],
-                  ['4 July 2026', 'Grand Finale'],
-                ].map(([date, title]) => (
-                  <div
-                    key={title}
-                    className="motion-surface rounded-[1.5rem] border border-white/10 bg-[rgba(255,255,255,0.06)] px-4 py-4"
-                  >
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/58">
-                      {date}
-                    </p>
-                    <p className="mt-2 text-base font-semibold text-white">{title}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.aside>
         </div>
       </motion.div>
     </section>
