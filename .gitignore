@@ -42,3 +42,6 @@ next-env.d.ts
 
 
 *.m.md
+
+# Windows / msys shell crash dumps
+*.stackdump

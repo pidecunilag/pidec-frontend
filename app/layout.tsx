@@ -47,6 +47,7 @@ export const metadata: Metadata = {
 };
 
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryProvider } from "@/components/providers/query-provider";
 
 export default function RootLayout({
@@ -61,7 +62,9 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans">
         <QueryProvider>
-          {children}
+          <TooltipProvider delayDuration={0}>
+            {children}
+          </TooltipProvider>
           <Toaster />
         </QueryProvider>
       </body>
