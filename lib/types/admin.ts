@@ -1,32 +1,35 @@
-// Admin overview metrics (shape may be refined once we hit the live API)
-export interface AdminOverview {
-  totalStudents: number;
-  verifiedStudents: number;
-  pendingVerifications: number;
-  flaggedVerifications: number;
-  totalTeams: number;
-  activeTeams: number;
-  disqualifiedTeams: number;
-  totalSubmissions: number;
+// Admin overview — backend returns the active edition inline alongside top-line counts.
+// Verification/team/submission breakdowns aren't exposed on this endpoint yet; the page
+// shows what's available and a richer overview can be requested later.
+import type { Edition } from './edition';
+
+export interface AdminOverviewCounts {
+  users: number;
+  teams: number;
+  submissions: number;
   activeJudges: number;
 }
 
-// Verification queue
+export interface AdminOverview {
+  edition: Edition;
+  counts: AdminOverviewCounts;
+}
+
+// Verification queue — shape mirrors what `/admin/verification-queue` actually returns.
+// The previous iteration imagined AI-extraction fields (aiExtractedName, confidenceScore, etc.)
+// that the backend does not provide. Re-introduce them only when backend exposes them.
 export interface VerificationQueueItem {
-  userId: string;
+  id: string;
   name: string;
   email: string;
   matricNumber: string;
   department: string;
   level: number;
   verificationStatus: string;
-  aiExtractedName?: string;
-  aiExtractedMatric?: string;
-  aiExtractedDepartment?: string;
-  confidenceScore?: number;
-  verificationMethod?: string;
-  submittedAt: string;
-  attemptCount: number;
+  verificationMethod: string | null;
+  verificationAttempts: number;
+  lastVerificationAttemptAt: string | null;
+  createdAt: string;
 }
 
 export type VerificationDecision = 'approve' | 'reject' | 'request_resubmission';

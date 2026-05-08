@@ -8,10 +8,17 @@ import type {
 
 import { apiClient, unwrap } from '../client';
 
+type SponsorsEnvelope = { sponsors: LandingAsset[] };
+type PartnersEnvelope = { partners: LandingAsset[] };
+type FaqsEnvelope = { faqs: LandingFaq[] };
+
 // Sponsors
 export const sponsorsApi = {
   list() {
-    return apiClient.get<ApiResponse<LandingAsset[]>>('/admin/content/sponsors').then(unwrap);
+    return apiClient
+      .get<ApiResponse<SponsorsEnvelope>>('/admin/content/sponsors')
+      .then(unwrap)
+      .then((d) => d.sponsors);
   },
 
   create(data: LandingAssetRequest) {
@@ -32,7 +39,10 @@ export const sponsorsApi = {
 // Partners
 export const partnersApi = {
   list() {
-    return apiClient.get<ApiResponse<LandingAsset[]>>('/admin/content/partners').then(unwrap);
+    return apiClient
+      .get<ApiResponse<PartnersEnvelope>>('/admin/content/partners')
+      .then(unwrap)
+      .then((d) => d.partners);
   },
 
   create(data: LandingAssetRequest) {
@@ -53,7 +63,10 @@ export const partnersApi = {
 // FAQs
 export const faqsApi = {
   list() {
-    return apiClient.get<ApiResponse<LandingFaq[]>>('/admin/content/faqs').then(unwrap);
+    return apiClient
+      .get<ApiResponse<FaqsEnvelope>>('/admin/content/faqs')
+      .then(unwrap)
+      .then((d) => d.faqs);
   },
 
   create(data: LandingFaqRequest) {

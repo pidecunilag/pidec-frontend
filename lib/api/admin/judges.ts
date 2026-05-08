@@ -1,12 +1,24 @@
-import type { ApiResponse, CreateJudgeRequest, Judge, JudgeListParams } from '@/lib/types';
+import type {
+  ApiResponse,
+  CreateJudgeRequest,
+  Judge,
+  JudgeListParams,
+  PaginationMeta,
+} from '@/lib/types';
 
-import { apiClient, unwrap, unwrapWithMeta } from '../client';
+import { apiClient, unwrap } from '../client';
+
+type JudgesEnvelope = {
+  judges: Judge[];
+  pagination?: PaginationMeta;
+};
 
 export const judgesAdminApi = {
   listJudges(params?: JudgeListParams) {
     return apiClient
-      .get<ApiResponse<Judge[]>>('/admin/judges', { params })
-      .then(unwrapWithMeta);
+      .get<ApiResponse<JudgesEnvelope>>('/admin/judges', { params })
+      .then(unwrap)
+      .then(({ judges, pagination }) => ({ data: judges, meta: pagination }));
   },
 
   createJudge(data: CreateJudgeRequest) {

@@ -31,4 +31,24 @@ export const qk = {
   verification: {
     status: ['verification', 'status'] as const,
   },
+
+  admin: {
+    overview: ['admin', 'overview'] as const,
+    verifications: (params?: Record<string, unknown>) =>
+      ['admin', 'verifications', params] as const,
+    students: (params?: Record<string, unknown>) =>
+      ['admin', 'students', params] as const,
+    teams: (params?: Record<string, unknown>) =>
+      ['admin', 'teams', params] as const,
+    tokens: (params?: Record<string, unknown>) =>
+      ['admin', 'tokens', params] as const,
+    judges: (params?: Record<string, unknown>) =>
+      ['admin', 'judges', params] as const,
+    submissions: (params?: Record<string, unknown>) =>
+      ['admin', 'submissions', params] as const,
+    edition: ['admin', 'edition'] as const,
+    sponsors: ['admin', 'sponsors'] as const,
+    partners: ['admin', 'partners'] as const,
+    faqs: ['admin', 'faqs'] as const,
+  },
 } as const;

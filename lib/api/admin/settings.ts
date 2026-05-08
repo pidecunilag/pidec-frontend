@@ -9,6 +9,10 @@ import type {
 import { apiClient, unwrap } from '../client';
 
 export const settingsApi = {
+  getEdition() {
+    return apiClient.get<ApiResponse<Edition>>('/admin/settings/edition').then(unwrap);
+  },
+
   updateEdition(data: UpdateEditionRequest) {
     return apiClient
       .patch<ApiResponse<Edition>>('/admin/settings/edition', data)

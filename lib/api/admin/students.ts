@@ -1,12 +1,24 @@
-import type { ApiResponse, StudentListParams, SuspendUserRequest, User } from '@/lib/types';
+import type {
+  ApiResponse,
+  PaginationMeta,
+  StudentListParams,
+  SuspendUserRequest,
+  User,
+} from '@/lib/types';
 
-import { apiClient, unwrap, unwrapWithMeta } from '../client';
+import { apiClient, unwrap } from '../client';
+
+type StudentsEnvelope = {
+  students: User[];
+  pagination?: PaginationMeta;
+};
 
 export const studentsApi = {
   listStudents(params?: StudentListParams) {
     return apiClient
-      .get<ApiResponse<User[]>>('/admin/students', { params })
-      .then(unwrapWithMeta);
+      .get<ApiResponse<StudentsEnvelope>>('/admin/students', { params })
+      .then(unwrap)
+      .then(({ students, pagination }) => ({ data: students, meta: pagination }));
   },
 
   suspendStudent(userId: string, data: SuspendUserRequest) {

@@ -1,12 +1,24 @@
-import type { ApiResponse, Team, TeamActionRequest, TeamListParams } from '@/lib/types';
+import type {
+  ApiResponse,
+  PaginationMeta,
+  Team,
+  TeamActionRequest,
+  TeamListParams,
+} from '@/lib/types';
 
-import { apiClient, unwrap, unwrapWithMeta } from '../client';
+import { apiClient, unwrap } from '../client';
+
+type TeamsEnvelope = {
+  teams: Team[];
+  pagination?: PaginationMeta;
+};
 
 export const teamsAdminApi = {
   listTeams(params?: TeamListParams) {
     return apiClient
-      .get<ApiResponse<Team[]>>('/admin/teams', { params })
-      .then(unwrapWithMeta);
+      .get<ApiResponse<TeamsEnvelope>>('/admin/teams', { params })
+      .then(unwrap)
+      .then(({ teams, pagination }) => ({ data: teams, meta: pagination }));
   },
 
   applyTeamAction(teamId: string, data: TeamActionRequest) {

@@ -8,9 +8,11 @@ export interface Edition {
   signupOpen: boolean;
   teamManagementLocked: boolean;
   submissionWindowOpen: boolean;
+  isActive?: boolean;
   announcementBanner?: string | null;
   createdAt: string;
-  deletedAt?: string;
+  updatedAt?: string;
+  deletedAt?: string | null;
 }
 
 export interface UpdateEditionRequest {

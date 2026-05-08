@@ -1,12 +1,24 @@
-import type { ApiResponse, GenerateTokenRequest, Token, TokenListParams } from '@/lib/types';
+import type {
+  ApiResponse,
+  GenerateTokenRequest,
+  PaginationMeta,
+  Token,
+  TokenListParams,
+} from '@/lib/types';
 
-import { apiClient, unwrap, unwrapWithMeta } from '../client';
+import { apiClient, unwrap } from '../client';
+
+type TokensEnvelope = {
+  tokens: Token[];
+  pagination?: PaginationMeta;
+};
 
 export const tokensApi = {
   listTokens(params?: TokenListParams) {
     return apiClient
-      .get<ApiResponse<Token[]>>('/admin/tokens', { params })
-      .then(unwrapWithMeta);
+      .get<ApiResponse<TokensEnvelope>>('/admin/tokens', { params })
+      .then(unwrap)
+      .then(({ tokens, pagination }) => ({ data: tokens, meta: pagination }));
   },
 
   generateToken(data: GenerateTokenRequest) {
