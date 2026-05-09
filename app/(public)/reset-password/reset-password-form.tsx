@@ -23,7 +23,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -134,10 +134,9 @@ export function ResetPasswordForm() {
                 <FormItem>
                   <FormLabel className="text-base">New Password</FormLabel>
                   <FormControl>
-                    <Input
+                    <PasswordInput
                       placeholder="••••••••"
                       className="h-12 text-base"
-                      type="password"
                       disabled={isSubmitting}
                       {...field}
                     />
@@ -155,9 +154,8 @@ export function ResetPasswordForm() {
                 <FormItem>
                   <FormLabel className="text-base">Confirm Password</FormLabel>
                   <FormControl>
-                    <Input
+                    <PasswordInput
                       placeholder="••••••••"
-                      type="password"
                       className="h-12 text-base"
                       disabled={isSubmitting}
                       {...field}
