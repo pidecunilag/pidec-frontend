@@ -21,6 +21,49 @@ type RefreshEnvelope = {
   accessToken: string;
   refreshToken: string;
 };
+type VerificationStatusEnvelope = {
+  verification: {
+    status: string;
+    attempts?: number;
+    attemptsRemaining?: number;
+    cooldownEndsAt?: string;
+    cooldownRemainingMs?: number;
+    lastAttemptAt?: string;
+    method?: string;
+    timestamp?: string;
+  };
+};
+
+function mapVerificationStatusResponse(
+  payload:
+    | VerificationStatusEnvelope
+    | {
+        status: string;
+        attempts?: number;
+        attemptsRemaining?: number;
+        cooldownEndsAt?: string;
+        cooldownRemainingMs?: number;
+        lastAttemptAt?: string;
+        method?: string;
+        timestamp?: string;
+      },
+) {
+  const verification =
+    'verification' in payload
+      ? payload.verification
+      : payload;
+
+  return {
+    status: verification.status,
+    attempts: verification.attempts,
+    attemptsRemaining: verification.attemptsRemaining,
+    cooldownEndsAt: verification.cooldownEndsAt,
+    cooldownRemainingMs: verification.cooldownRemainingMs,
+    lastAttemptAt: verification.lastAttemptAt,
+    method: verification.method,
+    timestamp: verification.timestamp,
+  };
+}
 
 export const authApi = {
   register(data: RegisterRequest) {
@@ -112,7 +155,8 @@ export const authApi = {
 
   getVerificationStatus() {
     return apiClient
-      .get<ApiResponse<{ status: string; attemptCount?: number; cooldownEndsAt?: string }>>('/auth/verification-status')
-      .then(unwrap);
+      .get<ApiResponse<VerificationStatusEnvelope>>('/auth/verification-status')
+      .then(unwrap)
+      .then(mapVerificationStatusResponse);
   },
 };

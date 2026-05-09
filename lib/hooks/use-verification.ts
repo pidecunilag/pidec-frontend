@@ -9,45 +9,104 @@ import type { VerificationStatus } from '@/lib/types';
 
 const POLL_INTERVAL_MS = 5_000;
 
-export function useVerification() {
+interface UseVerificationOptions {
+  poll?: boolean;
+}
+
+function normalizeVerificationStatus(status: string): VerificationStatus {
+  const normalized = status.trim().toLowerCase();
+
+  switch (normalized) {
+    case 'pending':
+    case 'processing':
+    case 'in_review':
+      return 'pending';
+    case 'verified':
+    case 'approved':
+    case 'success':
+      return 'verified';
+    case 'rejected':
+    case 'failed':
+    case 'declined':
+    case 'mismatch':
+      return 'rejected';
+    case 'flagged':
+    case 'manual_review':
+    case 'under_review':
+      return 'flagged';
+    case 'suspended':
+      return 'suspended';
+    default:
+      return 'rejected';
+  }
+}
+
+export function useVerification(options: UseVerificationOptions = {}) {
+  const shouldPoll = options.poll ?? false;
   const { verificationStatus, setVerificationStatus } = useAuthStore();
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isPollingRef = useRef(false);
 
   const stopPolling = useCallback(() => {
-    if (pollRef.current) {
-      clearInterval(pollRef.current);
-      pollRef.current = null;
+    if (pollTimeoutRef.current) {
+      clearTimeout(pollTimeoutRef.current);
+      pollTimeoutRef.current = null;
     }
+    isPollingRef.current = false;
   }, []);
 
   const poll = useCallback(async () => {
+    if (isPollingRef.current) {
+      return;
+    }
+
+    isPollingRef.current = true;
     try {
       const result = await authApi.getVerificationStatus();
-      setVerificationStatus(result.status as VerificationStatus);
+      const normalizedStatus = normalizeVerificationStatus(result.status);
+      setError(null);
+      setVerificationStatus(normalizedStatus);
 
-      // Stop polling once we reach a terminal state
-      if (result.status !== 'pending') {
+      if (normalizedStatus === 'pending') {
+        pollTimeoutRef.current = setTimeout(() => {
+          isPollingRef.current = false;
+          void poll();
+        }, POLL_INTERVAL_MS);
+      } else {
         stopPolling();
       }
     } catch (err) {
       const apiError = extractApiError(err);
       if (apiError.code === 'AUTH_REQUIRED') {
         setError('AUTH_REQUIRED');
+        stopPolling();
+      } else {
+        pollTimeoutRef.current = setTimeout(() => {
+          isPollingRef.current = false;
+          void poll();
+        }, POLL_INTERVAL_MS);
       }
-      stopPolling();
+    } finally {
+      if (!pollTimeoutRef.current) {
+        isPollingRef.current = false;
+      }
     }
   }, [setVerificationStatus, stopPolling]);
 
-  // Auto-poll when status is pending
   useEffect(() => {
-    if (verificationStatus === 'pending' && !pollRef.current) {
-      pollRef.current = setInterval(poll, POLL_INTERVAL_MS);
+    if (!shouldPoll || verificationStatus !== 'pending') {
+      stopPolling();
+      return;
+    }
+
+    if (!pollTimeoutRef.current && !isPollingRef.current) {
+      void poll();
     }
 
     return stopPolling;
-  }, [verificationStatus, poll, stopPolling]);
+  }, [verificationStatus, poll, shouldPoll, stopPolling]);
 
   const uploadDoc = useCallback(
     async (file: File, unauthData?: { email: string; matricNumber: string }) => {
