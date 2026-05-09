@@ -155,6 +155,21 @@
     background-size: 60px 60px;
   }
 
+  @media (min-width: 1024px) {
+    html.auth-page {
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    body.auth-page {
+      height: 100dvh;
+      min-height: 100dvh;
+      overflow: hidden;
+      background-image: none;
+      background-color: #fbf9fd;
+    }
+  }
+
   section[id] {
     scroll-margin-top: 7rem;
   }

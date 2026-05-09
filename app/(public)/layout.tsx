@@ -5,12 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-// Curated engineering/student-focused Unsplash images
 const SLIDESHOW_IMAGES = [
-  "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1000&auto=format&fit=crop", // Electronics/Robotics
-  "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1000&auto=format&fit=crop", // Diverse students working together
-  "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1000&auto=format&fit=crop", // Team collaboration
-  "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1000&auto=format&fit=crop", // Tech workspace
+  "/auth/engineering-lab.jpg",
+  "/auth/student-workspace.jpg",
+  "/auth/prototype-build.jpg",
 ];
 
 export default function PublicAuthLayout({
@@ -20,67 +18,85 @@ export default function PublicAuthLayout({
 }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Rotate images every 5 seconds
   useEffect(() => {
-    const interval = setInterval(() => {
+    const interval = window.setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % SLIDESHOW_IMAGES.length);
-    }, 5000);
-    return () => clearInterval(interval);
+    }, 4500);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.classList.add("auth-page");
+    document.body.classList.add("auth-page");
+    return () => {
+      document.documentElement.classList.remove("auth-page");
+      document.body.classList.remove("auth-page");
+    };
   }, []);
 
   return (
-    <div className="flex min-h-dvh w-full bg-background">
-      {/* Left Column - Form Area */}
-      <div className="flex w-full flex-col lg:w-1/2 relative">
-        {/* Navigation - Top Bar */}
-        <div className="p-6 md:p-8 flex items-center justify-between z-10">
-          <Link
-            href="/"
-            className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
-          </Link>
-          
-          {/* Logo representation - wait for designer assets later, using text for now */}
-          <div className="font-bold text-xl tracking-tight text-foreground">
-            PIDEC <span className="text-brand">1.0</span>
+    <div className="relative flex min-h-dvh w-full overflow-hidden bg-[#fbf9fd] text-[var(--brand-plum)] lg:h-dvh lg:max-h-dvh">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(18,183,234,0.18),transparent_34%),radial-gradient(circle_at_88%_12%,rgba(255,85,0,0.16),transparent_28%),linear-gradient(180deg,#fbf9fd_0%,#f3ecfb_58%,#fff2e9_100%)] lg:hidden" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,transparent_0,transparent_39px,rgba(42,0,59,0.05)_39px,rgba(42,0,59,0.05)_40px),linear-gradient(transparent_0,transparent_39px,rgba(42,0,59,0.05)_39px,rgba(42,0,59,0.05)_40px)] bg-[size:40px_40px] lg:hidden" />
+
+      <div className="flex min-h-dvh w-full items-start py-8 sm:py-10 lg:h-dvh lg:min-h-0 lg:py-0">
+        <div className="relative z-10 flex w-full flex-col justify-start lg:h-dvh lg:w-[46%] lg:overflow-y-auto lg:bg-[#fbf9fd] lg:py-10">
+          <div className="px-5 pb-5 pt-2 sm:px-8 md:px-10">
+            <div className="mx-auto flex max-w-xl items-center justify-between rounded-[1.25rem] border border-[rgba(42,0,59,0.08)] bg-white px-5 py-4 shadow-[0_14px_34px_rgba(42,0,59,0.06)] animate-in fade-in slide-in-from-top-3 duration-500">
+              <Link
+                href="/"
+                className="flex items-center text-sm font-medium text-[var(--brand-plum-soft)] transition-colors hover:text-[var(--brand-plum)]"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Home
+              </Link>
+
+              <div className="font-heading text-xl font-semibold tracking-[-0.05em] text-[var(--brand-plum)]">
+                PIDEC 1.0
+              </div>
+            </div>
+          </div>
+
+          <div className="px-5 pb-4 pt-0 sm:px-8 md:px-10">
+            <div className="mx-auto w-full max-w-xl rounded-[1.5rem] border border-white/60 bg-white/88 p-6 shadow-[0_22px_56px_rgba(42,0,59,0.1)] backdrop-blur animate-in fade-in zoom-in-95 duration-500 sm:rounded-[2rem] sm:p-9 lg:border-[rgba(42,0,59,0.08)] lg:bg-white">
+              {children}
+            </div>
           </div>
         </div>
 
-        {/* Content Area */}
-        <div className="flex-1 flex flex-col justify-center px-6 sm:px-12 md:px-16 lg:px-24 py-12">
-          {children}
-        </div>
-      </div>
+        <div className="relative hidden h-dvh overflow-hidden lg:flex lg:w-[54%] lg:items-stretch">
+          <div className="relative h-full w-full overflow-hidden border-l border-[rgba(42,0,59,0.06)] shadow-[0_28px_72px_rgba(42,0,59,0.12)] animate-in fade-in slide-in-from-right-4 duration-700">
+            {SLIDESHOW_IMAGES.map((src, index) => (
+              <Image
+                key={src}
+                src={src}
+                alt="Engineering students collaborating"
+                fill
+                sizes="54vw"
+                priority={index === 0}
+                className={`object-cover transition-[opacity,transform] duration-[1400ms] ease-out ${
+                  index === currentImageIndex ? "scale-100 opacity-100" : "scale-105 opacity-0"
+                }`}
+              />
+            ))}
 
-      {/* Right Column - Slideshow Area (Hidden on mobile) */}
-      <div className="hidden lg:block lg:w-1/2 relative overflow-hidden bg-muted">
-        {SLIDESHOW_IMAGES.map((src, index) => (
-          <Image
-            key={src}
-            src={src}
-            alt="Engineering students at work"
-            fill
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            priority={index === 0}
-            className={`object-cover transition-opacity duration-1000 ease-in-out ${
-              index === currentImageIndex ? "opacity-100" : "opacity-0"
-            }`}
-          />
-        ))}
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(42,0,59,0.1)_0%,rgba(42,0,59,0.32)_52%,rgba(42,0,59,0.7)_100%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(109,45,255,0.18)_0%,rgba(18,183,234,0.06)_48%,rgba(255,85,0,0.18)_100%)]" />
 
-        {/* Overlay gradient for better text readability if we add text over the image */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-        
-        {/* Subtle branding overlay on images */}
-        <div className="absolute bottom-12 left-12 right-12 text-white">
-          <h2 className="text-3xl font-bold mb-4">
-            Proving Innovation, Design, and Engineering Competence
-          </h2>
-          <p className="text-white/80 text-lg max-w-md">
-            Join the University of Lagos Engineering Society's premier design competition. Build, innovate, and represent your department.
-          </p>
+            <div className="absolute bottom-12 left-10 right-10 text-white animate-in fade-in slide-in-from-bottom-3 duration-700">
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--brand-cyan-soft)]">
+                Engineering for Impact
+              </p>
+              <h2 className="mt-4 max-w-xl font-heading text-5xl font-semibold leading-tight tracking-[-0.06em]">
+                Access the PIDEC platform built for bold ideas.
+              </h2>
+              <p className="mt-5 max-w-lg text-base leading-8 text-white/82">
+                Manage your account, move through verification, and keep up with
+                every part of the PIDEC journey in one place.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

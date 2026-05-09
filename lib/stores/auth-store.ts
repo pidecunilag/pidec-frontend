@@ -42,5 +42,14 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
 
   setLoading: (isLoading) => set({ isLoading }),
 
-  setVerificationStatus: (verificationStatus) => set({ verificationStatus }),
+  setVerificationStatus: (verificationStatus) =>
+    set((state) => ({
+      verificationStatus,
+      user: state.user
+        ? {
+            ...state.user,
+            verificationStatus,
+          }
+        : null,
+    })),
 }));
