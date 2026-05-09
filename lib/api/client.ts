@@ -154,6 +154,21 @@ export function extractApiError(error: unknown): {
   }
 
   if (axios.isAxiosError(error)) {
+    if (error.response?.status === 401) {
+      const requestUrl = error.config?.url ?? "";
+      if (requestUrl.includes("/auth/login")) {
+        return {
+          code: "AUTH_REQUIRED",
+          message: "Invalid email or password. Please check your details and try again.",
+        };
+      }
+
+      return {
+        code: "AUTH_REQUIRED",
+        message: "Your session has expired. Please sign in again to continue.",
+      };
+    }
+
     const data = error.response?.data as ApiError | undefined;
     if (data?.error) {
       return { code: data.error.code, message: data.error.message };

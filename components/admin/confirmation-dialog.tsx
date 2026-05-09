@@ -44,10 +44,14 @@ export function ConfirmationDialog({
 }: ConfirmationDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent className="rounded-2xl border border-[rgba(42,0,59,0.12)] bg-white p-6 shadow-[0_28px_90px_rgba(42,0,59,0.18)]">
         <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+          <AlertDialogTitle className="font-heading text-2xl font-semibold tracking-normal text-[var(--brand-plum)]">
+            {title}
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-[var(--brand-plum-soft)]/72">
+            {description}
+          </AlertDialogDescription>
         </AlertDialogHeader>
         {children && <div className="py-2">{children}</div>}
         <AlertDialogFooter>

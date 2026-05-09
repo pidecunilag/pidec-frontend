@@ -22,6 +22,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export function LoginForm() {
   const router = useRouter();
@@ -125,9 +126,8 @@ export function LoginForm() {
                     </Link>
                   </div>
                   <FormControl>
-                    <Input
+                    <PasswordInput
                       placeholder="Enter your password"
-                      type="password"
                       className="h-14 rounded-2xl border-[rgba(42,0,59,0.1)] bg-white/90 px-4 text-base shadow-[0_10px_24px_rgba(42,0,59,0.05)]"
                       disabled={isSubmitting}
                       {...field}
