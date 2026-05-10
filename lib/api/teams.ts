@@ -65,11 +65,13 @@ export const teamsApi = {
         }>
       >('/teams/invites')
       .then((response) =>
-        unwrap(response).invites.map((invite) => ({
-          ...invite,
-          teamName: invite.teamName ?? invite.teams?.name ?? undefined,
-          inviterName: invite.inviterName ?? invite.users?.name ?? undefined,
-        })),
+        unwrap(response).invites
+          .filter((invite) => invite.status === 'pending')
+          .map((invite) => ({
+            ...invite,
+            teamName: invite.teamName ?? invite.teams?.name ?? undefined,
+            inviterName: invite.inviterName ?? invite.users?.name ?? undefined,
+          })),
       );
   },
 

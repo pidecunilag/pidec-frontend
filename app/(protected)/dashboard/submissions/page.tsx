@@ -114,10 +114,34 @@ export default function StudentSubmissionsPage() {
     }),
     [stage1Token, stage1Data, stage2VideoLink, stage2Data, stage2Files, stage3Data, stage3Files],
   );
-  const { hasDraft, restoreDraft, clearDraft } = useAutosave(
+  const hasDraftContent = useMemo(() => {
+    const hasStage1Content =
+      stage1Token.trim().length > 0 ||
+      Object.values(stage1Data).some((value) => {
+        if (typeof value === 'string') return value.trim().length > 0;
+        if (value && typeof value === 'object') return Object.values(value).some(Boolean);
+        return false;
+      });
+    const hasStage2Content =
+      stage2VideoLink.trim().length > 0 ||
+      Object.values(stage2Data).some((value) => value.trim().length > 0) ||
+      stage2Files.length > 0;
+    const hasStage3Content =
+      stage3Data.final_documentation_summary.trim().length > 0 ||
+      stage3Data.team_ready !== true ||
+      stage3Files.length > 0;
+
+    return hasStage1Content || hasStage2Content || hasStage3Content;
+  }, [stage1Token, stage1Data, stage2VideoLink, stage2Data, stage2Files, stage3Data, stage3Files]);
+  const { hasSavedDraft, restoreDraft, clearDraft } = useAutosave(
     draftKey,
     draftPayload,
     AUTOSAVE_INTERVAL_MS,
+    {
+      enabled: Boolean(team && edition && activeStage && canSubmit),
+      debounceMs: 800,
+      shouldSave: hasDraftContent,
+    },
   );
 
   const restoreSavedDraft = () => {
@@ -164,6 +188,13 @@ export default function StudentSubmissionsPage() {
         });
       }
       clearDraft();
+      setStage1Token('');
+      setStage1Data(emptyStage1);
+      setStage2VideoLink('');
+      setStage2Data(emptyStage2);
+      setStage2Files([]);
+      setStage3Data(emptyStage3);
+      setStage3Files([]);
       toast.success('Submission received.');
     } catch (error) {
       toast.error(extractApiError(error).message);
@@ -272,7 +303,7 @@ export default function StudentSubmissionsPage() {
         </StudentPanel>
       ) : activeStage === 1 ? (
         <>
-          <DraftRestoreBar hasDraft={hasDraft()} onRestore={restoreSavedDraft} />
+          <DraftRestoreBar hasDraft={hasSavedDraft} onRestore={restoreSavedDraft} />
           <Stage1Form
             token={stage1Token}
             setToken={setStage1Token}
@@ -284,7 +315,7 @@ export default function StudentSubmissionsPage() {
         </>
       ) : activeStage === 2 ? (
         <>
-          <DraftRestoreBar hasDraft={hasDraft()} onRestore={restoreSavedDraft} />
+          <DraftRestoreBar hasDraft={hasSavedDraft} onRestore={restoreSavedDraft} />
           <Stage2Form
             videoLink={stage2VideoLink}
             setVideoLink={setStage2VideoLink}
@@ -300,7 +331,7 @@ export default function StudentSubmissionsPage() {
         </>
       ) : activeStage === 3 ? (
         <>
-          <DraftRestoreBar hasDraft={hasDraft()} onRestore={restoreSavedDraft} />
+          <DraftRestoreBar hasDraft={hasSavedDraft} onRestore={restoreSavedDraft} />
           <Stage3Form
             data={stage3Data}
             setData={setStage3Data}
