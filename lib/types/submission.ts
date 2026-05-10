@@ -14,6 +14,10 @@ export interface SubmissionFile {
   uploadedAt: string;
 }
 
+export interface UploadedSubmissionFile extends SubmissionFile {
+  id: string;
+}
+
 // Stage 1: Proposal submission
 export interface Stage1FormData {
   problem_statement: string;
@@ -21,7 +25,7 @@ export interface Stage1FormData {
   theme_alignment: string;
   feasibility: string;
   departmental_relevance: string;
-  declarations: Record<string, true>;
+  declarations: Record<string, boolean>;
 }
 
 export interface Stage1SubmissionRequest {
@@ -46,7 +50,7 @@ export interface Stage2SubmissionRequest {
 // Stage 3: Pre-Finale documentation
 export interface Stage3FormData {
   final_documentation_summary: string;
-  team_ready: true;
+  team_ready: boolean;
 }
 
 export interface Stage3SubmissionRequest {

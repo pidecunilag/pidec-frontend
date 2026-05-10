@@ -75,6 +75,9 @@ export interface RemoveMemberRequest {
 export interface EligibleTeammate {
   id: string;
   name: string;
-  matricNumber: string;
-  level: number;
+  matricNumber?: string;
+  level?: number;
+  email?: string;
+  department?: string;
+  verificationStatus?: string;
 }

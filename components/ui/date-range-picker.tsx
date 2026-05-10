@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { format, isAfter, isBefore, isSameDay } from "date-fns";
+import { format, isBefore } from "date-fns";
 import { Calendar } from "lucide-react";
 
 import { cn } from "@/lib/utils";

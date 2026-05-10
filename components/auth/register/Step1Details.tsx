@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
@@ -64,14 +64,14 @@ export function Step1Details({ onNext, onCreatingChange }: Step1DetailsProps) {
   } | null>("pidec_verification_identity", null);
 
   const form = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema) as any,
+    resolver: zodResolver(registerSchema) as unknown as Resolver<RegisterFormValues>,
     defaultValues: {
       name: persistedData.name || "",
       email: persistedData.email || "",
       password: persistedData.password || "",
       matricNumber: persistedData.matricNumber || "",
-      department: (persistedData.department as any) || undefined,
-      level: (persistedData.level as any) || undefined,
+      department: persistedData.department || undefined,
+      level: persistedData.level || undefined,
     },
   });
 
@@ -86,7 +86,7 @@ export function Step1Details({ onNext, onCreatingChange }: Step1DetailsProps) {
     : "";
 
   useEffect(() => {
-    const subscription = form.watch((value: any) => {
+    const subscription = form.watch((value) => {
       setPersistedData((prev) => ({ ...prev, ...value }));
     });
     return () => subscription.unsubscribe();
@@ -104,7 +104,7 @@ export function Step1Details({ onNext, onCreatingChange }: Step1DetailsProps) {
       await new Promise((resolve) => setTimeout(resolve, 450));
       toast.success("Account created! Please upload your verification document.");
       onNext();
-    } catch (error: any) {
+    } catch (error: unknown) {
       const apiError = extractApiError(error);
       toast.error(apiError.message || "Failed to create account. Please check your details.");
     } finally {

@@ -6,20 +6,23 @@ import { useSearchParams } from "next/navigation";
 import { Loader2, ShieldCheck, TriangleAlert } from "lucide-react";
 
 import { authApi } from "@/lib/api/auth";
+import { extractApiError } from "@/lib/api/client";
 import { Button } from "@/components/ui/button";
 
 export function VerifyEmailFlow() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [status, setStatus] = useState<"loading" | "success" | "error">(
+    token ? "loading" : "error",
+  );
+  const [errorMessage, setErrorMessage] = useState(
+    token ? "" : "No verification token provided.",
+  );
   const hasAttempted = useRef(false);
 
   useEffect(() => {
     if (!token) {
-      setStatus("error");
-      setErrorMessage("No verification token provided.");
       return;
     }
 
@@ -30,10 +33,11 @@ export function VerifyEmailFlow() {
       try {
         await authApi.verifyEmail({ token });
         setStatus("success");
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const apiError = extractApiError(error);
         setStatus("error");
         setErrorMessage(
-          error.message || "The verification link is invalid or has expired."
+          apiError.message || "The verification link is invalid or has expired."
         );
       }
     };

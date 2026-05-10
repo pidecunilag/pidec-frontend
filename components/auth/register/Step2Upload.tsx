@@ -75,7 +75,7 @@ export function Step2Upload({ onNext, isReupload = false }: Step2UploadProps) {
         await uploadDoc(selectedFile, unauthData);
       }
       onNext();
-    } catch (error: any) {
+    } catch (error: unknown) {
       const apiError = extractApiError(error);
       toast.error(apiError.message || "Failed to upload document.");
     }

@@ -32,14 +32,14 @@ export function ForgotPasswordForm() {
   );
 
   const form = useForm<ForgotPasswordFormValues>({
-    resolver: zodResolver(forgotPasswordSchema) as any,
+    resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       email: persistedData.email || "",
     },
   });
 
   useEffect(() => {
-    const subscription = form.watch((value: any) => {
+    const subscription = form.watch((value) => {
       setPersistedData((prev) => ({ ...prev, ...value }));
     });
     return () => subscription.unsubscribe();
@@ -51,7 +51,7 @@ export function ForgotPasswordForm() {
       clearStorage();
       setIsSuccess(true);
       toast.success("Reset link sent successfully!");
-    } catch (error: any) {
+    } catch (error: unknown) {
       const apiError = extractApiError(error);
       toast.error(apiError.message || "Failed to send reset link. Please try again.");
     }

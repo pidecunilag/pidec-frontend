@@ -33,6 +33,7 @@ export function useTeam() {
     mutationFn: (name: string) => teamsApi.createTeam({ name }),
     onSuccess: (created) => {
       qc.setQueryData(qk.team.mine, created);
+      qc.invalidateQueries({ queryKey: qk.team.mine });
     },
   });
 
@@ -46,6 +47,9 @@ export function useTeam() {
 
   const sendInviteMutation = useMutation({
     mutationFn: (inviteeId: string) => teamsApi.sendInvite({ inviteeId }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['team', 'search'] });
+    },
   });
 
   const acceptInviteMutation = useMutation({

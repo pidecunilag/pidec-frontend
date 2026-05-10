@@ -37,7 +37,7 @@ export function ResetPasswordForm() {
   );
 
   const form = useForm<ResetPasswordFormValues>({
-    resolver: zodResolver(resetPasswordSchema) as any,
+    resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
       token: token || "",
       password: persistedData.password || "",
@@ -48,7 +48,7 @@ export function ResetPasswordForm() {
   const passwordValue = form.watch("password");
 
   useEffect(() => {
-    const subscription = form.watch((value: any) => {
+    const subscription = form.watch((value) => {
       setPersistedData((prev) => ({ ...prev, password: value.password, confirmPassword: value.confirmPassword }));
     });
     return () => subscription.unsubscribe();
@@ -63,7 +63,7 @@ export function ResetPasswordForm() {
       clearStorage();
       setIsSuccess(true);
       toast.success("Password reset successfully!");
-    } catch (error: any) {
+    } catch (error: unknown) {
       const apiError = extractApiError(error);
       toast.error(apiError.message || "Failed to reset password. The link might be expired.");
     }

@@ -9,7 +9,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 export function useAutosave<T>(key: string, data: T, intervalMs = 30_000) {
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const dataRef = useRef(data);
-  dataRef.current = data;
+
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
 
   const save = useCallback(() => {
     if (typeof window === 'undefined') return;
