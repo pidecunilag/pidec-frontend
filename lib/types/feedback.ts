@@ -5,8 +5,8 @@ export interface Feedback {
   submissionId: string;
   scores: Record<string, number>;
   comments: Record<string, string>;
-  totalScore: number;
-  outcome: FeedbackOutcome;
+  totalScore: number | null;
+  outcome: FeedbackOutcome | null;
   published: boolean;
   publishedAt?: string;
   enteredByAdmin?: string;

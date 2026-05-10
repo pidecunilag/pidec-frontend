@@ -9,13 +9,34 @@ import type {
 
 import { apiClient, unwrap } from './client';
 
+type RawEligibleTeammate = Omit<EligibleTeammate, 'matricNumber' | 'level'> & {
+  matricNumber?: string | null;
+  matric_number?: string | null;
+  level?: number | string | null;
+  verification_status?: string | null;
+};
+
+const normalizeEligibleTeammate = (student: RawEligibleTeammate): EligibleTeammate => ({
+  ...student,
+  matricNumber: student.matricNumber ?? student.matric_number ?? '',
+  level: Number(student.level ?? 0),
+  verificationStatus: student.verificationStatus ?? student.verification_status ?? undefined,
+});
+
 export const teamsApi = {
   getMyTeam() {
-    return apiClient.get<ApiResponse<Team>>('/teams/me').then(unwrap);
+    return apiClient
+      .get<ApiResponse<{ team: Team | null; members: Team['members'] }>>('/teams/me')
+      .then((response) => {
+        const payload = unwrap(response);
+        return payload.team ? { ...payload.team, members: payload.members ?? [] } : null;
+      });
   },
 
   createTeam(data: CreateTeamRequest) {
-    return apiClient.post<ApiResponse<Team>>('/teams', data).then(unwrap);
+    return apiClient
+      .post<ApiResponse<{ team: Team }>>('/teams', data)
+      .then((response) => unwrap(response).team);
   },
 
   dissolveTeam(teamId?: string) {
@@ -27,16 +48,35 @@ export const teamsApi = {
 
   searchTeammates(query: string) {
     return apiClient
-      .get<ApiResponse<EligibleTeammate[]>>('/teams/search', { params: { query } })
-      .then(unwrap);
+      .get<ApiResponse<{ results: RawEligibleTeammate[] }>>('/teams/search', { params: { query } })
+      .then((response) => unwrap(response).results.map(normalizeEligibleTeammate));
   },
 
   getInvites() {
-    return apiClient.get<ApiResponse<TeamInvite[]>>('/teams/invites').then(unwrap);
+    return apiClient
+      .get<
+        ApiResponse<{
+          invites: Array<
+            TeamInvite & {
+              teams?: { name?: string | null };
+              users?: { name?: string | null };
+            }
+          >;
+        }>
+      >('/teams/invites')
+      .then((response) =>
+        unwrap(response).invites.map((invite) => ({
+          ...invite,
+          teamName: invite.teamName ?? invite.teams?.name ?? undefined,
+          inviterName: invite.inviterName ?? invite.users?.name ?? undefined,
+        })),
+      );
   },
 
   sendInvite(data: SendInviteRequest) {
-    return apiClient.post<ApiResponse<TeamInvite>>('/teams/invites', data).then(unwrap);
+    return apiClient
+      .post<ApiResponse<{ invite: TeamInvite }>>('/teams/invites', data)
+      .then((response) => unwrap(response).invite);
   },
 
   acceptInvite(inviteId: string) {

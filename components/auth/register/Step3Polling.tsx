@@ -18,7 +18,7 @@ export function Step3Polling({ onReupload }: Step3PollingProps) {
 
   useEffect(() => {
     if (status === "rejected") {
-      setCooldown(600);
+      queueMicrotask(() => setCooldown(600));
 
       const interval = setInterval(() => {
         setCooldown((prev) => {
@@ -74,7 +74,7 @@ export function Step3Polling({ onReupload }: Step3PollingProps) {
           Verification Failed
         </h1>
         <p className="text-lg text-muted-foreground">
-          We couldn't verify your details from the uploaded document. The name or matric number did not match.
+          We couldn&apos;t verify your details from the uploaded document. The name or matric number did not match.
         </p>
 
         <div className="mt-6 rounded-[1.5rem] bg-[rgba(42,0,59,0.05)] p-4">
@@ -112,7 +112,7 @@ export function Step3Polling({ onReupload }: Step3PollingProps) {
           Under Manual Review
         </h1>
         <p className="text-lg text-muted-foreground">
-          Our automated system couldn't confidently verify your document. An admin will review it manually within 24 hours.
+          Our automated system couldn&apos;t confidently verify your document. An admin will review it manually within 24 hours.
         </p>
         <div className="pt-6">
           <Button

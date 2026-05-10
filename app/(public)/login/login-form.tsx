@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 import { loginSchema, type LoginFormValues } from "@/lib/validators/auth";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { useLocalStorageState } from "@/lib/hooks/use-local-storage";
+import { extractApiError } from "@/lib/api/client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,7 +34,7 @@ export function LoginForm() {
   >("pidec_login_form", { email: "", password: "" });
 
   const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema) as any,
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: persistedData.email || "",
       password: persistedData.password || "",
@@ -41,7 +42,7 @@ export function LoginForm() {
   });
 
   useEffect(() => {
-    const subscription = form.watch((value: any) => {
+    const subscription = form.watch((value) => {
       setPersistedData((prev) => ({ ...prev, ...value }));
     });
     return () => subscription.unsubscribe();
@@ -60,9 +61,10 @@ export function LoginForm() {
       await login(data);
       clearStorage();
       toast.success("Welcome back!");
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = extractApiError(error);
       toast.error(
-        error.message || "Failed to sign in. Please check your credentials.",
+        apiError.message || "Failed to sign in. Please check your credentials.",
       );
     }
   };

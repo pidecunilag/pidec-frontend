@@ -57,7 +57,7 @@ export function useVerification(options: UseVerificationOptions = {}) {
     isPollingRef.current = false;
   }, []);
 
-  const poll = useCallback(async () => {
+  const poll = useCallback(async function runPoll() {
     if (isPollingRef.current) {
       return;
     }
@@ -72,7 +72,7 @@ export function useVerification(options: UseVerificationOptions = {}) {
       if (normalizedStatus === 'pending') {
         pollTimeoutRef.current = setTimeout(() => {
           isPollingRef.current = false;
-          void poll();
+          void runPoll();
         }, POLL_INTERVAL_MS);
       } else {
         stopPolling();
@@ -85,7 +85,7 @@ export function useVerification(options: UseVerificationOptions = {}) {
       } else {
         pollTimeoutRef.current = setTimeout(() => {
           isPollingRef.current = false;
-          void poll();
+          void runPoll();
         }, POLL_INTERVAL_MS);
       }
     } finally {

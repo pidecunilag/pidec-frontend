@@ -118,9 +118,9 @@ export function RegisterFlow() {
           else if (userRole === "judge") router.push("/judge");
           else router.push("/dashboard");
         } else if (verificationStatus === "rejected") {
-          setStep(3);
+          queueMicrotask(() => setStep(3));
         } else if (!verificationStatus) {
-          setStep(2);
+          queueMicrotask(() => setStep(2));
         }
       }
     }

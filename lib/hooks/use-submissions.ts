@@ -40,6 +40,11 @@ export function useSubmissions() {
     onSuccess: invalidateAfterSubmit,
   });
 
+  const uploadFileMutation = useMutation({
+    mutationFn: ({ file, stage }: { file: File; stage: 2 | 3 }) =>
+      submissionsApi.uploadFile(file, stage),
+  });
+
   return {
     submissions: submissionsQuery.data ?? [],
     isLoading: submissionsQuery.isPending,
@@ -48,9 +53,11 @@ export function useSubmissions() {
     submitStage1: stage1Mutation.mutateAsync,
     submitStage2: stage2Mutation.mutateAsync,
     submitStage3: stage3Mutation.mutateAsync,
+    uploadFile: uploadFileMutation.mutateAsync,
 
     isSubmittingStage1: stage1Mutation.isPending,
     isSubmittingStage2: stage2Mutation.isPending,
     isSubmittingStage3: stage3Mutation.isPending,
+    isUploadingFile: uploadFileMutation.isPending,
   };
 }

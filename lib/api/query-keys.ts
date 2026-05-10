@@ -32,6 +32,10 @@ export const qk = {
     status: ['verification', 'status'] as const,
   },
 
+  public: {
+    landingData: ['public', 'landing-data'] as const,
+  },
+
   admin: {
     overview: ['admin', 'overview'] as const,
     verifications: (params?: Record<string, unknown>) =>

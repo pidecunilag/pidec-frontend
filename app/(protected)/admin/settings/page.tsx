@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 
 import {
@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-import type { ActiveStage, UpdateEditionRequest } from '@/lib/types';
+import type { ActiveStage, Edition, UpdateEditionRequest } from '@/lib/types';
 
 export default function SettingsPage() {
   const { data: edition, isPending: editionLoading } = useAdminEdition();
@@ -36,33 +36,7 @@ export default function SettingsPage() {
   const toggleSubmission = useToggleSubmissionWindow();
   const toggleTeamLock = useToggleTeamLock();
 
-  const [editionName, setEditionName] = useState('');
-  const [theme, setTheme] = useState('');
-  const [banner, setBanner] = useState('');
   const [stageDialog, setStageDialog] = useState<ActiveStage | null>(null);
-
-  // Hydrate form fields once the edition resolves so admins see current values.
-  useEffect(() => {
-    if (edition) {
-      setEditionName(edition.name);
-      setTheme(edition.theme);
-      setBanner(edition.announcementBanner ?? '');
-    }
-  }, [edition]);
-
-  function handleEditionSave() {
-    if (!edition) return;
-    const data: UpdateEditionRequest = {};
-    if (editionName !== edition.name) data.name = editionName;
-    if (theme !== edition.theme) data.theme = theme;
-    const trimmedBanner = banner.trim();
-    const currentBanner = edition.announcementBanner ?? '';
-    if (trimmedBanner !== currentBanner) {
-      data.announcementBanner = trimmedBanner || null;
-    }
-    if (Object.keys(data).length === 0) return;
-    updateEdition.mutate(data);
-  }
 
   return (
     <div className="space-y-8 max-w-2xl">
@@ -81,48 +55,13 @@ export default function SettingsPage() {
             <Skeleton className="h-10 w-full" />
             <Skeleton className="h-10 w-full" />
           </div>
-        ) : (
-          <div className="grid gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="edition-name">Edition Name</Label>
-              <Input
-                id="edition-name"
-                placeholder="PIDEC 1.0"
-                value={editionName}
-                onChange={(e) => setEditionName(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="theme">Theme</Label>
-              <Input
-                id="theme"
-                placeholder="Engineering for Sustainable Development"
-                value={theme}
-                onChange={(e) => setTheme(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="banner">Announcement Banner</Label>
-              <Input
-                id="banner"
-                placeholder="Optional platform-wide announcement"
-                value={banner}
-                onChange={(e) => setBanner(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">
-                Shown on all dashboards. Leave empty to clear.
-              </p>
-            </div>
-            <Button
-              onClick={handleEditionSave}
-              disabled={updateEdition.isPending}
-              className="w-fit"
-            >
-              {updateEdition.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save Changes
-            </Button>
-          </div>
-        )}
+        ) : edition ? (
+          <EditionInfoForm
+            key={edition.id}
+            edition={edition}
+            updateEdition={updateEdition}
+          />
+        ) : null}
       </section>
 
       <section className="space-y-4 rounded-xl border p-6">
@@ -205,6 +144,74 @@ export default function SettingsPage() {
         }}
         isLoading={setStage.isPending}
       />
+    </div>
+  );
+}
+
+function EditionInfoForm({
+  edition,
+  updateEdition,
+}: {
+  edition: Edition;
+  updateEdition: ReturnType<typeof useUpdateEdition>;
+}) {
+  const [editionName, setEditionName] = useState(edition.name);
+  const [theme, setTheme] = useState(edition.theme);
+  const [banner, setBanner] = useState(edition.announcementBanner ?? '');
+
+  function handleEditionSave() {
+    const data: UpdateEditionRequest = {};
+    if (editionName !== edition.name) data.name = editionName;
+    if (theme !== edition.theme) data.theme = theme;
+    const trimmedBanner = banner.trim();
+    const currentBanner = edition.announcementBanner ?? '';
+    if (trimmedBanner !== currentBanner) {
+      data.announcementBanner = trimmedBanner || null;
+    }
+    if (Object.keys(data).length === 0) return;
+    updateEdition.mutate(data);
+  }
+
+  return (
+    <div className="grid gap-4">
+      <div className="space-y-2">
+        <Label htmlFor="edition-name">Edition Name</Label>
+        <Input
+          id="edition-name"
+          placeholder="PIDEC 1.0"
+          value={editionName}
+          onChange={(e) => setEditionName(e.target.value)}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="theme">Theme</Label>
+        <Input
+          id="theme"
+          placeholder="Engineering for Sustainable Development"
+          value={theme}
+          onChange={(e) => setTheme(e.target.value)}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="banner">Announcement Banner</Label>
+        <Input
+          id="banner"
+          placeholder="Optional platform-wide announcement"
+          value={banner}
+          onChange={(e) => setBanner(e.target.value)}
+        />
+        <p className="text-xs text-muted-foreground">
+          Shown on all dashboards. Leave empty to clear.
+        </p>
+      </div>
+      <Button
+        onClick={handleEditionSave}
+        disabled={updateEdition.isPending}
+        className="w-fit"
+      >
+        {updateEdition.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        Save Changes
+      </Button>
     </div>
   );
 }
