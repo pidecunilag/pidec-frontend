@@ -13,6 +13,15 @@ interface UseVerificationOptions {
   poll?: boolean;
 }
 
+interface VerificationDetails {
+  attempts?: number;
+  attemptsRemaining?: number;
+  cooldownRemainingMs?: number;
+  lastAttemptAt?: string;
+  method?: string;
+  timestamp?: string;
+}
+
 function normalizeVerificationStatus(status: string): VerificationStatus {
   const normalized = status.trim().toLowerCase();
 
@@ -46,6 +55,7 @@ export function useVerification(options: UseVerificationOptions = {}) {
   const { verificationStatus, setVerificationStatus } = useAuthStore();
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [details, setDetails] = useState<VerificationDetails>({});
   const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isPollingRef = useRef(false);
 
@@ -57,6 +67,22 @@ export function useVerification(options: UseVerificationOptions = {}) {
     isPollingRef.current = false;
   }, []);
 
+  const fetchStatus = useCallback(async () => {
+    const result = await authApi.getVerificationStatus();
+    const normalizedStatus = normalizeVerificationStatus(result.status);
+    setError(null);
+    setDetails({
+      attempts: result.attempts,
+      attemptsRemaining: result.attemptsRemaining,
+      cooldownRemainingMs: result.cooldownRemainingMs,
+      lastAttemptAt: result.lastAttemptAt,
+      method: result.method,
+      timestamp: result.timestamp,
+    });
+    setVerificationStatus(normalizedStatus);
+    return normalizedStatus;
+  }, [setVerificationStatus]);
+
   const poll = useCallback(async function runPoll() {
     if (isPollingRef.current) {
       return;
@@ -64,10 +90,7 @@ export function useVerification(options: UseVerificationOptions = {}) {
 
     isPollingRef.current = true;
     try {
-      const result = await authApi.getVerificationStatus();
-      const normalizedStatus = normalizeVerificationStatus(result.status);
-      setError(null);
-      setVerificationStatus(normalizedStatus);
+      const normalizedStatus = await fetchStatus();
 
       if (normalizedStatus === 'pending') {
         pollTimeoutRef.current = setTimeout(() => {
@@ -93,7 +116,22 @@ export function useVerification(options: UseVerificationOptions = {}) {
         isPollingRef.current = false;
       }
     }
-  }, [setVerificationStatus, stopPolling]);
+  }, [fetchStatus, stopPolling]);
+
+  useEffect(() => {
+    if (!shouldPoll || verificationStatus === 'pending') return;
+
+    let cancelled = false;
+    fetchStatus().catch((err) => {
+      if (cancelled) return;
+      const apiError = extractApiError(err);
+      setError(apiError.code === 'AUTH_REQUIRED' ? 'AUTH_REQUIRED' : apiError.message);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchStatus, shouldPoll, verificationStatus]);
 
   useEffect(() => {
     if (!shouldPoll || verificationStatus !== 'pending') {
@@ -114,6 +152,7 @@ export function useVerification(options: UseVerificationOptions = {}) {
       setError(null);
       try {
         await authApi.uploadVerificationDoc(file, unauthData);
+        setDetails({});
         setVerificationStatus('pending');
       } catch (err) {
         const apiError = extractApiError(err);
@@ -132,6 +171,7 @@ export function useVerification(options: UseVerificationOptions = {}) {
       setError(null);
       try {
         await authApi.reuploadVerificationDoc(file);
+        setDetails({});
         setVerificationStatus('pending');
       } catch (err) {
         const apiError = extractApiError(err);
@@ -146,6 +186,10 @@ export function useVerification(options: UseVerificationOptions = {}) {
 
   return {
     status: verificationStatus,
+    cooldownRemainingMs: details.cooldownRemainingMs ?? 0,
+    attempts: details.attempts,
+    attemptsRemaining: details.attemptsRemaining,
+    lastAttemptAt: details.lastAttemptAt,
     isUploading,
     error,
     uploadDoc,

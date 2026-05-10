@@ -11,32 +11,38 @@ interface Step3PollingProps {
   onReupload: () => void;
 }
 
-const REUPLOAD_COOLDOWN_SECONDS = 3 * 60;
-
 export function Step3Polling({ onReupload }: Step3PollingProps) {
   const router = useRouter();
-  const { status, error } = useVerification({ poll: true });
+  const { status, error, cooldownRemainingMs } = useVerification({ poll: true });
   const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
-    if (status === "rejected") {
-      queueMicrotask(() => setCooldown(REUPLOAD_COOLDOWN_SECONDS));
-
-      const interval = setInterval(() => {
-        setCooldown((prev) => {
-          if (prev <= 1) {
-            clearInterval(interval);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      return () => clearInterval(interval);
+    if (status !== "rejected") {
+      return;
     }
-  }, [status]);
+
+    const initialSeconds = Math.ceil(cooldownRemainingMs / 1000);
+    queueMicrotask(() => setCooldown(initialSeconds));
+
+    if (initialSeconds <= 0) return;
+
+    const interval = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [status, cooldownRemainingMs]);
+
+  const isCooldownActive = cooldown > 0;
 
   const formatCooldown = (seconds: number) => {
+    if (seconds <= 0) return "0:00";
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${m}:${s.toString().padStart(2, "0")}`;
@@ -82,18 +88,26 @@ export function Step3Polling({ onReupload }: Step3PollingProps) {
         <div className="mt-6 rounded-[1.5rem] bg-[rgba(42,0,59,0.05)] p-4">
           <div className="mb-2 flex items-center justify-center text-muted-foreground">
             <Clock className="mr-2 h-5 w-5" />
-            <span className="font-medium">Cooldown Active</span>
+            <span className="font-medium">
+              {isCooldownActive ? "Cooldown Active" : "Ready to re-upload"}
+            </span>
           </div>
           <p className="text-sm">
-            Please review your document. You can try uploading again in{" "}
-            <span className="font-bold text-foreground">{formatCooldown(cooldown)}</span>.
+            {isCooldownActive ? (
+              <>
+                Please review your document. You can try uploading again in{" "}
+                <span className="font-bold text-foreground">{formatCooldown(cooldown)}</span>.
+              </>
+            ) : (
+              "Please review your document and upload a clearer copy when ready."
+            )}
           </p>
         </div>
 
         <div className="pt-4">
           <Button
             onClick={onReupload}
-            disabled={cooldown > 0}
+            disabled={isCooldownActive}
             className="h-14 w-full rounded-full border-0 bg-[linear-gradient(135deg,#6d2dff_0%,#8e4dff_48%,#b57cff_100%)] bg-[length:145%_145%] text-base font-semibold text-white shadow-[0_18px_34px_rgba(109,45,255,0.24)] hover:bg-[position:100%_50%] hover:shadow-[0_22px_42px_rgba(109,45,255,0.3)]"
           >
             <FileUp className="mr-2 h-5 w-5" />
