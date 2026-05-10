@@ -8,19 +8,77 @@ import { Hero } from '@/components/landing/hero';
 import { Sponsors } from '@/components/landing/sponsors';
 import { Stages } from '@/components/landing/stages';
 import { ThemeSection } from '@/components/landing/theme-section';
+import { absoluteUrl, seo } from '@/lib/seo';
 
 export const metadata: Metadata = {
   title: {
-    absolute: 'PIDEC 1.0 | Prototype Inter Departmental Engineering Challenge',
+    absolute: seo.title,
   },
-  description:
-    'PIDEC 1.0 is the Prototype Inter Departmental Engineering Challenge by ULES for all ten engineering departments at UNILAG.',
+  description: seo.description,
   alternates: { canonical: '/' },
+  openGraph: {
+    title: seo.title,
+    description: seo.description,
+    url: absoluteUrl('/'),
+  },
 };
 
 export default function Home() {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': absoluteUrl('/#organization'),
+        name: seo.organizer,
+        alternateName: 'ULES',
+        url: absoluteUrl('/'),
+        email: seo.email,
+      },
+      {
+        '@type': 'Event',
+        '@id': absoluteUrl('/#event'),
+        name: seo.name,
+        description: seo.description,
+        startDate: '2026-05-18',
+        endDate: '2026-07-04',
+        eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+        eventStatus: 'https://schema.org/EventScheduled',
+        url: absoluteUrl('/'),
+        organizer: { '@id': absoluteUrl('/#organization') },
+        location: {
+          '@type': 'Place',
+          name: 'University of Lagos',
+          address: {
+            '@type': 'PostalAddress',
+            addressLocality: 'Lagos',
+            addressCountry: 'NG',
+          },
+        },
+        offers: {
+          '@type': 'Offer',
+          url: absoluteUrl('/register'),
+          availability: 'https://schema.org/InStock',
+          price: '0',
+          priceCurrency: 'NGN',
+        },
+      },
+      {
+        '@type': 'WebSite',
+        '@id': absoluteUrl('/#website'),
+        name: seo.name,
+        url: absoluteUrl('/'),
+        publisher: { '@id': absoluteUrl('/#organization') },
+      },
+    ],
+  };
+
   return (
     <main className="flex flex-1 flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <Hero />
       <About />
       <Stages />

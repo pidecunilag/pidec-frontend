@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   description:
     "Request a password reset link for your PIDEC 1.0 account.",
   alternates: { canonical: "/forgot-password" },
+  robots: { index: false, follow: false },
 };
 
 export default function ForgotPasswordPage() {

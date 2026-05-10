@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   description:
     "Sign in to your PIDEC 1.0 account to manage your team, track submissions, and review judge feedback.",
   alternates: { canonical: "/login" },
+  robots: { index: false, follow: false },
 };
 
 export default function LoginPage() {

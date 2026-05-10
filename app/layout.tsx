@@ -4,6 +4,7 @@ import { Geist_Mono, Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { absoluteUrl, seo, siteUrl } from "@/lib/seo";
 
 import "./globals.css";
 
@@ -23,35 +24,67 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: siteUrl,
   title: {
-    default: "PIDEC 1.0 | ULES",
+    default: seo.title,
     template: "%s | PIDEC 1.0",
   },
-  description:
-    "PIDEC 1.0 is the Prototype Inter Departmental Engineering Challenge by ULES for all ten engineering departments at UNILAG.",
-  applicationName: "PIDEC 1.0",
-  authors: [{ name: "ULES Competitions & Technical Team" }],
+  description: seo.description,
+  applicationName: seo.name,
+  authors: [{ name: seo.organizer }],
+  creator: seo.organizer,
+  publisher: seo.organizer,
   keywords: [
     "PIDEC",
     "PIDEC 1.0",
-    "University of Lagos Engineering Society",
     "ULES",
+    "University of Lagos Engineering Society",
+    "University of Lagos",
+    "UNILAG",
     "engineering competition",
-    "prototype challenge",
+    "inter departmental engineering challenge",
+    "prototype engineering challenge",
     "student engineering challenge",
     "UNILAG engineering",
+    "engineering for impact",
+    "sustainable engineering",
   ],
+  category: "education",
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   openGraph: {
     type: "website",
-    siteName: "PIDEC 1.0",
-    title: "PIDEC 1.0 | ULES",
-    description:
-      "The official landing page for the Prototype Inter Departmental Engineering Challenge.",
+    url: absoluteUrl("/"),
+    siteName: seo.name,
+    title: seo.title,
+    description: seo.description,
+    locale: "en_NG",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "PIDEC 1.0 engineering competition",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "PIDEC 1.0",
-    description: "Proving Innovation, Design, and Engineering Competence.",
+    title: seo.title,
+    description: seo.description,
+    images: ["/opengraph-image"],
   },
 };
 
