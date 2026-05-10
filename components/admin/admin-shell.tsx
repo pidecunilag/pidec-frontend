@@ -1,7 +1,6 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import Link from 'next/link';
 import {
   LayoutDashboard,
   ShieldAlert,
@@ -18,6 +17,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
+import { BrandLogo } from '@/components/brand/brand-assets';
 import {
   Sidebar,
   SidebarContent,
@@ -35,6 +35,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/lib/hooks/use-auth';
+import { SidebarCloseButton } from '@/components/ui/sidebar-close-button';
+import { SidebarLink } from '@/components/ui/sidebar-link';
 
 type NavItem = {
   label: string;
@@ -102,22 +104,21 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         className="border-r border-[rgba(42,0,59,0.1)] bg-[#fbf9fd] shadow-[12px_0_36px_rgba(42,0,59,0.05)]"
       >
         <SidebarHeader className="px-4 pb-4 pt-5">
-          <Link
-            href="/admin"
-            className="group-data-[collapsible=icon]:justify-center flex items-center gap-3 rounded-2xl border border-[rgba(42,0,59,0.1)] bg-white px-3 py-3 shadow-[0_14px_34px_rgba(42,0,59,0.06)]"
-          >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--brand-plum)] font-heading text-lg font-semibold text-white shadow-[0_12px_22px_rgba(42,0,59,0.22)]">
-              P
-            </span>
-            <span className="min-w-0 group-data-[collapsible=icon]:hidden">
-              <span className="block font-heading text-lg font-semibold leading-tight tracking-[-0.04em] text-[var(--brand-plum)]">
-                PIDEC Admin
+          <div className="flex items-center gap-3 rounded-2xl border border-[rgba(42,0,59,0.1)] bg-white px-3 py-3 shadow-[0_14px_34px_rgba(42,0,59,0.06)] transition-[box-shadow,transform] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:shadow-[0_18px_42px_rgba(42,0,59,0.08)] group-data-[collapsible=icon]:justify-center">
+            <SidebarLink
+              href="/admin"
+              className="flex min-w-0 flex-1 items-center gap-3 group-data-[collapsible=icon]:flex-none"
+              aria-label="PIDEC admin home"
+            >
+              <span className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white p-1.5 shadow-[0_12px_22px_rgba(42,0,59,0.14)] ring-1 ring-[rgba(42,0,59,0.08)] group-data-[collapsible=icon]:flex">
+                <BrandLogo width={44} height={19} sizes="44px" className="w-full" />
               </span>
-              <span className="mt-1 block truncate text-xs font-medium uppercase tracking-[0.18em] text-[var(--brand-plum-soft)]/70">
-                Console
+              <span className="min-w-0 group-data-[collapsible=icon]:hidden">
+                <BrandLogo priority width={122} height={52} sizes="122px" className="h-8 w-auto" />
               </span>
-            </span>
-          </Link>
+            </SidebarLink>
+            <SidebarCloseButton />
+          </div>
         </SidebarHeader>
 
         <SidebarContent className="gap-5 px-3 py-2">
@@ -142,7 +143,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                         size="lg"
                         className="h-11 rounded-xl px-3 text-[0.95rem] font-medium text-[var(--brand-plum-soft)] transition-[background-color,color,box-shadow] data-[active=true]:bg-[var(--brand-plum)] data-[active=true]:text-white data-[active=true]:shadow-[0_12px_28px_rgba(42,0,59,0.18)] hover:bg-white hover:text-[var(--brand-plum)] hover:shadow-[0_10px_24px_rgba(42,0,59,0.06)] group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:h-11 group-data-[collapsible=icon]:w-11"
                       >
-                        <Link href={item.href}>
+                        <SidebarLink href={item.href}>
                           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[rgba(42,0,59,0.06)] text-[var(--brand-plum-soft)] group-data-[active=true]/menu-button:bg-white/14 group-data-[active=true]/menu-button:text-white">
                             <item.icon className="h-4 w-4" />
                           </span>
@@ -150,7 +151,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                           {isActive ? (
                             <span className="ml-auto h-2 w-2 rounded-full bg-[var(--brand-orange)] group-data-[collapsible=icon]:hidden" />
                           ) : null}
-                        </Link>
+                        </SidebarLink>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );
@@ -174,15 +175,24 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                   {user?.email}
                 </p>
               </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Sign out"
+                className="ml-auto h-10 w-10 shrink-0 rounded-xl text-[var(--brand-plum-soft)] hover:bg-[rgba(214,64,69,0.08)] hover:text-destructive group-data-[collapsible=icon]:ml-0 group-data-[collapsible=icon]:hidden"
+                onClick={() => logout()}
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
             </div>
             <Button
               variant="ghost"
-              size="sm"
-              className="mt-3 h-10 w-full justify-start rounded-xl text-[var(--brand-plum-soft)] hover:bg-[rgba(214,64,69,0.08)] hover:text-destructive group-data-[collapsible=icon]:mt-3 group-data-[collapsible=icon]:justify-center"
+              size="icon"
+              aria-label="Sign out"
+              className="mt-3 hidden h-10 w-10 justify-center rounded-xl text-[var(--brand-plum-soft)] hover:bg-[rgba(214,64,69,0.08)] hover:text-destructive group-data-[collapsible=icon]:flex"
               onClick={() => logout()}
             >
-              <LogOut className="mr-2 h-4 w-4 group-data-[collapsible=icon]:mr-0" />
-              <span className="group-data-[collapsible=icon]:hidden">Sign out</span>
+              <LogOut className="h-4 w-4" />
             </Button>
           </div>
         </SidebarFooter>

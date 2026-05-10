@@ -17,6 +17,11 @@ type AuthEnvelope = UserEnvelope & {
   accessToken: string;
   refreshToken: string;
 };
+type PasswordResetEnvelope = UserEnvelope & Partial<Pick<AuthEnvelope, 'accessToken' | 'refreshToken'>>;
+type PasswordResetResult = {
+  user: User;
+  isAuthenticated: boolean;
+};
 type RefreshEnvelope = {
   accessToken: string;
   refreshToken: string;
@@ -123,8 +128,17 @@ export const authApi = {
     return apiClient.post<ApiResponse<null>>('/auth/forgot-password', data).then(unwrap);
   },
 
-  resetPassword(data: ResetPasswordRequest) {
-    return apiClient.post<ApiResponse<null>>('/auth/reset-password', data).then(unwrap);
+  resetPassword(data: ResetPasswordRequest): Promise<PasswordResetResult> {
+    return apiClient
+      .post<ApiResponse<PasswordResetEnvelope>>('/auth/reset-password', data)
+      .then(unwrap)
+      .then((d) => {
+        const isAuthenticated = Boolean(d.accessToken && d.refreshToken);
+        if (isAuthenticated && d.accessToken && d.refreshToken) {
+          setTokens(d.accessToken, d.refreshToken);
+        }
+        return { user: d.user, isAuthenticated };
+      });
   },
 
   uploadVerificationDoc(file: File, unauthData?: { email: string; matricNumber: string }) {

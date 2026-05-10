@@ -1,5 +1,6 @@
 'use client';
 
+import { BrandIcon } from '@/components/brand/brand-assets';
 import { Reveal, StaggerGroup, StaggerItem } from './motion-primitives';
 
 const STAGES = [
@@ -11,6 +12,7 @@ const STAGES = [
       'Teams submit engineering proposals. One judge selects the best team from each department.',
     status: 'Upcoming',
     accent: 'var(--brand-purple)',
+    icon: 'bulb',
   },
   {
     number: 'Stage 2',
@@ -20,6 +22,7 @@ const STAGES = [
       'Ten representative teams build and demonstrate working solutions. The top five teams advance.',
     status: 'Upcoming',
     accent: 'var(--brand-cyan)',
+    icon: 'gear',
   },
   {
     number: 'Stage 3',
@@ -29,6 +32,7 @@ const STAGES = [
       'Five finalists present live and the winners are announced on the day.',
     status: 'Upcoming',
     accent: 'var(--brand-pink)',
+    icon: 'chip',
   },
 ];
 
@@ -53,6 +57,14 @@ export function Stages() {
                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   {stage.number}
                 </p>
+                <div className="mr-auto hidden h-10 w-10 items-center justify-center rounded-2xl bg-white/70 sm:flex">
+                  <BrandIcon
+                    name={stage.icon as 'bulb' | 'gear' | 'chip'}
+                    width={stage.icon === 'gear' ? 30 : 24}
+                    height={stage.icon === 'gear' ? 30 : 32}
+                    sizes="32px"
+                  />
+                </div>
                 <span
                   className="rounded-full px-3 py-1 text-xs font-semibold"
                   style={{

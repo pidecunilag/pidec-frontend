@@ -1,5 +1,6 @@
-import { AlertCircle, CheckCircle2, Clock3, FileText } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Clock3 } from 'lucide-react';
 
+import { BrandIcon } from '@/components/brand/brand-assets';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { ActiveStage, Submission, SubmissionStatus, Team, TeamInvite, User } from '@/lib/types';
@@ -33,7 +34,14 @@ export function PageHero({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-3xl border border-[rgba(42,0,59,0.1)] bg-[linear-gradient(135deg,rgba(255,255,255,0.94)_0%,rgba(236,220,255,0.78)_56%,rgba(196,240,255,0.58)_100%)] p-6 shadow-[0_24px_70px_rgba(42,0,59,0.08)] sm:p-7">
+    <div className="relative overflow-hidden rounded-3xl border border-[rgba(42,0,59,0.1)] bg-[linear-gradient(135deg,rgba(255,255,255,0.94)_0%,rgba(236,220,255,0.78)_56%,rgba(196,240,255,0.58)_100%)] p-6 shadow-[0_24px_70px_rgba(42,0,59,0.08)] sm:p-7">
+      <BrandIcon
+        name="nut"
+        width={86}
+        height={100}
+        sizes="86px"
+        className="absolute -right-4 -top-5 opacity-[0.09]"
+      />
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
@@ -83,7 +91,9 @@ export function EmptyState({
 }) {
   return (
     <div className="py-12 text-center">
-      <FileText className="mx-auto h-10 w-10 text-[var(--brand-purple)]" />
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,rgba(142,77,255,0.12),rgba(18,183,234,0.16))]">
+        <BrandIcon name="chip" width={32} height={34} sizes="32px" />
+      </div>
       <h3 className="mt-4 text-lg font-semibold">{title}</h3>
       <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">{description}</p>
       {children ? <div className="mt-5">{children}</div> : null}

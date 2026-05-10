@@ -1,3 +1,6 @@
+/* eslint-disable @next/next/no-img-element -- ImageResponse renders standard img elements for generated social cards. */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { ImageResponse } from 'next/og';
 
 import { seo } from '@/lib/seo';
@@ -9,7 +12,16 @@ export const size = {
 
 export const contentType = 'image/png';
 
+function publicAssetDataUri(path: string, mimeType: string) {
+  const file = readFileSync(join(process.cwd(), 'public', ...path.split('/')));
+  return `data:${mimeType};base64,${file.toString('base64')}`;
+}
+
 export default function OpenGraphImage() {
+  const logoSrc = publicAssetDataUri('logos/Coloured Logo Black text Trans.png', 'image/png');
+  const gearSrc = publicAssetDataUri('icons/Gear.png', 'image/png');
+  const chipSrc = publicAssetDataUri('icons/CHIP.png', 'image/png');
+
   return new ImageResponse(
     (
       <div
@@ -52,23 +64,62 @@ export default function OpenGraphImage() {
           }}
         />
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+          <img
+            src={logoSrc}
+            width={220}
+            height={94}
+            alt="PIDEC 1.0"
+            style={{
+              width: 220,
+              height: 94,
+              objectFit: 'contain',
+            }}
+          />
+          <img
+            src={gearSrc}
+            width={70}
+            height={70}
+            alt=""
+            style={{
+              position: 'absolute',
+              right: 84,
+              top: 76,
+              width: 70,
+              height: 70,
+              objectFit: 'contain',
+              opacity: 0.9,
+            }}
+          />
+          <img
+            src={chipSrc}
+            width={60}
+            height={63}
+            alt=""
+            style={{
+              position: 'absolute',
+              left: 86,
+              bottom: 76,
+              width: 60,
+              height: 63,
+              objectFit: 'contain',
+              opacity: 0.75,
+            }}
+          />
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: 72,
-              height: 72,
-              borderRadius: 20,
-              background: '#2a003b',
-              color: 'white',
-              fontSize: 42,
+              borderRadius: 999,
+              background: 'rgba(255, 85, 0, 0.12)',
+              color: '#ff5500',
+              fontSize: 22,
               fontWeight: 800,
+              padding: '16px 22px',
             }}
           >
-            P
+            10 departments
           </div>
-          <div style={{ fontSize: 34, fontWeight: 800 }}>{seo.name}</div>
         </div>
         <div style={{ maxWidth: 900, display: 'flex', flexDirection: 'column', gap: 26 }}>
           <div style={{ fontSize: 78, lineHeight: 0.95, fontWeight: 900, letterSpacing: -4 }}>

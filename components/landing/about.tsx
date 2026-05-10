@@ -1,5 +1,6 @@
 'use client';
 
+import { BrandIcon } from '@/components/brand/brand-assets';
 import { Reveal } from './motion-primitives';
 
 export function About() {
@@ -17,7 +18,14 @@ export function About() {
 
           <div className="lg:min-h-[calc(100vh-10rem)]">
             <Reveal delay={0.05}>
-              <div className="brand-panel motion-surface motion-surface-hover rounded-[2rem] p-7 sm:p-8 lg:sticky lg:top-40">
+              <div className="brand-panel motion-surface motion-surface-hover relative overflow-hidden rounded-[2rem] p-7 sm:p-8 lg:sticky lg:top-40">
+                <BrandIcon
+                  name="gear"
+                  width={120}
+                  height={120}
+                  sizes="120px"
+                  className="absolute -right-8 -top-8 opacity-[0.06]"
+                />
                 <p className="text-base leading-8 text-muted-foreground sm:text-lg">
                   PIDEC means Prototype Inter Departmental Engineering Challenge. It is a
                   faculty wide engineering competition created for students in the

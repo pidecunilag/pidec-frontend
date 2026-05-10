@@ -14,6 +14,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
+import { BrandIcon } from '@/components/brand/brand-assets';
 import { Reveal, StaggerGroup, StaggerItem } from './motion-primitives';
 
 type DepartmentCard = {
@@ -35,6 +36,8 @@ const DEPARTMENT_CARDS: DepartmentCard[] = [
   { name: 'Surveying & Geoinformatics', Icon: Map, accent: 'var(--brand-orange-warm)' },
 ];
 
+const BRAND_ICON_CYCLE = ['gear', 'nut', 'chip', 'bulb'] as const;
+
 export function Departments() {
   return (
     <section id="departments" className="px-6 pb-24 pt-10 sm:pb-32 sm:pt-12">
@@ -46,12 +49,19 @@ export function Departments() {
         </Reveal>
 
         <StaggerGroup as="ul" className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {DEPARTMENT_CARDS.map((dept) => (
+          {DEPARTMENT_CARDS.map((dept, index) => (
             <StaggerItem
               key={dept.name}
               as="li"
-              className="brand-panel motion-surface motion-surface-hover rounded-[1.6rem] p-5"
+              className="brand-panel motion-surface motion-surface-hover relative overflow-hidden rounded-[1.6rem] p-5"
             >
+              <BrandIcon
+                name={BRAND_ICON_CYCLE[index % BRAND_ICON_CYCLE.length]}
+                width={54}
+                height={54}
+                sizes="54px"
+                className="absolute -right-3 -top-3 opacity-[0.08]"
+              />
               <div
                 className="flex h-12 w-12 items-center justify-center rounded-2xl"
                 style={{ backgroundColor: dept.accent, color: dept.accent === 'var(--brand-cyan)' ? 'var(--brand-plum)' : 'white' }}

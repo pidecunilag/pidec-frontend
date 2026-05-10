@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Plus } from 'lucide-react';
 
+import { BrandIcon } from '@/components/brand/brand-assets';
 import { Reveal } from './motion-primitives';
 
 const FAQS = [
@@ -83,7 +84,14 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 export function FAQ() {
   return (
     <section id="faq" className="px-6 py-24 sm:py-32">
-      <div className="motion-surface mx-auto max-w-4xl rounded-[2.5rem] bg-[var(--brand-plum)] px-6 py-14 shadow-[0_32px_90px_rgba(42,0,59,0.18)] sm:px-10">
+      <div className="motion-surface relative mx-auto max-w-4xl overflow-hidden rounded-[2.5rem] bg-[var(--brand-plum)] px-6 py-14 shadow-[0_32px_90px_rgba(42,0,59,0.18)] sm:px-10">
+        <BrandIcon
+          name="chip"
+          width={86}
+          height={91}
+          sizes="86px"
+          className="absolute -right-5 top-8 opacity-15"
+        />
         <Reveal>
           <h2 className="text-balance font-heading text-4xl font-semibold tracking-[-0.07em] text-white sm:text-5xl">
             Frequently Asked Questions

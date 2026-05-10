@@ -1,5 +1,6 @@
 import type {
   ApiResponse,
+  Edition,
   Judge,
   Stage1RepresentativeRequest,
   Stage2ScoreRequest,
@@ -8,17 +9,24 @@ import type {
 
 import { apiClient, unwrap } from './client';
 
+export type JudgeProfile = {
+  edition: Edition;
+  judge: Judge;
+};
+
 export const judgeApi = {
   getProfile() {
-    return apiClient.get<ApiResponse<Judge>>('/judge/me').then(unwrap);
+    return apiClient
+      .get<ApiResponse<JudgeProfile>>('/judge/me')
+      .then(unwrap);
   },
 
   getSubmissions(stage?: number) {
     return apiClient
-      .get<ApiResponse<Submission[]>>('/judge/submissions', {
+      .get<ApiResponse<{ submissions: Submission[] }>>('/judge/submissions', {
         params: stage ? { stage } : undefined,
       })
-      .then(unwrap);
+      .then((response) => unwrap(response).submissions);
   },
 
   pickRepresentative(data: Stage1RepresentativeRequest) {

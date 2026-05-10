@@ -2,6 +2,7 @@
 
 import { motion } from 'motion/react';
 
+import { BrandIcon } from '@/components/brand/brand-assets';
 import { Reveal } from './motion-primitives';
 
 export function ThemeSection() {
@@ -26,6 +27,20 @@ export function ThemeSection() {
       />
 
       <div className="motion-surface relative mx-auto max-w-5xl rounded-[2.5rem] border border-white/20 bg-[rgba(42,0,59,0.78)] px-6 py-14 text-center text-white shadow-[0_32px_90px_rgba(42,0,59,0.2)] backdrop-blur sm:px-10">
+        <BrandIcon
+          name="bulb"
+          width={70}
+          height={103}
+          sizes="70px"
+          className="brand-float-accent absolute left-8 top-8 hidden opacity-25 sm:block"
+        />
+        <BrandIcon
+          name="nut"
+          width={64}
+          height={74}
+          sizes="64px"
+          className="brand-float-accent brand-float-accent-delay absolute bottom-8 right-8 hidden opacity-20 sm:block"
+        />
         <Reveal>
           <h2 className="text-balance font-heading text-4xl font-semibold leading-tight tracking-[-0.07em] sm:text-6xl">
             This Year&apos;s Theme

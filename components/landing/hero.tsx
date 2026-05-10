@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ArrowRight, Menu, X } from 'lucide-react';
 
+import { BrandIcon, BrandLogo } from '@/components/brand/brand-assets';
 import { Button } from '@/components/ui/button';
 import { fadeUp, stagger } from './motion-primitives';
 
@@ -32,6 +33,18 @@ export function Hero() {
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,transparent_0,transparent_59px,rgba(42,0,59,0.05)_59px,rgba(42,0,59,0.05)_60px),linear-gradient(transparent_0,transparent_59px,rgba(42,0,59,0.05)_59px,rgba(42,0,59,0.05)_60px)] bg-[size:60px_60px]" />
       <div className="absolute -top-20 left-[10%] h-72 w-72 rounded-full bg-[rgba(18,183,234,0.12)] blur-3xl" />
       <div className="absolute right-[-6rem] bottom-[-10rem] h-96 w-96 rounded-full bg-[rgba(255,122,33,0.12)] blur-3xl" />
+      <div aria-hidden="true" className="brand-float-accent absolute left-[8%] top-52 hidden opacity-80 sm:block">
+        <BrandIcon name="bulb" width={58} height={86} sizes="58px" />
+      </div>
+      <div aria-hidden="true" className="brand-float-accent brand-float-accent-delay absolute right-[11%] top-56 hidden opacity-75 md:block">
+        <BrandIcon name="gear" width={86} height={86} sizes="86px" />
+      </div>
+      <div aria-hidden="true" className="brand-float-accent absolute bottom-32 left-[14%] hidden opacity-55 lg:block">
+        <BrandIcon name="chip" width={64} height={68} sizes="64px" />
+      </div>
+      <div aria-hidden="true" className="brand-float-accent brand-float-accent-delay absolute bottom-28 right-[18%] hidden opacity-60 lg:block">
+        <BrandIcon name="nut" width={62} height={72} sizes="62px" />
+      </div>
 
       <motion.header
         variants={fadeUp}
@@ -43,9 +56,10 @@ export function Hero() {
           <div className="flex items-center justify-between gap-4">
             <Link
               href="/"
-              className="font-heading text-2xl font-semibold tracking-[-0.06em] text-[var(--brand-plum)]"
+              className="flex items-center"
+              aria-label="PIDEC 1.0 home"
             >
-              PIDEC 1.0
+              <BrandLogo priority width={128} height={55} sizes="128px" className="h-9 w-auto" />
             </Link>
 
             <nav className="hidden items-center gap-6 text-sm font-medium text-[var(--brand-plum-soft)] md:flex">

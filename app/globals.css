@@ -228,6 +228,14 @@
   color: transparent;
 }
 
+@utility brand-float-accent {
+  animation: brand-float 7s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate;
+}
+
+@utility brand-float-accent-delay {
+  animation-delay: -2.8s;
+}
+
 @layer components {
   .admin-workspace {
     position: relative;
@@ -722,6 +730,15 @@
     }
   }
 
+  @keyframes brand-float {
+    from {
+      transform: translate3d(0, 0, 0) rotate(-2deg);
+    }
+    to {
+      transform: translate3d(0, -12px, 0) rotate(3deg);
+    }
+  }
+
   @keyframes sidebar-slide-in-left {
     from {
       opacity: 0.92;
@@ -774,7 +791,9 @@
     .admin-workspace .rounded-xl.border,
     .admin-workspace .rounded-lg.border,
     .student-workspace .rounded-xl.border,
-    .student-workspace .rounded-lg.border {
+    .student-workspace .rounded-lg.border,
+    .brand-float-accent,
+    .brand-float-accent-delay {
       animation: none;
     }
 

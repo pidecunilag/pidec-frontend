@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import type { SVGProps } from 'react';
 
+import { BrandIcon, BrandLogo } from '@/components/brand/brand-assets';
 import { Reveal } from './motion-primitives';
 
 function LinkedInIcon(props: SVGProps<SVGSVGElement>) {
@@ -45,12 +46,17 @@ export function Footer() {
   return (
     <footer className="px-6 pb-12">
       <Reveal>
-        <div className="motion-surface mx-auto max-w-6xl rounded-[2rem] border border-[rgba(42,0,59,0.12)] bg-white/72 px-6 py-8 shadow-[0_20px_60px_rgba(42,0,59,0.08)] backdrop-blur">
+        <div className="motion-surface relative mx-auto max-w-6xl overflow-hidden rounded-[2rem] border border-[rgba(42,0,59,0.12)] bg-white/72 px-6 py-8 shadow-[0_20px_60px_rgba(42,0,59,0.08)] backdrop-blur">
+          <BrandIcon
+            name="gear"
+            width={120}
+            height={120}
+            sizes="120px"
+            className="absolute -bottom-10 -right-8 opacity-[0.05]"
+          />
           <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
             <div>
-              <p className="font-heading text-2xl font-semibold tracking-[-0.06em] text-foreground">
-                PIDEC 1.0
-              </p>
+              <BrandLogo width={142} height={61} sizes="142px" className="h-10 w-auto" />
               <div className="mt-4 flex flex-wrap items-center gap-3">
                 {SOCIAL_LINKS.map(({ href, label, Icon }) => (
                   <a
@@ -91,7 +97,7 @@ export function Footer() {
           </div>
 
           <div className="mt-8 border-t border-[rgba(42,0,59,0.08)] pt-5 text-sm text-muted-foreground">
-            © 2026 PIDEC. All rights reserved.
+            &copy; 2026 PIDEC. All rights reserved.
           </div>
         </div>
       </Reveal>

@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2, ShieldCheck, TriangleAlert } from "lucide-react";
 
@@ -12,6 +13,9 @@ import { resetPasswordSchema, type ResetPasswordFormValues } from "@/lib/validat
 import { authApi } from "@/lib/api/auth";
 import { useLocalStorageState } from "@/lib/hooks/use-local-storage";
 import { extractApiError } from "@/lib/api/client";
+import { qk } from "@/lib/api/query-keys";
+import { useAuthStore } from "@/lib/stores/auth-store";
+import type { User } from "@/lib/types";
 import { PasswordStrength } from "@/components/auth/PasswordStrength";
 
 import { Button } from "@/components/ui/button";
@@ -26,8 +30,12 @@ import {
 import { PasswordInput } from "@/components/ui/password-input";
 
 export function ResetPasswordForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
+  const setUser = useAuthStore((state) => state.setUser);
   const token = searchParams.get("token");
+  const isJudgeInvite = searchParams.get("invite") === "judge";
 
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -56,13 +64,30 @@ export function ResetPasswordForm() {
 
   const onSubmit = async (data: ResetPasswordFormValues) => {
     try {
-      await authApi.resetPassword({
+      const result = await authApi.resetPassword({
         token: data.token,
         password: data.password,
       });
       clearStorage();
+      toast.success(isJudgeInvite ? "Judge account ready!" : "Password reset successfully!");
+
+      if (result.isAuthenticated) {
+        const me = result.user;
+        queryClient.setQueryData<User>(qk.me, me);
+        setUser(me);
+        if (me.role === "judge") {
+          router.replace("/judge");
+          return;
+        }
+        if (me.role === "admin") {
+          router.replace("/admin");
+          return;
+        }
+        router.replace("/dashboard");
+        return;
+      }
+
       setIsSuccess(true);
-      toast.success("Password reset successfully!");
     } catch (error: unknown) {
       const apiError = extractApiError(error);
       toast.error(apiError.message || "Failed to reset password. The link might be expired.");
@@ -99,10 +124,12 @@ export function ResetPasswordForm() {
           <ShieldCheck className="h-8 w-8 text-brand" />
         </div>
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Password Updated
+          {isJudgeInvite ? "Judge Account Ready" : "Password Updated"}
         </h1>
         <p className="text-muted-foreground text-lg">
-          Your password has been successfully reset. You can now use your new password to sign in.
+          {isJudgeInvite
+            ? "Your password is set. You can now sign in to continue to your judge dashboard."
+            : "Your password has been successfully reset. You can now use your new password to sign in."}
         </p>
         <div className="pt-6">
           <Button asChild className="w-full h-12 text-base font-semibold">
@@ -117,10 +144,12 @@ export function ResetPasswordForm() {
     <div className="w-full max-w-md mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="space-y-3">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Create New Password
+          {isJudgeInvite ? "Set Your Judge Password" : "Create New Password"}
         </h1>
         <p className="text-muted-foreground text-lg">
-          Please enter your new password below. Make sure it&apos;s strong and unique.
+          {isJudgeInvite
+            ? "Create a secure password to activate your judge access and open your dashboard."
+            : "Please enter your new password below. Make sure it&apos;s strong and unique."}
         </p>
       </div>
 
@@ -178,7 +207,7 @@ export function ResetPasswordForm() {
                 Resetting...
               </>
             ) : (
-              "Reset Password"
+              isJudgeInvite ? "Set Password" : "Reset Password"
             )}
           </Button>
         </form>

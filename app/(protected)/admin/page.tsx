@@ -23,16 +23,6 @@ export default function AdminOverviewPage() {
 
   return (
     <div className="space-y-8">
-      <div className="rounded-3xl border border-[rgba(42,0,59,0.1)] bg-[linear-gradient(135deg,rgba(255,255,255,0.94)_0%,rgba(236,220,255,0.78)_56%,rgba(196,240,255,0.58)_100%)] p-7 shadow-[0_24px_70px_rgba(42,0,59,0.08)]">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--brand-orange)]">
-          Admin Command
-        </p>
-        <h2 className="mt-3 text-2xl font-bold tracking-tight">Dashboard</h2>
-        <p className="max-w-2xl text-muted-foreground">
-          Platform overview and quick actions for {edition?.name ?? 'PIDEC'}.
-        </p>
-      </div>
-
       {edition && (
         <section className="space-y-4 rounded-2xl border border-[rgba(42,0,59,0.1)] bg-white/88 p-6 shadow-[0_18px_44px_rgba(42,0,59,0.07)]">
           <div className="flex items-center justify-between gap-4">

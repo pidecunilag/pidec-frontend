@@ -55,4 +55,9 @@ export const qk = {
     partners: ['admin', 'partners'] as const,
     faqs: ['admin', 'faqs'] as const,
   },
+
+  judge: {
+    profile: ['judge', 'profile'] as const,
+    submissions: (stage?: number) => ['judge', 'submissions', stage] as const,
+  },
 } as const;
