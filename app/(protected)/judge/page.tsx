@@ -130,12 +130,12 @@ export default function JudgePage() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-[rgba(42,0,59,0.1)] bg-[linear-gradient(135deg,rgba(42,0,59,0.96),rgba(82,18,109,0.92))] p-5 text-white shadow-[0_18px_44px_rgba(42,0,59,0.12)] sm:p-6">
+        <div className="rounded-3xl border border-[rgba(255,90,0,0.18)] bg-[linear-gradient(135deg,rgba(255,255,255,0.96)_0%,rgba(255,245,235,0.92)_52%,rgba(241,231,255,0.78)_100%)] p-5 shadow-[0_18px_44px_rgba(255,90,0,0.08)] sm:p-6">
           <div className="flex items-center gap-3">
             <ShieldCheck className="h-5 w-5 text-[var(--brand-orange)]" />
-            <h3 className="text-xl font-semibold">Visibility rule</h3>
+            <h3 className="text-xl font-semibold text-[var(--brand-plum)]">Visibility rule</h3>
           </div>
-          <p className="mt-3 text-sm leading-6 text-white/72">
+          <p className="mt-3 text-sm leading-6 text-[var(--brand-plum-soft)]/74">
             Scores and feedback stay hidden from teams until admin reviews and publishes them.
           </p>
         </div>
