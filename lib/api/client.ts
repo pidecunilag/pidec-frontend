@@ -142,17 +142,6 @@ export function extractApiError(error: unknown): {
   code: string;
   message: string;
 } {
-  // Check if error is already extracted
-  if (
-    error &&
-    typeof error === "object" &&
-    "code" in error &&
-    "message" in error &&
-    typeof (error as { code: unknown }).code === "string"
-  ) {
-    return error as { code: string; message: string };
-  }
-
   if (axios.isAxiosError(error)) {
     const requestUrl = error.config?.url ?? "";
     if (error.response?.status === 401) {
@@ -169,7 +158,7 @@ export function extractApiError(error: unknown): {
       };
     }
 
-    const data = error.response?.data as
+    const data = parseErrorPayload(error.response?.data) as
       | ApiError
       | { error?: { code?: unknown; message?: unknown }; message?: unknown; code?: unknown }
       | undefined;
@@ -203,7 +192,30 @@ export function extractApiError(error: unknown): {
 
     return statusToError(error.response.status);
   }
+
+  // Check if error is already extracted. This must stay after the Axios branch
+  // because AxiosError also has code/message fields with developer-facing text.
+  if (
+    error &&
+    typeof error === "object" &&
+    "code" in error &&
+    "message" in error &&
+    typeof (error as { code: unknown }).code === "string"
+  ) {
+    return error as { code: string; message: string };
+  }
+
   return { code: "UNKNOWN_ERROR", message: "An unexpected error occurred" };
+}
+
+function parseErrorPayload(payload: unknown): unknown {
+  if (typeof payload !== "string") return payload;
+
+  try {
+    return JSON.parse(payload);
+  } catch {
+    return payload.trim() ? { message: payload } : undefined;
+  }
 }
 
 function statusToError(status?: number): { code: string; message: string } {
