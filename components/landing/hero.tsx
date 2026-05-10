@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { motion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { ArrowRight, Menu, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -78,30 +78,63 @@ export function Hero() {
             </button>
           </div>
 
-          {mobileOpen ? (
-            <div className="mt-4 grid gap-3 border-t border-[rgba(42,0,59,0.08)] pt-4 md:hidden">
-              {NAV_LINKS.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-sm font-medium text-[var(--brand-plum-soft)] transition-colors duration-300 hover:text-[var(--brand-plum)]"
-                  onClick={() => setMobileOpen(false)}
+          <AnimatePresence initial={false}>
+            {mobileOpen ? (
+              <motion.div
+                initial={{ height: 0, opacity: 0, y: -8 }}
+                animate={{ height: 'auto', opacity: 1, y: 0 }}
+                exit={{ height: 0, opacity: 0, y: -8 }}
+                transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+                className="mt-4 grid overflow-hidden border-t border-[rgba(42,0,59,0.08)] pt-4 md:hidden"
+              >
+                <motion.div
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  variants={{
+                    hidden: { transition: { staggerChildren: 0.035, staggerDirection: -1 } },
+                    visible: { transition: { staggerChildren: 0.055, delayChildren: 0.04 } },
+                  }}
+                  className="grid gap-3"
                 >
-                  {item.label}
-                </Link>
-              ))}
-              {SIGNUPS_OPEN ? (
-                <Button
-                  asChild
-                  className="mt-2 rounded-full border-0 bg-[linear-gradient(135deg,#6d2dff_0%,#8e4dff_48%,#b57cff_100%)] bg-[length:140%_140%] text-white shadow-[0_14px_28px_rgba(109,45,255,0.22)] hover:bg-[position:100%_50%] hover:shadow-[0_18px_36px_rgba(109,45,255,0.28)]"
-                >
-                  <Link href="/register" onClick={() => setMobileOpen(false)}>
-                    Register Now
-                  </Link>
-                </Button>
-              ) : null}
-            </div>
-          ) : null}
+                  {NAV_LINKS.map((item) => (
+                    <motion.div
+                      key={item.href}
+                      variants={{
+                        hidden: { opacity: 0, x: -10 },
+                        visible: { opacity: 1, x: 0 },
+                      }}
+                    >
+                      <Link
+                        href={item.href}
+                        className="text-sm font-medium text-[var(--brand-plum-soft)] transition-colors duration-300 hover:text-[var(--brand-plum)]"
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    </motion.div>
+                  ))}
+                  {SIGNUPS_OPEN ? (
+                    <motion.div
+                      variants={{
+                        hidden: { opacity: 0, x: -10 },
+                        visible: { opacity: 1, x: 0 },
+                      }}
+                    >
+                      <Button
+                        asChild
+                        className="mt-2 rounded-full border-0 bg-[linear-gradient(135deg,#6d2dff_0%,#8e4dff_48%,#b57cff_100%)] bg-[length:140%_140%] text-white shadow-[0_14px_28px_rgba(109,45,255,0.22)] hover:bg-[position:100%_50%] hover:shadow-[0_18px_36px_rgba(109,45,255,0.28)]"
+                      >
+                        <Link href="/register" onClick={() => setMobileOpen(false)}>
+                          Register Now
+                        </Link>
+                      </Button>
+                    </motion.div>
+                  ) : null}
+                </motion.div>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
         </div>
       </motion.header>
 

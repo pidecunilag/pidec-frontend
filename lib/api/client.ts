@@ -154,8 +154,8 @@ export function extractApiError(error: unknown): {
   }
 
   if (axios.isAxiosError(error)) {
+    const requestUrl = error.config?.url ?? "";
     if (error.response?.status === 401) {
-      const requestUrl = error.config?.url ?? "";
       if (requestUrl.includes("/auth/login")) {
         return {
           code: "AUTH_REQUIRED",
@@ -169,13 +169,69 @@ export function extractApiError(error: unknown): {
       };
     }
 
-    const data = error.response?.data as ApiError | undefined;
-    if (data?.error) {
-      return { code: data.error.code, message: data.error.message };
+    const data = error.response?.data as
+      | ApiError
+      | { error?: { code?: unknown; message?: unknown }; message?: unknown; code?: unknown }
+      | undefined;
+
+    if (data?.error && typeof data.error === "object") {
+      const code =
+        typeof data.error.code === "string"
+          ? data.error.code
+          : statusToError(error.response?.status).code;
+      const message =
+        typeof data.error.message === "string" && data.error.message.trim()
+          ? data.error.message
+          : statusToError(error.response?.status).message;
+
+      return { code, message };
     }
-    return { code: "NETWORK_ERROR", message: error.message };
+
+    if (data && "message" in data && typeof data.message === "string" && data.message.trim()) {
+      return {
+        code: typeof data.code === "string" ? data.code : statusToError(error.response?.status).code,
+        message: data.message,
+      };
+    }
+
+    if (!error.response) {
+      return {
+        code: "NETWORK_ERROR",
+        message: "We could not reach the server. Please check your connection and try again.",
+      };
+    }
+
+    return statusToError(error.response.status);
   }
   return { code: "UNKNOWN_ERROR", message: "An unexpected error occurred" };
+}
+
+function statusToError(status?: number): { code: string; message: string } {
+  switch (status) {
+    case 400:
+      return { code: "BAD_REQUEST", message: "Please check the details you entered and try again." };
+    case 403:
+      return { code: "FORBIDDEN", message: "You do not have permission to perform this action." };
+    case 404:
+      return { code: "NOT_FOUND", message: "We could not find what you were looking for." };
+    case 409:
+      return {
+        code: "CONFLICT",
+        message: "This action conflicts with an existing record. Please refresh and try again.",
+      };
+    case 413:
+      return { code: "FILE_TOO_LARGE", message: "That file is too large. Please upload a smaller file." };
+    case 429:
+      return { code: "RATE_LIMITED", message: "Please wait a moment before trying again." };
+    default:
+      if (status && status >= 500) {
+        return {
+          code: "SERVER_ERROR",
+          message: "Something went wrong on our end. Please try again shortly.",
+        };
+      }
+      return { code: "REQUEST_FAILED", message: "We could not complete that request. Please try again." };
+  }
 }
 
 /**

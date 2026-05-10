@@ -11,6 +11,8 @@ interface Step3PollingProps {
   onReupload: () => void;
 }
 
+const REUPLOAD_COOLDOWN_SECONDS = 3 * 60;
+
 export function Step3Polling({ onReupload }: Step3PollingProps) {
   const router = useRouter();
   const { status, error } = useVerification({ poll: true });
@@ -18,7 +20,7 @@ export function Step3Polling({ onReupload }: Step3PollingProps) {
 
   useEffect(() => {
     if (status === "rejected") {
-      queueMicrotask(() => setCooldown(600));
+      queueMicrotask(() => setCooldown(REUPLOAD_COOLDOWN_SECONDS));
 
       const interval = setInterval(() => {
         setCooldown((prev) => {
