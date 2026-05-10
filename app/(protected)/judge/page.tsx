@@ -266,11 +266,25 @@ function Stage1Queue({ groupedByDepartment }: { groupedByDepartment: Record<stri
             {(submissions as Stage1Submission[]).map((submission) => (
               <article key={submission.id} className="rounded-2xl border border-[rgba(42,0,59,0.08)] bg-white p-4">
                 <SubmissionHeader submission={submission} />
-                <div className="mt-4 grid gap-3 md:grid-cols-2">
-                  <FieldPreview label="Problem" value={submission.formData.problem_statement} />
-                  <FieldPreview label="Solution" value={submission.formData.proposed_solution} />
-                  <FieldPreview label="Theme alignment" value={submission.formData.theme_alignment} />
-                  <FieldPreview label="Feasibility" value={submission.formData.feasibility} />
+                <div className="mt-4 rounded-2xl border border-[rgba(142,77,255,0.14)] bg-[rgba(142,77,255,0.05)] p-4">
+                  <p className="text-sm font-semibold text-[var(--brand-plum)]">Proposal document</p>
+                  <p className="mt-1 text-sm text-[var(--brand-plum-soft)]/72">
+                    Review the uploaded PDF or Word proposal before selecting a representative.
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {submission.files?.length ? (
+                      submission.files.map((file) => (
+                        <Button key={file.url} asChild variant="outline" size="sm">
+                          <a href={file.url} target="_blank" rel="noreferrer">
+                            <FileText className="mr-2 h-4 w-4" />
+                            {file.filename}
+                          </a>
+                        </Button>
+                      ))
+                    ) : (
+                      <Badge variant="secondary">No proposal file attached</Badge>
+                    )}
+                  </div>
                 </div>
                 <div className="mt-4 space-y-2">
                   <label className="text-sm font-semibold text-[var(--brand-plum)]" htmlFor={`comments-${submission.id}`}>

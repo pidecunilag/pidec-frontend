@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { UploadCloud } from 'lucide-react';
+import { Download, UploadCloud } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -23,32 +23,15 @@ import {
   formatDateTime,
   getStageSubmission,
   isTeamLeader,
-  wordCount,
 } from '@/components/student/dashboard-utils';
 import { extractApiError } from '@/lib/api/client';
-import { AUTOSAVE_INTERVAL_MS, WORD_LIMITS } from '@/lib/constants';
+import { AUTOSAVE_INTERVAL_MS } from '@/lib/constants';
 import { getAutosaveKey, useAutosave } from '@/lib/hooks/use-autosave';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { useEdition } from '@/lib/hooks/use-edition';
 import { useSubmissions } from '@/lib/hooks/use-submissions';
 import { useTeam } from '@/lib/hooks/use-team';
-import type { Stage1FormData, Stage2FormData, Stage3FormData, UploadedSubmissionFile } from '@/lib/types';
-
-const DECLARATIONS = [
-  ['original_work', 'We confirm this submission is the original work of our team.'],
-  ['no_external_authoring', 'No external party authored any portion of this proposal.'],
-  ['agree_to_rules', 'We have read and agree to the official PIDEC 1.0 rules.'],
-  ['consent_to_publication', 'We consent to PIDEC publishing our team name and summary if selected.'],
-] as const;
-
-const emptyStage1: Stage1FormData = {
-  problem_statement: '',
-  proposed_solution: '',
-  theme_alignment: '',
-  feasibility: '',
-  departmental_relevance: '',
-  declarations: {},
-};
+import type { Stage2FormData, Stage3FormData, UploadedSubmissionFile } from '@/lib/types';
 
 const emptyStage2: Stage2FormData = {
   design_summary: '',
@@ -79,7 +62,7 @@ export default function StudentSubmissionsPage() {
     isUploadingFile,
   } = useSubmissions();
   const [stage1Token, setStage1Token] = useState('');
-  const [stage1Data, setStage1Data] = useState<Stage1FormData>(emptyStage1);
+  const [stage1Files, setStage1Files] = useState<UploadedSubmissionFile[]>([]);
   const [stage2VideoLink, setStage2VideoLink] = useState('');
   const [stage2Data, setStage2Data] = useState<Stage2FormData>(emptyStage2);
   const [stage3Data, setStage3Data] = useState<Stage3FormData>(emptyStage3);
@@ -105,23 +88,19 @@ export default function StudentSubmissionsPage() {
   const draftPayload = useMemo(
     () => ({
       stage1Token,
-      stage1Data,
+      stage1Files,
       stage2VideoLink,
       stage2Data,
       stage2Files,
       stage3Data,
       stage3Files,
     }),
-    [stage1Token, stage1Data, stage2VideoLink, stage2Data, stage2Files, stage3Data, stage3Files],
+    [stage1Token, stage1Files, stage2VideoLink, stage2Data, stage2Files, stage3Data, stage3Files],
   );
   const hasDraftContent = useMemo(() => {
     const hasStage1Content =
       stage1Token.trim().length > 0 ||
-      Object.values(stage1Data).some((value) => {
-        if (typeof value === 'string') return value.trim().length > 0;
-        if (value && typeof value === 'object') return Object.values(value).some(Boolean);
-        return false;
-      });
+      stage1Files.length > 0;
     const hasStage2Content =
       stage2VideoLink.trim().length > 0 ||
       Object.values(stage2Data).some((value) => value.trim().length > 0) ||
@@ -132,7 +111,7 @@ export default function StudentSubmissionsPage() {
       stage3Files.length > 0;
 
     return hasStage1Content || hasStage2Content || hasStage3Content;
-  }, [stage1Token, stage1Data, stage2VideoLink, stage2Data, stage2Files, stage3Data, stage3Files]);
+  }, [stage1Token, stage1Files, stage2VideoLink, stage2Data, stage2Files, stage3Data, stage3Files]);
   const { hasSavedDraft, restoreDraft, clearDraft } = useAutosave(
     draftKey,
     draftPayload,
@@ -148,7 +127,7 @@ export default function StudentSubmissionsPage() {
     const draft = restoreDraft();
     if (!draft) return toast.error('No saved draft found.');
     setStage1Token(draft.stage1Token ?? '');
-    setStage1Data(draft.stage1Data ?? emptyStage1);
+    setStage1Files(draft.stage1Files ?? []);
     setStage2VideoLink(draft.stage2VideoLink ?? '');
     setStage2Data(draft.stage2Data ?? emptyStage2);
     setStage2Files(draft.stage2Files ?? []);
@@ -157,10 +136,11 @@ export default function StudentSubmissionsPage() {
     toast.success('Draft restored.');
   };
 
-  const uploadStageFile = async (file: File | undefined, stage: 2 | 3) => {
+  const uploadStageFile = async (file: File | undefined, stage: 1 | 2 | 3) => {
     if (!file) return;
     try {
       const uploaded = await uploadFile({ file, stage });
+      if (stage === 1) setStage1Files([uploaded]);
       if (stage === 2) setStage2Files((files) => [...files, uploaded]);
       if (stage === 3) setStage3Files((files) => [...files, uploaded]);
       toast.success('File uploaded.');
@@ -172,7 +152,11 @@ export default function StudentSubmissionsPage() {
   const submitConfirmedStage = async () => {
     try {
       if (confirmStage === 1) {
-        await submitStage1({ token: stage1Token, formData: stage1Data });
+        await submitStage1({
+          token: stage1Token,
+          formData: { submission_type: 'document_upload' },
+          fileIds: stage1Files.map((file) => file.id),
+        });
       }
       if (confirmStage === 2) {
         await submitStage2({
@@ -189,7 +173,7 @@ export default function StudentSubmissionsPage() {
       }
       clearDraft();
       setStage1Token('');
-      setStage1Data(emptyStage1);
+      setStage1Files([]);
       setStage2VideoLink('');
       setStage2Data(emptyStage2);
       setStage2Files([]);
@@ -206,16 +190,8 @@ export default function StudentSubmissionsPage() {
   const validateAndConfirm = (stage: 1 | 2 | 3) => {
     if (!canSubmit) return toast.error('You cannot submit for this stage right now.');
     if (stage === 1) {
-      const missingDeclarations = DECLARATIONS.some(([key]) => stage1Data.declarations[key] !== true);
-      const overLimit = Object.entries(WORD_LIMITS).some(([key, limit]) =>
-        wordCount(stage1Data[key as keyof typeof WORD_LIMITS]) > limit,
-      );
       if (!stage1Token.trim()) return toast.error('Department token is required.');
-      if (Object.values(stage1Data).some((value) => typeof value === 'string' && !value.trim())) {
-        return toast.error('Complete every Stage 1 section.');
-      }
-      if (overLimit) return toast.error('One or more sections exceeds the word limit.');
-      if (missingDeclarations) return toast.error('Accept all declarations before submitting.');
+      if (stage1Files.length !== 1) return toast.error('Upload one PDF or Word proposal document.');
     }
     if (stage === 2) {
       if (!stage2VideoLink.trim()) return toast.error('Video link is required.');
@@ -307,9 +283,11 @@ export default function StudentSubmissionsPage() {
           <Stage1Form
             token={stage1Token}
             setToken={setStage1Token}
-            data={stage1Data}
-            setData={setStage1Data}
+            files={stage1Files}
+            setFiles={setStage1Files}
+            isUploading={isUploadingFile}
             isSubmitting={isSubmittingStage1}
+            onUpload={(file) => uploadStageFile(file, 1)}
             onSubmit={() => validateAndConfirm(1)}
           />
         </>
@@ -356,7 +334,7 @@ export default function StudentSubmissionsPage() {
           <div className="rounded-xl border bg-white/80 p-4 text-sm">
             <p className="font-medium">Review summary</p>
             <p className="mt-1 text-muted-foreground">
-              {confirmStage === 1 && 'Stage 1 proposal sections and declarations are ready.'}
+              {confirmStage === 1 && `${stage1Files.length} proposal document attached.`}
               {confirmStage === 2 && `${stage2Files.length} file(s) attached with your prototype video link.`}
               {confirmStage === 3 && `${stage3Files.length} final document(s) attached.`}
             </p>
@@ -374,65 +352,62 @@ export default function StudentSubmissionsPage() {
 function Stage1Form({
   token,
   setToken,
-  data,
-  setData,
+  files,
+  setFiles,
+  isUploading,
   isSubmitting,
+  onUpload,
   onSubmit,
 }: {
   token: string;
   setToken: (value: string) => void;
-  data: Stage1FormData;
-  setData: React.Dispatch<React.SetStateAction<Stage1FormData>>;
+  files: UploadedSubmissionFile[];
+  setFiles: React.Dispatch<React.SetStateAction<UploadedSubmissionFile[]>>;
+  isUploading: boolean;
   isSubmitting: boolean;
+  onUpload: (file: File | undefined) => void;
   onSubmit: () => void;
 }) {
-  const fields = [
-    ['problem_statement', 'Problem Statement', WORD_LIMITS.problem_statement],
-    ['proposed_solution', 'Proposed Engineering Solution', WORD_LIMITS.proposed_solution],
-    ['theme_alignment', 'Theme Alignment', WORD_LIMITS.theme_alignment],
-    ['feasibility', 'Preliminary Feasibility Assessment', WORD_LIMITS.feasibility],
-    ['departmental_relevance', 'Departmental Relevance Declaration', WORD_LIMITS.departmental_relevance],
-  ] as const;
-
   return (
-    <StudentPanel title="Stage 1 Proposal" description="Enter your department token, proposal details, and declaration.">
+    <StudentPanel title="Stage 1 Proposal" description="Upload one PDF or Word proposal document using the PIDEC guide.">
       <div className="space-y-5">
+        <div className="rounded-2xl border border-[rgba(255,85,0,0.16)] bg-[rgba(255,85,0,0.06)] p-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--brand-orange)]">
+                Proposal guide
+              </p>
+              <h3 className="mt-2 text-xl font-semibold text-[var(--brand-plum)]">
+                Use the template before uploading
+              </h3>
+              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+                Your document should cover the problem, proposed engineering solution, theme alignment,
+                feasibility, departmental relevance, and team declaration.
+              </p>
+            </div>
+            <Button asChild variant="outline" className="shrink-0">
+              <a href="/templates/stage-1-proposal-template.doc" download>
+                <Download className="mr-2 h-4 w-4" />
+                Download template
+              </a>
+            </Button>
+          </div>
+        </div>
         <div className="space-y-2">
           <Label htmlFor="stage-token">Department token</Label>
           <Input id="stage-token" value={token} onChange={(event) => setToken(event.target.value)} placeholder="12 character token" />
         </div>
-        {fields.map(([key, label, limit]) => (
-          <div key={key} className="space-y-2">
-            <div className="flex items-center justify-between gap-3">
-              <Label htmlFor={key}>{label}</Label>
-              <span className="text-xs text-muted-foreground">{wordCount(data[key])}/{limit} words</span>
-            </div>
-            <Textarea
-              id={key}
-              value={data[key]}
-              onChange={(event) => setData((current) => ({ ...current, [key]: event.target.value }))}
-              className="min-h-28"
-            />
-          </div>
-        ))}
-        <div className="space-y-3 rounded-xl border bg-white/80 p-4">
-          <p className="font-medium">Team declarations</p>
-          {DECLARATIONS.map(([key, label]) => (
-            <label key={key} className="flex gap-3 text-sm">
-              <Checkbox
-                checked={data.declarations[key] === true}
-                onCheckedChange={(checked) =>
-                  setData((current) => ({
-                    ...current,
-                    declarations: { ...current.declarations, [key]: checked === true },
-                  }))
-                }
-              />
-              <span>{label}</span>
-            </label>
-          ))}
-        </div>
-        <Button onClick={onSubmit} disabled={isSubmitting}>
+        <FileUploadList
+          files={files}
+          setFiles={setFiles}
+          isUploading={isUploading}
+          onUpload={onUpload}
+          title="Proposal document"
+          description="Accepted: PDF, DOC, DOCX. Max 50MB. Uploading a new document replaces the current one."
+          accept=".pdf,.doc,.docx"
+          maxFiles={1}
+        />
+        <Button onClick={onSubmit} disabled={isSubmitting || isUploading}>
           {isSubmitting ? 'Submitting...' : 'Review and submit Stage 1'}
         </Button>
       </div>
@@ -565,18 +540,26 @@ function FileUploadList({
   isUploading,
   onUpload,
   optional = false,
+  title = 'Supporting files',
+  description = 'Accepted: PDF, DOCX, PPTX, ZIP, PNG, JPG, WEBP. Max 50MB.',
+  accept = '.pdf,.docx,.pptx,.zip,.png,.jpg,.jpeg,.webp',
+  maxFiles,
 }: {
   files: UploadedSubmissionFile[];
   setFiles: React.Dispatch<React.SetStateAction<UploadedSubmissionFile[]>>;
   isUploading: boolean;
   onUpload: (file: File | undefined) => void;
   optional?: boolean;
+  title?: string;
+  description?: string;
+  accept?: string;
+  maxFiles?: number;
 }) {
   return (
     <div className="space-y-3 rounded-xl border bg-white/80 p-4">
       <div>
-        <p className="font-medium">Supporting files {optional ? <span className="text-muted-foreground">(optional)</span> : null}</p>
-        <p className="text-sm text-muted-foreground">Accepted: PDF, DOCX, PPTX, ZIP, PNG, JPG, WEBP. Max 50MB.</p>
+        <p className="font-medium">{title} {optional ? <span className="text-muted-foreground">(optional)</span> : null}</p>
+        <p className="text-sm text-muted-foreground">{description}</p>
       </div>
       <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-[rgba(42,0,59,0.18)] bg-white/70 p-6 text-center transition hover:border-[var(--brand-purple)] hover:bg-[rgba(142,77,255,0.06)]">
         <UploadCloud className="h-8 w-8 text-[var(--brand-purple)]" />
@@ -585,7 +568,7 @@ function FileUploadList({
           type="file"
           className="sr-only"
           disabled={isUploading}
-          accept=".pdf,.docx,.pptx,.zip,.png,.jpg,.jpeg,.webp"
+          accept={accept}
           onChange={(event) => {
             onUpload(event.target.files?.[0]);
             event.target.value = '';
@@ -608,7 +591,7 @@ function FileUploadList({
           ))}
         </div>
       ) : (
-        <Badge variant="secondary">No files uploaded</Badge>
+        <Badge variant="secondary">{maxFiles === 1 ? 'No document uploaded' : 'No files uploaded'}</Badge>
       )}
     </div>
   );

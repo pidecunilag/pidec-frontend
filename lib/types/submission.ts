@@ -18,19 +18,15 @@ export interface UploadedSubmissionFile extends SubmissionFile {
   id: string;
 }
 
-// Stage 1: Proposal submission
+// Stage 1: Proposal document submission
 export interface Stage1FormData {
-  problem_statement: string;
-  proposed_solution: string;
-  theme_alignment: string;
-  feasibility: string;
-  departmental_relevance: string;
-  declarations: Record<string, boolean>;
+  submission_type: 'document_upload';
 }
 
 export interface Stage1SubmissionRequest {
   token: string;
   formData: Stage1FormData;
+  fileIds: string[];
 }
 
 // Stage 2: Prototype + video

@@ -41,7 +41,7 @@ export function useSubmissions() {
   });
 
   const uploadFileMutation = useMutation({
-    mutationFn: ({ file, stage }: { file: File; stage: 2 | 3 }) =>
+    mutationFn: ({ file, stage }: { file: File; stage: 1 | 2 | 3 }) =>
       submissionsApi.uploadFile(file, stage),
   });
 

@@ -1,45 +1,16 @@
 import { z } from 'zod';
 
-import { WORD_LIMITS } from '@/lib/constants';
-
-function wordCount(text: string): number {
-  return text.trim().split(/\s+/).filter(Boolean).length;
-}
-
-function maxWords(limit: number) {
-  return z.string().refine((val) => wordCount(val) <= limit, {
-    message: `Must not exceed ${limit} words`,
-  });
-}
-
 function requiredText(field: string) {
   return z.string().min(1, `${field} is required`);
 }
 
-// Stage 1: Proposal
+// Stage 1: Proposal document
 export const stage1Schema = z.object({
   token: z.string().min(1, 'Department token is required'),
   formData: z.object({
-    problem_statement: requiredText('Problem statement').pipe(
-      maxWords(WORD_LIMITS.problem_statement),
-    ),
-    proposed_solution: requiredText('Proposed solution').pipe(
-      maxWords(WORD_LIMITS.proposed_solution),
-    ),
-    theme_alignment: requiredText('Theme alignment').pipe(
-      maxWords(WORD_LIMITS.theme_alignment),
-    ),
-    feasibility: requiredText('Feasibility').pipe(
-      maxWords(WORD_LIMITS.feasibility),
-    ),
-    departmental_relevance: requiredText('Departmental relevance').pipe(
-      maxWords(WORD_LIMITS.departmental_relevance),
-    ),
-    declarations: z.record(z.string(), z.literal(true)).refine(
-      (val) => Object.keys(val).length > 0,
-      { message: 'All declarations must be accepted' },
-    ),
+    submission_type: z.literal('document_upload'),
   }),
+  fileIds: z.array(z.string()).min(1, 'Upload your Stage 1 proposal document').max(1),
 });
 
 // Stage 2: Prototype + video

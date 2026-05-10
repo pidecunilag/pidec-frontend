@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>PIDEC Stage 1 Proposal Template</title>
+    <style>
+      body {
+        font-family: Aptos, Calibri, Arial, sans-serif;
+        color: #2a003b;
+        line-height: 1.55;
+        margin: 48px;
+      }
+      h1 {
+        color: #2a003b;
+        font-size: 28px;
+        margin-bottom: 4px;
+      }
+      h2 {
+        color: #ff5500;
+        font-size: 17px;
+        margin-top: 28px;
+      }
+      .meta {
+        border: 1px solid #e5d8ec;
+        border-radius: 12px;
+        padding: 16px;
+        margin: 24px 0;
+      }
+      .hint {
+        color: #6f4c80;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>PIDEC 1.0 Stage 1 Proposal</h1>
+    <p><strong>Theme:</strong> Engineering for Impact: Building Inclusive Solutions for a Sustainable Future</p>
+
+    <div class="meta">
+      <p><strong>Team Name:</strong></p>
+      <p><strong>Department:</strong></p>
+      <p><strong>Team Leader:</strong></p>
+      <p><strong>Team Members:</strong></p>
+    </div>
+
+    <h2>1. Problem Statement</h2>
+    <p class="hint">Describe the practical problem your team wants to solve, who it affects, and why it matters.</p>
+    <p></p>
+
+    <h2>2. Proposed Engineering Solution</h2>
+    <p class="hint">Explain your proposed solution, the engineering approach, core components, and how it works.</p>
+    <p></p>
+
+    <h2>3. Theme Alignment</h2>
+    <p class="hint">Show how your solution supports impact, inclusion, sustainability, and real world usefulness.</p>
+    <p></p>
+
+    <h2>4. Preliminary Feasibility Assessment</h2>
+    <p class="hint">Outline materials, tools, skills, build process, risks, and how your team can prototype it.</p>
+    <p></p>
+
+    <h2>5. Departmental Relevance</h2>
+    <p class="hint">Explain how the proposal is grounded in your department's engineering discipline.</p>
+    <p></p>
+
+    <h2>6. Team Declaration</h2>
+    <p>We confirm that this proposal is our team's original work, that no external party authored any portion of it, and that we have read and agree to the PIDEC 1.0 rules.</p>
+  </body>
+</html>

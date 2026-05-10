@@ -17,7 +17,7 @@ export const submissionsApi = {
       .then((response) => unwrap(response).submissions);
   },
 
-  uploadFile(file: File, stage: 2 | 3) {
+  uploadFile(file: File, stage: 1 | 2 | 3) {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('stage', String(stage));
