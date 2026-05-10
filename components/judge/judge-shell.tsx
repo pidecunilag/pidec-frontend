@@ -1,6 +1,15 @@
 'use client';
 
-import { ClipboardCheck, LogOut, Scale } from 'lucide-react';
+import {
+  BookOpenCheck,
+  ClipboardCheck,
+  LayoutDashboard,
+  LogOut,
+  Scale,
+  ShieldCheck,
+  UsersRound,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import { BrandLogo } from '@/components/brand/brand-assets';
 import { Button } from '@/components/ui/button';
@@ -21,8 +30,44 @@ import { SidebarCloseButton } from '@/components/ui/sidebar-close-button';
 import { SidebarLink } from '@/components/ui/sidebar-link';
 import { useAuth } from '@/lib/hooks/use-auth';
 
+const judgeNavItems = [
+  {
+    href: '/judge#overview',
+    label: 'Overview',
+    tooltip: 'Overview',
+    icon: LayoutDashboard,
+  },
+  {
+    href: '/judge#assignments',
+    label: 'Assignments',
+    tooltip: 'Assignments',
+    icon: UsersRound,
+  },
+  {
+    href: '/judge#queue',
+    label: 'Review Queue',
+    tooltip: 'Review Queue',
+    icon: ClipboardCheck,
+  },
+  {
+    href: '/judge#guidelines',
+    label: 'Guidelines',
+    tooltip: 'Guidelines',
+    icon: BookOpenCheck,
+  },
+] as const;
+
 export function JudgeShell({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
+  const [activeHash, setActiveHash] = useState('#overview');
+
+  useEffect(() => {
+    const syncHash = () => setActiveHash(window.location.hash || '#overview');
+
+    syncHash();
+    window.addEventListener('hashchange', syncHash);
+    return () => window.removeEventListener('hashchange', syncHash);
+  }, []);
 
   return (
     <SidebarProvider
@@ -56,25 +101,46 @@ export function JudgeShell({ children }: { children: React.ReactNode }) {
         </SidebarHeader>
 
         <SidebarContent className="gap-5 px-3 py-2">
+          <div className="px-3 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--brand-plum-soft)]/56 group-data-[collapsible=icon]:sr-only">
+            Judge Desk
+          </div>
           <SidebarMenu className="gap-1.5">
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                isActive
-                tooltip="Review Queue"
-                size="lg"
-                className="h-11 rounded-xl px-3 text-[0.95rem] font-medium text-white transition-[background-color,color,box-shadow] data-[active=true]:bg-[var(--brand-plum)] data-[active=true]:shadow-[0_12px_28px_rgba(42,0,59,0.18)] group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:h-11 group-data-[collapsible=icon]:w-11"
-              >
-                <SidebarLink href="/judge">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/14 text-white">
-                    <ClipboardCheck className="h-4 w-4" />
-                  </span>
-                  <span>Review Queue</span>
-                  <span className="ml-auto h-2 w-2 rounded-full bg-[var(--brand-orange)] group-data-[collapsible=icon]:hidden" />
-                </SidebarLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            {judgeNavItems.map((item, index) => {
+              const Icon = item.icon;
+              const hash = item.href.slice(item.href.indexOf('#'));
+              const isActive = activeHash === hash || (index === 0 && activeHash === '#overview');
+
+              return (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isActive}
+                    tooltip={item.tooltip}
+                    size="lg"
+                    className="h-11 rounded-xl px-3 text-[0.95rem] font-medium text-[var(--brand-plum)] transition-[background-color,color,box-shadow,transform] hover:-translate-y-0.5 hover:bg-white data-[active=true]:bg-[var(--brand-plum)] data-[active=true]:text-white data-[active=true]:shadow-[0_12px_28px_rgba(42,0,59,0.18)] group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:h-11 group-data-[collapsible=icon]:w-11"
+                  >
+                    <SidebarLink href={item.href}>
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[rgba(42,0,59,0.08)] text-[var(--brand-plum)] group-data-[active=true]:bg-white/14 group-data-[active=true]:text-white">
+                        <Icon className="h-4 w-4" />
+                      </span>
+                      <span>{item.label}</span>
+                      {isActive ? (
+                        <span className="ml-auto h-2 w-2 rounded-full bg-[var(--brand-orange)] group-data-[collapsible=icon]:hidden" />
+                      ) : null}
+                    </SidebarLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
           </SidebarMenu>
+
+          <div className="mx-3 rounded-2xl border border-[rgba(42,0,59,0.08)] bg-white/80 p-4 text-sm leading-6 text-[var(--brand-plum-soft)]/74 shadow-[0_14px_34px_rgba(42,0,59,0.05)] group-data-[collapsible=icon]:hidden">
+            <div className="mb-2 flex items-center gap-2 text-[var(--brand-plum)]">
+              <ShieldCheck className="h-4 w-4 text-[var(--brand-orange)]" />
+              <span className="font-semibold">Scoped access</span>
+            </div>
+            You only see submissions from departments assigned to your judge account.
+          </div>
         </SidebarContent>
 
         <SidebarFooter className="p-4">

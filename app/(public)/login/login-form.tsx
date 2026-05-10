@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -27,7 +27,9 @@ import { PasswordInput } from "@/components/ui/password-input";
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, isAuthenticated, user, isLoading: isAuthLoading } = useAuth();
+  const hasShownSetupToast = useRef(false);
 
   const [persistedData, setPersistedData, clearStorage] = useLocalStorageState<
     Partial<LoginFormValues>
@@ -55,6 +57,13 @@ export function LoginForm() {
       else router.push("/dashboard");
     }
   }, [isAuthenticated, user, router]);
+
+  useEffect(() => {
+    if (searchParams.get("judgeSetup") === "success" && !hasShownSetupToast.current) {
+      hasShownSetupToast.current = true;
+      toast.success("Judge password set. Sign in to continue.");
+    }
+  }, [searchParams]);
 
   const onSubmit = async (data: LoginFormValues) => {
     try {

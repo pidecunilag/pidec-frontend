@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2, ShieldCheck, TriangleAlert } from "lucide-react";
 
@@ -13,9 +12,7 @@ import { resetPasswordSchema, type ResetPasswordFormValues } from "@/lib/validat
 import { authApi } from "@/lib/api/auth";
 import { useLocalStorageState } from "@/lib/hooks/use-local-storage";
 import { extractApiError } from "@/lib/api/client";
-import { qk } from "@/lib/api/query-keys";
-import { useAuthStore } from "@/lib/stores/auth-store";
-import type { User } from "@/lib/types";
+import { clearTokens } from "@/lib/auth/token-storage";
 import { PasswordStrength } from "@/components/auth/PasswordStrength";
 
 import { Button } from "@/components/ui/button";
@@ -32,12 +29,11 @@ import { PasswordInput } from "@/components/ui/password-input";
 export function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const queryClient = useQueryClient();
-  const setUser = useAuthStore((state) => state.setUser);
   const token = searchParams.get("token");
   const isJudgeInvite = searchParams.get("invite") === "judge";
 
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const [persistedData, setPersistedData, clearStorage] = useLocalStorageState<Partial<ResetPasswordFormValues>>(
     "pidec_reset_password_form",
@@ -64,26 +60,19 @@ export function ResetPasswordForm() {
 
   const onSubmit = async (data: ResetPasswordFormValues) => {
     try {
-      const result = await authApi.resetPassword({
+      await authApi.resetPassword({
         token: data.token,
         password: data.password,
       });
       clearStorage();
       toast.success(isJudgeInvite ? "Judge account ready!" : "Password reset successfully!");
 
-      if (result.isAuthenticated) {
-        const me = result.user;
-        queryClient.setQueryData<User>(qk.me, me);
-        setUser(me);
-        if (me.role === "judge") {
-          router.replace("/judge");
-          return;
-        }
-        if (me.role === "admin") {
-          router.replace("/admin");
-          return;
-        }
-        router.replace("/dashboard");
+      if (isJudgeInvite) {
+        clearTokens();
+        setIsRedirecting(true);
+        window.setTimeout(() => {
+          router.replace("/login?judgeSetup=success");
+        }, 650);
         return;
       }
 
@@ -95,6 +84,22 @@ export function ResetPasswordForm() {
   };
 
   const isSubmitting = form.formState.isSubmitting;
+
+  if (isRedirecting) {
+    return (
+      <div className="w-full max-w-md mx-auto space-y-6 text-center animate-in fade-in duration-500">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[linear-gradient(135deg,rgba(142,77,255,0.16),rgba(255,90,0,0.14))]">
+          <Loader2 className="h-10 w-10 animate-spin text-[var(--brand-purple)]" />
+        </div>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          Taking you to login
+        </h1>
+        <p className="text-muted-foreground text-lg">
+          Your judge password is set. Sign in with your new password to enter the judge workspace.
+        </p>
+      </div>
+    );
+  }
 
   if (!token) {
     return (

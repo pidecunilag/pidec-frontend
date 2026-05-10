@@ -1,7 +1,16 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { AlertCircle, CheckCircle2, FileText, Send, Trophy } from 'lucide-react';
+import {
+  AlertCircle,
+  BookOpenCheck,
+  CheckCircle2,
+  FileText,
+  Send,
+  ShieldCheck,
+  Trophy,
+  UsersRound,
+} from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -67,7 +76,10 @@ export default function JudgePage() {
 
   return (
     <div className="space-y-8">
-      <section className="relative overflow-hidden rounded-3xl border border-[rgba(42,0,59,0.1)] bg-[linear-gradient(135deg,rgba(255,255,255,0.94)_0%,rgba(236,220,255,0.78)_56%,rgba(196,240,255,0.58)_100%)] p-6 shadow-[0_24px_70px_rgba(42,0,59,0.08)] sm:p-7">
+      <section
+        id="overview"
+        className="relative scroll-mt-24 overflow-hidden rounded-3xl border border-[rgba(42,0,59,0.1)] bg-[linear-gradient(135deg,rgba(255,255,255,0.94)_0%,rgba(236,220,255,0.78)_56%,rgba(196,240,255,0.58)_100%)] p-6 shadow-[0_24px_70px_rgba(42,0,59,0.08)] sm:p-7"
+      >
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--brand-orange)]">
           PIDEC Judge Desk
         </p>
@@ -93,43 +105,107 @@ export default function JudgePage() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section id="assignments" className="grid scroll-mt-24 gap-4 md:grid-cols-3">
         <JudgeMetric label="Assigned Departments" value={profile?.judge.assignedDepartments.length ?? 0} />
         <JudgeMetric label="Visible Submissions" value={submissions.length} />
         <JudgeMetric label="Active Stage" value={`Stage ${profile?.edition.activeStage ?? '-'}`} />
       </section>
 
-      {!profile?.judge.isActive ? (
-        <JudgeEmptyState
-          title="Judge account inactive"
-          description="Your judge access is currently inactive. Contact the PIDEC admin team if this looks wrong."
-        />
-      ) : !canLoadQueue ? (
-        <JudgeEmptyState
-          title="Queue not open yet"
-          description={`This judge account is scoped to Stage ${scopeStage}, but the competition is currently at Stage ${profile?.edition.activeStage}.`}
-        />
-      ) : loading ? (
-        <div className="space-y-4">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <Skeleton key={index} className="h-48 rounded-3xl" />
-          ))}
+      <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="rounded-3xl border border-[rgba(42,0,59,0.1)] bg-white/88 p-5 shadow-[0_18px_44px_rgba(42,0,59,0.07)] sm:p-6">
+          <div className="flex items-center gap-3">
+            <UsersRound className="h-5 w-5 text-[var(--brand-orange)]" />
+            <h3 className="text-xl font-semibold text-[var(--brand-plum)]">Department scope</h3>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {(profile?.judge.assignedDepartments ?? []).map((department) => (
+              <Badge
+                key={department}
+                variant="secondary"
+                className="rounded-full border border-[rgba(42,0,59,0.08)] bg-[rgba(42,0,59,0.04)] px-3 py-1 text-[var(--brand-plum)]"
+              >
+                {department}
+              </Badge>
+            ))}
+          </div>
         </div>
-      ) : submissionsQuery.error ? (
-        <JudgeEmptyState
-          title="Could not load submissions"
-          description="Please refresh the page. If the issue continues, contact the PIDEC admin team."
-        />
-      ) : submissions.length === 0 ? (
-        <JudgeEmptyState
-          title="No submissions available"
-          description="Submissions from your assigned departments will appear here once teams submit."
-        />
-      ) : scopeStage === 1 ? (
-        <Stage1Queue groupedByDepartment={groupedByDepartment} />
-      ) : (
-        <Stage2Queue submissions={submissions as Stage2Submission[]} />
-      )}
+
+        <div className="rounded-3xl border border-[rgba(42,0,59,0.1)] bg-[linear-gradient(135deg,rgba(42,0,59,0.96),rgba(82,18,109,0.92))] p-5 text-white shadow-[0_18px_44px_rgba(42,0,59,0.12)] sm:p-6">
+          <div className="flex items-center gap-3">
+            <ShieldCheck className="h-5 w-5 text-[var(--brand-orange)]" />
+            <h3 className="text-xl font-semibold">Visibility rule</h3>
+          </div>
+          <p className="mt-3 text-sm leading-6 text-white/72">
+            Scores and feedback stay hidden from teams until admin reviews and publishes them.
+          </p>
+        </div>
+      </section>
+
+      <section
+        id="guidelines"
+        className="scroll-mt-24 rounded-3xl border border-[rgba(42,0,59,0.1)] bg-white/88 p-5 shadow-[0_18px_44px_rgba(42,0,59,0.07)] sm:p-6"
+      >
+        <div className="flex items-center gap-3">
+          <BookOpenCheck className="h-5 w-5 text-[var(--brand-orange)]" />
+          <h3 className="text-xl font-semibold text-[var(--brand-plum)]">Judging guidance</h3>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <GuidelineCard
+            title={scopeStage === 1 ? 'Read independently' : 'Review complete demos'}
+            body={
+              scopeStage === 1
+                ? 'Stage 1 judging is discretionary. The rubric is a guide, not a forced score sheet.'
+                : 'Use each team video, documentation, and prototype notes before scoring.'
+            }
+          />
+          <GuidelineCard
+            title={scopeStage === 1 ? 'Pick one representative' : 'Score with comments'}
+            body={
+              scopeStage === 1
+                ? 'Select the strongest proposal for each assigned department.'
+                : 'Enter criterion scores and written comments so feedback is useful after publishing.'
+            }
+          />
+          <GuidelineCard
+            title="Admin confirms"
+            body="Your selections and scores go to admin review before teams see any result."
+          />
+        </div>
+      </section>
+
+      <section id="queue" className="scroll-mt-24">
+        {!profile?.judge.isActive ? (
+          <JudgeEmptyState
+            title="Judge account inactive"
+            description="Your judge access is currently inactive. Contact the PIDEC admin team if this looks wrong."
+          />
+        ) : !canLoadQueue ? (
+          <JudgeEmptyState
+            title="Queue not open yet"
+            description={`This judge account is scoped to Stage ${scopeStage}, but the competition is currently at Stage ${profile?.edition.activeStage}.`}
+          />
+        ) : loading ? (
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <Skeleton key={index} className="h-48 rounded-3xl" />
+            ))}
+          </div>
+        ) : submissionsQuery.error ? (
+          <JudgeEmptyState
+            title="Could not load submissions"
+            description="Please refresh the page. If the issue continues, contact the PIDEC admin team."
+          />
+        ) : submissions.length === 0 ? (
+          <JudgeEmptyState
+            title="No submissions available"
+            description="Submissions from your assigned departments will appear here once teams submit."
+          />
+        ) : scopeStage === 1 ? (
+          <Stage1Queue groupedByDepartment={groupedByDepartment} />
+        ) : (
+          <Stage2Queue submissions={submissions as Stage2Submission[]} />
+        )}
+      </section>
     </div>
   );
 }
@@ -143,6 +219,15 @@ function JudgeMetric({ label, value }: { label: string; value: string | number }
       <p className="mt-3 font-heading text-3xl font-semibold tracking-normal text-[var(--brand-plum)]">
         {value}
       </p>
+    </div>
+  );
+}
+
+function GuidelineCard({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="rounded-2xl border border-[rgba(42,0,59,0.08)] bg-[rgba(248,244,251,0.82)] p-4">
+      <p className="font-semibold text-[var(--brand-plum)]">{title}</p>
+      <p className="mt-2 text-sm leading-6 text-[var(--brand-plum-soft)]/72">{body}</p>
     </div>
   );
 }
@@ -342,8 +427,10 @@ function SubmissionHeader({ submission }: { submission: Submission }) {
           {submission.teams?.name ?? 'Unnamed team'}
         </h4>
         <p className="text-sm text-[var(--brand-plum-soft)]/70">
-          {submission.teams?.department ?? 'Department unavailable'} · Submitted by{' '}
-          {submission.users?.name ?? 'team leader'}
+          {submission.teams?.department ?? 'Department unavailable'}
+        </p>
+        <p className="text-sm text-[var(--brand-plum-soft)]/70">
+          Submitted by {submission.users?.name ?? 'team leader'}
         </p>
       </div>
       <Badge className="w-fit rounded-full bg-[rgba(18,183,234,0.12)] text-[#0b6f91]">
