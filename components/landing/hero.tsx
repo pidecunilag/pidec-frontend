@@ -201,7 +201,7 @@ export function Hero() {
                 variant="outline"
                 className="rounded-full border-[rgba(18,183,234,0.18)] bg-[linear-gradient(135deg,rgba(18,183,234,0.14)_0%,rgba(142,77,255,0.12)_100%)] px-6 text-[var(--brand-plum)] shadow-[0_14px_28px_rgba(18,183,234,0.08)] hover:bg-[linear-gradient(135deg,rgba(18,183,234,0.22)_0%,rgba(142,77,255,0.18)_100%)] hover:text-[var(--brand-plum)]"
               >
-                <Link href="#about">Learn More</Link>
+                <Link href="/login">Log in</Link>
               </Button>
             </motion.div>
 

@@ -7,6 +7,7 @@ export type SubmissionStatus =
 export type Stage = 1 | 2 | 3;
 
 export interface SubmissionFile {
+  id?: string;
   url: string;
   filename: string;
   sizeBytes: number;

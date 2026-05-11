@@ -386,7 +386,7 @@ function Stage1Form({
               </p>
             </div>
             <Button asChild variant="outline" className="shrink-0">
-              <a href="/templates/stage-1-proposal-template.doc" download>
+              <a href="/templates/stage-1-proposal-template.docx" download>
                 <Download className="mr-2 h-4 w-4" />
                 Download template
               </a>

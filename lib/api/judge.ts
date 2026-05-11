@@ -29,6 +29,14 @@ export const judgeApi = {
       .then((response) => unwrap(response).submissions);
   },
 
+  getSubmissionFileDownload(submissionId: string, fileId: string) {
+    return apiClient
+      .get<ApiResponse<{ download: { url: string; filename: string; expiresInSeconds: number } }>>(
+        `/judge/submissions/${submissionId}/files/${encodeURIComponent(fileId)}/download`,
+      )
+      .then((response) => unwrap(response).download);
+  },
+
   pickRepresentative(data: Stage1RepresentativeRequest) {
     return apiClient
       .post<ApiResponse<null>>('/judge/stage-1/representative', data)

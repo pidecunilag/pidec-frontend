@@ -5,6 +5,7 @@ import {
   AlertCircle,
   BookOpenCheck,
   CheckCircle2,
+  Download,
   FileText,
   Send,
   ShieldCheck,
@@ -17,8 +18,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
+import { judgeApi } from '@/lib/api/judge';
+import { extractApiError } from '@/lib/api/client';
 import { useJudgeProfile, useJudgeSubmissions, usePickRepresentative, useSubmitJudgeScore } from '@/lib/hooks/use-judge';
-import type { Stage1Submission, Stage2Submission, Submission } from '@/lib/types';
+import type { Stage1Submission, Stage2Submission, Submission, SubmissionFile } from '@/lib/types';
+import { toast } from 'sonner';
 
 const STAGE_2_RUBRIC = [
   { key: 'innovation', label: 'Innovation' },
@@ -274,12 +278,7 @@ function Stage1Queue({ groupedByDepartment }: { groupedByDepartment: Record<stri
                   <div className="mt-3 flex flex-wrap gap-2">
                     {submission.files?.length ? (
                       submission.files.map((file) => (
-                        <Button key={file.url} asChild variant="outline" size="sm">
-                          <a href={file.url} target="_blank" rel="noreferrer">
-                            <FileText className="mr-2 h-4 w-4" />
-                            {file.filename}
-                          </a>
-                        </Button>
+                        <SubmissionFileDownloadButton key={file.id ?? file.url} submissionId={submission.id} file={file} />
                       ))
                     ) : (
                       <Badge variant="secondary">No proposal file attached</Badge>
@@ -368,12 +367,7 @@ function Stage2Queue({ submissions }: { submissions: Stage2Submission[] }) {
               </Button>
             ) : null}
             {submission.files?.map((file) => (
-              <Button key={file.url} asChild variant="outline" size="sm">
-                <a href={file.url} target="_blank" rel="noreferrer">
-                  <FileText className="mr-2 h-4 w-4" />
-                  {file.filename}
-                </a>
-              </Button>
+              <SubmissionFileDownloadButton key={file.id ?? file.url} submissionId={submission.id} file={file} />
             ))}
           </div>
 
@@ -430,6 +424,47 @@ function Stage2Queue({ submissions }: { submissions: Stage2Submission[] }) {
         </article>
       ))}
     </div>
+  );
+}
+
+function SubmissionFileDownloadButton({
+  submissionId,
+  file,
+}: {
+  submissionId: string;
+  file: SubmissionFile;
+}) {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const fileId = file.id ?? file.url;
+
+  async function downloadFile() {
+    try {
+      setIsDownloading(true);
+      const download = await judgeApi.getSubmissionFileDownload(submissionId, fileId);
+      const link = document.createElement('a');
+      link.href = download.url;
+      link.download = download.filename;
+      link.rel = 'noreferrer';
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      toast.error(extractApiError(error).message);
+    } finally {
+      setIsDownloading(false);
+    }
+  }
+
+  return (
+    <Button type="button" variant="outline" size="sm" onClick={downloadFile} disabled={isDownloading}>
+      {isDownloading ? (
+        <Download className="mr-2 h-4 w-4 animate-pulse" />
+      ) : (
+        <FileText className="mr-2 h-4 w-4" />
+      )}
+      {isDownloading ? 'Preparing...' : file.filename}
+    </Button>
   );
 }
 
