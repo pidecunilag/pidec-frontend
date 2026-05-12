@@ -59,12 +59,17 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const shouldWatchVerification =
     user?.role === "student" && user.verificationStatus !== "verified";
-  const { status: liveVerificationStatus } = useVerification({
+  const { status: polledVerificationStatus } = useVerification({
     poll: shouldWatchVerification,
   });
   const { unreadCount } = useNotifications();
+  const liveVerificationStatus = shouldWatchVerification
+    ? polledVerificationStatus
+    : undefined;
   const verificationStatus =
-    liveVerificationStatus ?? user?.verificationStatus ?? "pending";
+    user?.verificationStatus === "verified"
+      ? "verified"
+      : liveVerificationStatus ?? user?.verificationStatus ?? "pending";
   const isVerified = verificationStatus === "verified";
   const activeItem =
     NAV_ITEMS.find((item) =>
