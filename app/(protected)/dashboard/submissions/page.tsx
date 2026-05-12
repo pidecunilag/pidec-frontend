@@ -382,7 +382,7 @@ function Stage1Form({
               </h3>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
                 Your document should cover the problem, proposed engineering solution, theme alignment,
-                feasibility, departmental relevance, and team declaration.
+                feasibility, and departmental relevance within the total word limit.
               </p>
             </div>
             <Button asChild variant="outline" className="shrink-0">
