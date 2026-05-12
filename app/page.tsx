@@ -5,6 +5,7 @@ import { Departments } from '@/components/landing/departments';
 import { FAQ } from '@/components/landing/faq';
 import { Footer } from '@/components/landing/footer';
 import { Hero } from '@/components/landing/hero';
+import { PidecVideoSection } from '@/components/landing/pidec-video-section';
 import { Sponsors } from '@/components/landing/sponsors';
 import { Stages } from '@/components/landing/stages';
 import { ThemeSection } from '@/components/landing/theme-section';
@@ -80,6 +81,7 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       <Hero />
+      <PidecVideoSection />
       <About />
       <Stages />
       <Departments />

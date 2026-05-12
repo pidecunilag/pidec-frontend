@@ -13,7 +13,9 @@ interface Step3PollingProps {
 
 export function Step3Polling({ onReupload }: Step3PollingProps) {
   const router = useRouter();
-  const { status, error, cooldownRemainingMs } = useVerification({ poll: true });
+  const { status, error, cooldownRemainingMs } = useVerification({
+    poll: true,
+  });
   const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
@@ -58,7 +60,8 @@ export function Step3Polling({ onReupload }: Step3PollingProps) {
           Verification Complete!
         </h1>
         <p className="text-lg text-muted-foreground">
-          Your student identity has been successfully verified. Welcome to PIDEC 1.0!
+          Your student identity has been successfully verified. Welcome to PIDEC
+          1.0!
         </p>
         <div className="pt-6">
           <Button
@@ -82,7 +85,8 @@ export function Step3Polling({ onReupload }: Step3PollingProps) {
           Verification Failed
         </h1>
         <p className="text-lg text-muted-foreground">
-          We couldn&apos;t verify your details from the uploaded document. The name or matric number did not match.
+          We couldn&apos;t verify your details from the uploaded document. The
+          name or matric number did not match.
         </p>
 
         <div className="mt-6 rounded-[1.5rem] bg-[rgba(42,0,59,0.05)] p-4">
@@ -96,7 +100,10 @@ export function Step3Polling({ onReupload }: Step3PollingProps) {
             {isCooldownActive ? (
               <>
                 Please review your document. You can try uploading again in{" "}
-                <span className="font-bold text-foreground">{formatCooldown(cooldown)}</span>.
+                <span className="font-bold text-foreground">
+                  {formatCooldown(cooldown)}
+                </span>
+                .
               </>
             ) : (
               "Please review your document and upload a clearer copy when ready."
@@ -128,7 +135,8 @@ export function Step3Polling({ onReupload }: Step3PollingProps) {
           Under Manual Review
         </h1>
         <p className="text-lg text-muted-foreground">
-          Our automated system couldn&apos;t confidently verify your document. An admin will review it manually within 24 hours.
+          Our automated system couldn&apos;t confidently verify your document.
+          An admin will review it manually within 24 hours.
         </p>
         <div className="pt-6">
           <Button
@@ -153,11 +161,13 @@ export function Step3Polling({ onReupload }: Step3PollingProps) {
           Document Uploaded!
         </h1>
         <p className="text-lg text-muted-foreground">
-          Your verification document has been securely submitted. However, your session is unverified.
+          Your verification document has been securely submitted. However, your
+          session is unverified.
         </p>
         <div className="mt-6 rounded-[1.5rem] bg-[rgba(42,0,59,0.05)] p-4">
           <p className="text-sm font-medium">
-            Please check your email and click the verification link, then log in to view your application status.
+            Please check your email and click the verification link, then log in
+            to view your application status.
           </p>
         </div>
         <div className="pt-4">
@@ -187,10 +197,11 @@ export function Step3Polling({ onReupload }: Step3PollingProps) {
 
         <div className="space-y-3">
           <h1 className="font-heading text-4xl font-semibold tracking-[-0.06em] text-foreground">
-            Checking your document
+            Finalizing your verification
           </h1>
           <p className="text-lg text-muted-foreground">
-            Please wait while we verify your upload. This usually takes a few seconds.
+            Please wait while we compare your registration details with the
+            uploaded document. This usually takes about a minute.
           </p>
         </div>
       </div>

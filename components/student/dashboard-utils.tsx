@@ -67,7 +67,7 @@ export function StudentPanel({
   className?: string;
 }) {
   return (
-    <section className={cn('rounded-2xl border bg-white/88 p-5 shadow-[0_18px_44px_rgba(42,0,59,0.07)]', className)}>
+    <section className={cn('w-full rounded-2xl border bg-white/88 p-5 shadow-[0_18px_44px_rgba(42,0,59,0.07)]', className)}>
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h3 className="text-xl font-semibold">{title}</h3>

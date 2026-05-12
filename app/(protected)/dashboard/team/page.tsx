@@ -94,11 +94,12 @@ export default function StudentTeamPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
+      <div className="grid w-full gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.9fr)]">
         <StudentPanel
           title={team ? team.name : 'Create Team'}
           description={team ? 'Your current team and member list.' : 'Verified students can create one team for their department.'}
           action={team ? <StatusBadge status={team.status} /> : undefined}
+          className="min-w-0"
         >
           {isLoading ? (
             <div className="space-y-3">
@@ -214,6 +215,7 @@ export default function StudentTeamPage() {
         <StudentPanel
           title="Pending Invites"
           description="Invites expire after 48 hours and refresh automatically."
+          className="min-w-0"
         >
           {invites.length === 0 ? (
             <EmptyState
@@ -266,6 +268,7 @@ export default function StudentTeamPage() {
         <StudentPanel
           title="Invite Teammates"
           description="Search verified, teamless students from your department."
+          className="w-full"
         >
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand-purple)]" />
@@ -316,6 +319,7 @@ export default function StudentTeamPage() {
       <StudentPanel
         title="Eligibility Rules"
         description="PIDEC team rules are enforced by the platform."
+        className="w-full"
       >
         <div className="grid gap-3 sm:grid-cols-3">
           {['3 to 6 verified students', 'Same department only', 'Leader submits for the team'].map((rule) => (
