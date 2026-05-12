@@ -95,6 +95,7 @@ export function PidecVideoSection() {
                       poster={POSTER_URL}
                       aria-label="PIDEC details video"
                       autoPlay
+                      onEnded={() => setVideoSrc(null)}
                     >
                       <source src={videoSrc} />
                       Your browser does not support this video.
