@@ -34,6 +34,19 @@ type VerificationStatusEnvelope = {
   };
 };
 
+function noStoreGetConfig() {
+  return {
+    headers: {
+      'Cache-Control': 'no-store, no-cache, max-age=0',
+      Pragma: 'no-cache',
+      Expires: '0',
+    },
+    params: {
+      _ts: Date.now(),
+    },
+  };
+}
+
 function mapVerificationStatusResponse(
   payload:
     | VerificationStatusEnvelope
@@ -110,7 +123,7 @@ export const authApi = {
 
   getMe() {
     return apiClient
-      .get<ApiResponse<UserEnvelope>>('/auth/me')
+      .get<ApiResponse<UserEnvelope>>('/auth/me', noStoreGetConfig())
       .then(unwrap)
       .then((d) => d.user);
   },
@@ -158,7 +171,10 @@ export const authApi = {
 
   getVerificationStatus() {
     return apiClient
-      .get<ApiResponse<VerificationStatusEnvelope>>('/auth/verification-status')
+      .get<ApiResponse<VerificationStatusEnvelope>>(
+        '/auth/verification-status',
+        noStoreGetConfig(),
+      )
       .then(unwrap)
       .then(mapVerificationStatusResponse);
   },
