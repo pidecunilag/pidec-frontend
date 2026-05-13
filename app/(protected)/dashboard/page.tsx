@@ -23,6 +23,8 @@ import { useNotifications } from '@/lib/hooks/use-notifications';
 import { useSubmissions } from '@/lib/hooks/use-submissions';
 import { useTeam } from '@/lib/hooks/use-team';
 
+const PLATFORM_GUIDE_EMBED_URL = 'https://www.loom.com/embed/8c2873e3177d48eb843a4a69d44d93dd';
+
 export default function StudentDashboardPage() {
   const { user } = useAuth();
   const { edition, announcementBanner, isLoading: editionLoading } = useEdition();
@@ -60,6 +62,21 @@ export default function StudentDashboardPage() {
           Your team was disqualified at Stage {team.disqualifiedAtStage ?? team.currentStage}. You can still view eligible submissions and feedback.
         </div>
       ) : null}
+
+      <StudentPanel
+        title="How to use the platform"
+        description="Watch this quick guide before creating a team, accepting invites, or submitting your stage work."
+      >
+        <div className="overflow-hidden rounded-2xl border border-[rgba(42,0,59,0.1)] bg-black shadow-[0_18px_44px_rgba(42,0,59,0.08)]">
+          <iframe
+            src={PLATFORM_GUIDE_EMBED_URL}
+            title="How to use the PIDEC platform"
+            className="aspect-video w-full"
+            allow="fullscreen; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      </StudentPanel>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
