@@ -7,11 +7,8 @@ import {
   ClipboardList,
   FileText,
   LayoutDashboard,
-  Loader2,
   LogOut,
   MessageSquareText,
-  ShieldAlert,
-  ShieldCheck,
   Users2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -37,8 +34,6 @@ import { SidebarCloseButton } from "@/components/ui/sidebar-close-button";
 import { SidebarLink } from "@/components/ui/sidebar-link";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { useNotifications } from "@/lib/hooks/use-notifications";
-import { useVerification } from "@/lib/hooks/use-verification";
-import type { VerificationStatus } from "@/lib/types";
 
 type NavItem = {
   label: string;
@@ -57,20 +52,7 @@ const NAV_ITEMS: NavItem[] = [
 export function StudentShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const shouldWatchVerification =
-    user?.role === "student" && user.verificationStatus !== "verified";
-  const { status: polledVerificationStatus } = useVerification({
-    poll: shouldWatchVerification,
-  });
   const { unreadCount } = useNotifications();
-  const liveVerificationStatus = shouldWatchVerification
-    ? polledVerificationStatus
-    : undefined;
-  const verificationStatus =
-    user?.verificationStatus === "verified"
-      ? "verified"
-      : liveVerificationStatus ?? user?.verificationStatus ?? "pending";
-  const isVerified = verificationStatus === "verified";
   const activeItem =
     NAV_ITEMS.find((item) =>
       item.href === "/dashboard"
@@ -209,110 +191,20 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
               {activeItem.label}
             </h1>
           </div>
-          {isVerified ? (
-            <Button
-              asChild
-              size="sm"
-              className="ml-auto hidden rounded-xl sm:inline-flex"
-            >
-              <Link href="/dashboard/submissions">
-                <ClipboardList className="mr-2 h-4 w-4" />
-                Submit
-              </Link>
-            </Button>
-          ) : null}
+          <Button
+            asChild
+            size="sm"
+            className="ml-auto hidden rounded-xl sm:inline-flex"
+          >
+            <Link href="/dashboard/submissions">
+              <ClipboardList className="mr-2 h-4 w-4" />
+              Submit
+            </Link>
+          </Button>
         </header>
 
-        <main className="student-workspace flex-1 p-5 lg:p-8">
-          {isVerified ? (
-            children
-          ) : (
-            <VerificationGate status={verificationStatus} onLogout={logout} />
-          )}
-        </main>
+        <main className="student-workspace flex-1 p-5 lg:p-8">{children}</main>
       </SidebarInset>
     </SidebarProvider>
-  );
-}
-
-function VerificationGate({
-  status,
-  onLogout,
-}: {
-  status: VerificationStatus;
-  onLogout: () => Promise<unknown>;
-}) {
-  if (status === "rejected") {
-    return (
-      <div className="mx-auto flex min-h-[calc(100dvh-8rem)] max-w-2xl items-center">
-        <div className="w-full rounded-2xl border border-[rgba(214,64,69,0.2)] bg-white p-6 shadow-[0_18px_44px_rgba(42,0,59,0.08)]">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[rgba(214,64,69,0.1)]">
-            <ShieldAlert className="h-6 w-6 text-destructive" />
-          </div>
-          <h2 className="mt-5 font-heading text-3xl font-semibold tracking-[-0.04em] text-[var(--brand-plum)]">
-            Verification unsuccessful
-          </h2>
-          <p className="mt-3 text-sm leading-6 text-muted-foreground">
-            The final document check could not match your registration details.
-            Upload a clearer exam docket or course form to try again.
-          </p>
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <Button asChild>
-              <Link href="/register">Re-upload document</Link>
-            </Button>
-            <Button variant="outline" onClick={() => void onLogout()}>
-              Sign out
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (status === "flagged") {
-    return (
-      <div className="mx-auto flex min-h-[calc(100dvh-8rem)] max-w-2xl items-center">
-        <div className="w-full rounded-2xl border border-amber-500/25 bg-white p-6 shadow-[0_18px_44px_rgba(42,0,59,0.08)]">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10">
-            <ShieldAlert className="h-6 w-6 text-amber-600" />
-          </div>
-          <h2 className="mt-5 font-heading text-3xl font-semibold tracking-[-0.04em] text-[var(--brand-plum)]">
-            Verification needs review
-          </h2>
-          <p className="mt-3 text-sm leading-6 text-muted-foreground">
-            The automated checks could not confidently finalize your document.
-            Team and submission actions remain locked until your account is
-            verified.
-          </p>
-          <div className="mt-6">
-            <Button variant="outline" onClick={() => void onLogout()}>
-              Sign out
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="mx-auto flex min-h-[calc(100dvh-8rem)] max-w-2xl items-center">
-      <div className="w-full rounded-2xl border border-[rgba(18,183,234,0.2)] bg-white p-6 shadow-[0_18px_44px_rgba(42,0,59,0.08)]">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[rgba(18,183,234,0.12)]">
-          <Loader2 className="h-6 w-6 animate-spin text-[var(--brand-cyan)]" />
-        </div>
-        <h2 className="mt-5 font-heading text-3xl font-semibold tracking-[-0.04em] text-[var(--brand-plum)]">
-          Finalizing verification
-        </h2>
-        <p className="mt-3 text-sm leading-6 text-muted-foreground">
-          We are comparing your registration details with the uploaded document.
-          This usually finishes within a minute, and dashboard actions unlock
-          automatically once verified.
-        </p>
-        <div className="mt-5 flex items-center gap-2 rounded-xl bg-[rgba(18,183,234,0.08)] px-4 py-3 text-sm font-medium text-[var(--brand-plum)]">
-          <ShieldCheck className="h-4 w-4 text-[var(--brand-cyan)]" />
-          Keep this page open; no action is needed.
-        </div>
-      </div>
-    </div>
   );
 }
