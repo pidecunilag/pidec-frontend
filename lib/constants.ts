@@ -69,3 +69,5 @@ export const VERIFICATION_COOLDOWN_MINUTES = 10;
 export const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
 export const ACCEPTED_DOC_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
+
+export const PLATFORM_GUIDE_EMBED_URL = 'https://www.loom.com/embed/8c2873e3177d48eb843a4a69d44d93dd';

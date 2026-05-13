@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Bell,
+  CircleHelp,
   ClipboardList,
   FileText,
   LayoutDashboard,
@@ -47,6 +48,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Submissions", href: "/dashboard/submissions", icon: FileText },
   { label: "Feedback", href: "/dashboard/feedback", icon: MessageSquareText },
   { label: "Notifications", href: "/dashboard/notifications", icon: Bell },
+  { label: "FAQ", href: "/dashboard/faq", icon: CircleHelp },
 ];
 
 export function StudentShell({ children }: { children: React.ReactNode }) {

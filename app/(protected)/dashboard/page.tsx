@@ -23,8 +23,8 @@ import { useLocalStorageState } from '@/lib/hooks/use-local-storage';
 import { useNotifications } from '@/lib/hooks/use-notifications';
 import { useSubmissions } from '@/lib/hooks/use-submissions';
 import { useTeam } from '@/lib/hooks/use-team';
+import { PLATFORM_GUIDE_EMBED_URL } from '@/lib/constants';
 
-const PLATFORM_GUIDE_EMBED_URL = 'https://www.loom.com/embed/8c2873e3177d48eb843a4a69d44d93dd';
 const PLATFORM_GUIDE_DISMISSED_KEY = 'pidec_platform_guide_dismissed';
 
 export default function StudentDashboardPage() {
