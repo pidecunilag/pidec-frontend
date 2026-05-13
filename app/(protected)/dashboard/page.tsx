@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Bell, FileCheck2, FileText, Trophy, Users2 } from 'lucide-react';
+import { Bell, FileCheck2, FileText, Trophy, Users2, X } from 'lucide-react';
 
 import { StatCard } from '@/components/admin/stat-card';
 import { Button } from '@/components/ui/button';
@@ -19,11 +19,13 @@ import {
 import { useAuth } from '@/lib/hooks/use-auth';
 import { useEdition } from '@/lib/hooks/use-edition';
 import { useFeedback } from '@/lib/hooks/use-feedback';
+import { useLocalStorageState } from '@/lib/hooks/use-local-storage';
 import { useNotifications } from '@/lib/hooks/use-notifications';
 import { useSubmissions } from '@/lib/hooks/use-submissions';
 import { useTeam } from '@/lib/hooks/use-team';
 
 const PLATFORM_GUIDE_EMBED_URL = 'https://www.loom.com/embed/8c2873e3177d48eb843a4a69d44d93dd';
+const PLATFORM_GUIDE_DISMISSED_KEY = 'pidec_platform_guide_dismissed';
 
 export default function StudentDashboardPage() {
   const { user } = useAuth();
@@ -32,6 +34,10 @@ export default function StudentDashboardPage() {
   const { submissions, isLoading: submissionsLoading } = useSubmissions();
   const { feedback } = useFeedback();
   const { unreadCount } = useNotifications();
+  const [guideDismissed, setGuideDismissed] = useLocalStorageState(
+    PLATFORM_GUIDE_DISMISSED_KEY,
+    false,
+  );
   const activeStage = edition?.activeStage === 1 || edition?.activeStage === 2 || edition?.activeStage === 3
     ? edition.activeStage
     : null;
@@ -63,20 +69,34 @@ export default function StudentDashboardPage() {
         </div>
       ) : null}
 
-      <StudentPanel
-        title="How to use the platform"
-        description="Watch this quick guide before creating a team, accepting invites, or submitting your stage work."
-      >
-        <div className="overflow-hidden rounded-2xl border border-[rgba(42,0,59,0.1)] bg-black shadow-[0_18px_44px_rgba(42,0,59,0.08)]">
-          <iframe
-            src={PLATFORM_GUIDE_EMBED_URL}
-            title="How to use the PIDEC platform"
-            className="aspect-video w-full"
-            allow="fullscreen; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
-      </StudentPanel>
+      {!guideDismissed ? (
+        <StudentPanel
+          title="How to use the platform"
+          description="Watch this quick guide before creating a team, accepting invites, or submitting your stage work."
+          action={
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Hide platform guide video"
+              className="h-9 w-9 rounded-xl text-[var(--brand-plum-soft)] hover:bg-[rgba(42,0,59,0.06)] hover:text-[var(--brand-plum)]"
+              onClick={() => setGuideDismissed(true)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          }
+        >
+          <div className="overflow-hidden rounded-2xl border border-[rgba(42,0,59,0.1)] bg-black shadow-[0_18px_44px_rgba(42,0,59,0.08)]">
+            <iframe
+              src={PLATFORM_GUIDE_EMBED_URL}
+              title="How to use the PIDEC platform"
+              className="aspect-video w-full"
+              allow="fullscreen; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        </StudentPanel>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
