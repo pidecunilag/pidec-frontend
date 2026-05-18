@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 
 import {
   overviewApi,
+  analyticsApi,
   verificationsApi,
   studentsApi,
   teamsAdminApi,
@@ -39,6 +40,7 @@ import type {
   ToggleRequest,
   LandingAssetRequest,
   LandingFaqRequest,
+  AdminAnalyticsParams,
 } from '@/lib/types';
 
 // Convention: every mutation uses the qk prefix arrays for invalidation, never literal strings.
@@ -59,6 +61,14 @@ export function useAdminOverview() {
   return useQuery({
     queryKey: qk.admin.overview,
     queryFn: overviewApi.getOverview,
+    staleTime: 30_000,
+  });
+}
+
+export function useAdminAnalytics(params?: AdminAnalyticsParams) {
+  return useQuery({
+    queryKey: qk.admin.analytics(params as Record<string, unknown>),
+    queryFn: () => analyticsApi.getAnalytics(params),
     staleTime: 30_000,
   });
 }

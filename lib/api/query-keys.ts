@@ -38,6 +38,8 @@ export const qk = {
 
   admin: {
     overview: ['admin', 'overview'] as const,
+    analytics: (params?: Record<string, unknown>) =>
+      ['admin', 'analytics', params] as const,
     verifications: (params?: Record<string, unknown>) =>
       ['admin', 'verifications', params] as const,
     students: (params?: Record<string, unknown>) =>

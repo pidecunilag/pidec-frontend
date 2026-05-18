@@ -15,6 +15,86 @@ export interface AdminOverview {
   counts: AdminOverviewCounts;
 }
 
+export interface AdminAnalyticsFilters {
+  startDate?: string | null;
+  endDate?: string | null;
+  department?: string | null;
+  stage?: number | null;
+}
+
+export interface AdminAnalyticsParams {
+  startDate?: string;
+  endDate?: string;
+  department?: string;
+  stage?: number;
+}
+
+export interface AnalyticsCountDatum {
+  label: string;
+  value: number;
+}
+
+export interface AnalyticsTrendDatum {
+  date: string;
+  registrations?: number;
+  submissions?: number;
+}
+
+export interface DepartmentLeaderboardDatum {
+  department: string;
+  registrations: number;
+  teams: number;
+  submissions: number;
+  completionRate: number;
+}
+
+export interface AdminAnalytics {
+  generatedAt: string;
+  filters: AdminAnalyticsFilters;
+  edition: Edition;
+  departments: string[];
+  overview: {
+    registrations: number;
+    verifiedStudents: number;
+    flaggedStudents: number;
+    teams: number;
+    activeTeams: number;
+    submissions: number;
+    activeJudges: number;
+    completionRate: number;
+    averageTeamSize: number;
+  };
+  registrations: {
+    total: number;
+    byDepartment: AnalyticsCountDatum[];
+    byStatus: AnalyticsCountDatum[];
+    withTeam: number;
+    withoutTeam: number;
+    trend: AnalyticsTrendDatum[];
+  };
+  teams: {
+    total: number;
+    byDepartment: AnalyticsCountDatum[];
+    byStatus: AnalyticsCountDatum[];
+    byStage: AnalyticsCountDatum[];
+    averageSize: number;
+  };
+  submissions: {
+    total: number;
+    byDepartment: AnalyticsCountDatum[];
+    byStage: AnalyticsCountDatum[];
+    byStatus: AnalyticsCountDatum[];
+    trend: AnalyticsTrendDatum[];
+    completionRate: number;
+  };
+  verification: {
+    byStatus: AnalyticsCountDatum[];
+    byMethod: AnalyticsCountDatum[];
+  };
+  trends: AnalyticsTrendDatum[];
+  departmentLeaderboard: DepartmentLeaderboardDatum[];
+}
+
 // Verification queue — shape mirrors what `/admin/verification-queue` actually returns.
 // The previous iteration imagined AI-extraction fields (aiExtractedName, confidenceScore, etc.)
 // that the backend does not provide. Re-introduce them only when backend exposes them.

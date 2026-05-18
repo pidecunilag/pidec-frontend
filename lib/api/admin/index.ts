@@ -1,4 +1,5 @@
 export { overviewApi } from './overview';
+export { analyticsApi } from './analytics';
 export { studentsApi } from './students';
 export { verificationsApi } from './verifications';
 export { teamsAdminApi } from './teams';

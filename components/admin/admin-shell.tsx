@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
+  BarChart3,
   ShieldAlert,
   Users,
   Users2,
@@ -54,6 +55,7 @@ const NAV_SECTIONS: NavSection[] = [
     label: 'Command',
     items: [
       { label: 'Overview', href: '/admin', icon: LayoutDashboard },
+      { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
       { label: 'Verifications', href: '/admin/verifications', icon: ShieldAlert },
       { label: 'Students', href: '/admin/students', icon: Users },
       { label: 'Teams', href: '/admin/teams', icon: Users2 },
