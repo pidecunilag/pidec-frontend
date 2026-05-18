@@ -8,7 +8,7 @@ export const DEPARTMENTS = [
   'Mechanical Engineering',
   'Metallurgical and Materials Engineering',
   'Petroleum and Gas Engineering',
-  'Surveying and Geoinformatics',
+  'Surveying and Geoinformatics Engineering',
   'Systems Engineering',
   'Biomedical Engineering',
 ] as const;

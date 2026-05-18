@@ -70,6 +70,18 @@ function formatLabel(value: string) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+function shortDepartmentLabel(value: string) {
+  return value
+    .replace(' and ', ' & ')
+    .replace('Engineering', '')
+    .replace('Electronics', 'Elec.')
+    .replace('Environmental', 'Env.')
+    .replace('Geoinformatics', 'Geoinfo.')
+    .replace('Metallurgical', 'Met.')
+    .replace('Materials', 'Mat.')
+    .trim();
+}
+
 function formatDate(value: string) {
   try {
     return format(parseISO(value), 'd MMM');
@@ -108,6 +120,13 @@ function toMetricRows(rows: AnalyticsCountDatum[]) {
   return rows.map((row) => ({ metric: formatLabel(row.label), value: row.value }));
 }
 
+function toDepartmentChartRows(rows: AnalyticsCountDatum[]) {
+  return rows.map((row) => ({
+    ...row,
+    shortLabel: shortDepartmentLabel(row.label),
+  }));
+}
+
 function toTrendRows(rows: AnalyticsTrendDatum[]) {
   return rows.map((row) => ({
     date: row.date,
@@ -139,7 +158,33 @@ function filterSummary(params: AdminAnalyticsParams) {
           : 'All time',
   ];
 
-  return parts.join(' • ');
+  return parts.join(' / ');
+}
+
+function MiniBarList({ rows, color }: { rows: AnalyticsCountDatum[]; color: string }) {
+  const max = Math.max(...rows.map((row) => row.value), 1);
+
+  return (
+    <div className="space-y-3">
+      {rows.slice(0, 5).map((row) => (
+        <div key={row.label} className="space-y-1.5">
+          <div className="flex items-center justify-between gap-3 text-xs font-semibold text-[var(--brand-plum-soft)]">
+            <span className="truncate">{shortDepartmentLabel(row.label)}</span>
+            <span>{formatNumber(row.value)}</span>
+          </div>
+          <div className="h-3 overflow-hidden rounded-full bg-[rgba(42,0,59,0.08)]">
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: `${Math.max((row.value / max) * 100, row.value > 0 ? 6 : 0)}%`,
+                backgroundColor: color,
+              }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 interface ChartPanelProps {
@@ -165,7 +210,7 @@ function ChartPanel({ title, description, csvFilename, csvRows, children }: Char
           CSV
         </Button>
       </div>
-      <div className="h-80 min-h-0">{children}</div>
+      <div className="h-[22rem] min-h-0 lg:h-[24rem]">{children}</div>
     </section>
   );
 }
@@ -222,11 +267,11 @@ function PublicityCard({
         ref={(node) => {
           registerCard(id, node);
         }}
-        className="aspect-[4/5] overflow-hidden rounded-2xl border border-[rgba(42,0,59,0.1)] bg-white p-7 text-[var(--brand-plum)] shadow-[0_18px_44px_rgba(42,0,59,0.07)]"
+        className="flex min-h-[34rem] flex-col overflow-hidden rounded-2xl border border-[rgba(42,0,59,0.1)] bg-white p-6 text-[var(--brand-plum)] shadow-[0_18px_44px_rgba(42,0,59,0.07)]"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-[var(--brand-cyan)]">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--brand-cyan)]">
               {eyebrow}
             </p>
             <h3 className="mt-3 font-heading text-2xl font-semibold tracking-normal">{title}</h3>
@@ -234,14 +279,14 @@ function PublicityCard({
           <Badge className="bg-[var(--brand-plum)] text-white">PIDEC 1.0</Badge>
         </div>
 
-        <div className="mt-8">
-          <p className="font-heading text-6xl font-semibold tracking-normal">{value}</p>
+        <div className="mt-7">
+          <p className="font-heading text-6xl font-semibold leading-none tracking-normal">{value}</p>
           <p className="mt-2 text-lg font-medium text-[var(--brand-plum-soft)]">{subtitle}</p>
         </div>
 
-        <div className="mt-8 h-52">{children}</div>
+        <div className="mt-7 min-h-0 flex-1">{children}</div>
 
-        <div className="mt-8 border-t border-[rgba(42,0,59,0.1)] pt-4 text-xs font-medium text-[var(--brand-plum-soft)]/70">
+        <div className="mt-5 border-t border-[rgba(42,0,59,0.1)] pt-4 text-xs font-medium text-[var(--brand-plum-soft)]/70">
           <p>{filters}</p>
           <p className="mt-1">
             Generated {generatedAt ? format(parseISO(generatedAt), 'd MMM yyyy, h:mm a') : 'just now'}
@@ -294,6 +339,7 @@ export default function AdminAnalyticsPage() {
     .filter((item) => item.value > 0)
     .sort((a, b) => b.value - a.value)
     .slice(0, 10) ?? [];
+  const topDepartmentChartRows = toDepartmentChartRows(topDepartments);
 
   return (
     <div className="space-y-8">
@@ -396,7 +442,7 @@ export default function AdminAnalyticsPage() {
         </section>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(11rem,1fr))]">
         <StatCard
           label="Registrations"
           value={data?.overview.registrations}
@@ -463,11 +509,14 @@ export default function AdminAnalyticsPage() {
               csvRows={toMetricRows(data.registrations.byDepartment)}
             >
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topDepartments} layout="vertical" margin={{ left: 24 }}>
+                <BarChart data={topDepartmentChartRows} layout="vertical" margin={{ left: 12, right: 18 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(42,0,59,0.08)" />
                   <XAxis type="number" tickFormatter={(value) => compactFormatter.format(Number(value))} tick={{ fontSize: 12 }} />
-                  <YAxis dataKey="label" type="category" width={150} tick={{ fontSize: 11 }} />
-                  <Tooltip formatter={(value) => formatNumber(Number(value))} />
+                  <YAxis dataKey="shortLabel" type="category" width={128} tick={{ fontSize: 12 }} />
+                  <Tooltip
+                    formatter={(value) => formatNumber(Number(value))}
+                    labelFormatter={(_, payload) => payload?.[0]?.payload?.label ?? ''}
+                  />
                   <Bar dataKey="value" radius={[0, 8, 8, 0]} fill="#8e4dff" />
                 </BarChart>
               </ResponsiveContainer>
@@ -564,7 +613,7 @@ export default function AdminAnalyticsPage() {
                 Downloadable image cards
               </h2>
             </div>
-            <div className="grid gap-5 lg:grid-cols-3">
+            <div className="grid gap-5 md:grid-cols-2 2xl:grid-cols-3">
               <PublicityCard
                 id="registrations"
                 title="Registrations"
@@ -577,13 +626,7 @@ export default function AdminAnalyticsPage() {
                 getCard={getCard}
                 registerCard={registerCard}
               >
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={topDepartments.slice(0, 5)} layout="vertical">
-                    <XAxis type="number" hide />
-                    <YAxis dataKey="label" type="category" width={118} tick={{ fontSize: 10 }} />
-                    <Bar dataKey="value" fill="#8e4dff" radius={[0, 8, 8, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+                <MiniBarList rows={topDepartments} color="#8e4dff" />
               </PublicityCard>
 
               <PublicityCard
@@ -598,16 +641,30 @@ export default function AdminAnalyticsPage() {
                 getCard={getCard}
                 registerCard={registerCard}
               >
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={data.verification.byStatus} dataKey="value" nameKey="label" innerRadius={42} outerRadius={76}>
-                      {data.verification.byStatus.map((entry, index) => (
-                        <Cell key={entry.label} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Legend formatter={(value) => formatLabel(String(value))} />
-                  </PieChart>
-                </ResponsiveContainer>
+                <div className="flex h-full flex-col justify-center gap-4">
+                  <div className="h-44">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={data.verification.byStatus} dataKey="value" nameKey="label" innerRadius={42} outerRadius={76}>
+                          {data.verification.byStatus.map((entry, index) => (
+                            <Cell key={entry.label} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                          ))}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs font-semibold text-[var(--brand-plum-soft)]">
+                    {data.verification.byStatus.map((entry, index) => (
+                      <div key={entry.label} className="flex items-center gap-2">
+                        <span
+                          className="h-2.5 w-2.5 rounded-full"
+                          style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
+                        />
+                        <span className="truncate">{formatLabel(entry.label)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </PublicityCard>
 
               <PublicityCard
@@ -622,13 +679,7 @@ export default function AdminAnalyticsPage() {
                 getCard={getCard}
                 registerCard={registerCard}
               >
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={submissionDepartments.slice(0, 5)}>
-                    <XAxis dataKey="label" tick={{ fontSize: 9 }} interval={0} />
-                    <YAxis hide />
-                    <Bar dataKey="value" fill="#ff5500" radius={[8, 8, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+                <MiniBarList rows={submissionDepartments} color="#ff5500" />
               </PublicityCard>
             </div>
           </section>
