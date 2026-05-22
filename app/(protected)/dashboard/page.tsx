@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Bell, FileCheck2, FileText, Trophy, Users2, X } from 'lucide-react';
 
@@ -23,7 +24,12 @@ import { useLocalStorageState } from '@/lib/hooks/use-local-storage';
 import { useNotifications } from '@/lib/hooks/use-notifications';
 import { useSubmissions } from '@/lib/hooks/use-submissions';
 import { useTeam } from '@/lib/hooks/use-team';
-import { PLATFORM_GUIDE_EMBED_URL } from '@/lib/constants';
+import {
+  PLATFORM_GUIDE_EMBED_URL,
+  SOCIAL_FOLLOW_PROMPT_DISMISSED_KEY,
+  SOCIAL_FOLLOW_PROMPT_SESSION_KEY,
+} from '@/lib/constants';
+import { SocialFollowModal } from '@/components/student/social-follow-modal';
 
 const PLATFORM_GUIDE_DISMISSED_KEY = 'pidec_platform_guide_dismissed';
 
@@ -34,6 +40,7 @@ export default function StudentDashboardPage() {
   const { submissions, isLoading: submissionsLoading } = useSubmissions();
   const { feedback } = useFeedback();
   const { unreadCount } = useNotifications();
+  const [socialPromptOpen, setSocialPromptOpen] = useState(false);
   const [guideDismissed, setGuideDismissed] = useLocalStorageState(
     PLATFORM_GUIDE_DISMISSED_KEY,
     false,
@@ -44,8 +51,42 @@ export default function StudentDashboardPage() {
   const activeSubmission = activeStage ? getStageSubmission(submissions, activeStage) : null;
   const leader = isTeamLeader(team, user);
 
+  useEffect(() => {
+    try {
+      const shouldShow = window.sessionStorage.getItem(SOCIAL_FOLLOW_PROMPT_SESSION_KEY) === '1';
+      const dismissed = window.localStorage.getItem(SOCIAL_FOLLOW_PROMPT_DISMISSED_KEY) === '1';
+
+      if (shouldShow) {
+        window.sessionStorage.removeItem(SOCIAL_FOLLOW_PROMPT_SESSION_KEY);
+      }
+
+      if (shouldShow && !dismissed) {
+        queueMicrotask(() => setSocialPromptOpen(true));
+      }
+    } catch {
+      // If storage is unavailable, skip the prompt and keep the dashboard usable.
+    }
+  }, []);
+
+  const handleSocialPromptOpenChange = (open: boolean) => {
+    setSocialPromptOpen(open);
+
+    if (!open) {
+      try {
+        window.localStorage.setItem(SOCIAL_FOLLOW_PROMPT_DISMISSED_KEY, '1');
+      } catch {
+        // Ignore storage failures; closing the modal should still work.
+      }
+    }
+  };
+
   return (
     <div className="space-y-8">
+      <SocialFollowModal
+        open={socialPromptOpen}
+        onOpenChange={handleSocialPromptOpenChange}
+      />
+
       <PageHero
         title={`Welcome${user?.name ? `, ${user.name.split(' ')[0]}` : ''}`}
         description="Track your team, stage progress, submissions, feedback, and PIDEC notifications from one place."

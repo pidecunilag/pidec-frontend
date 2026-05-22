@@ -71,3 +71,26 @@ export const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 export const ACCEPTED_DOC_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
 
 export const PLATFORM_GUIDE_EMBED_URL = 'https://www.loom.com/embed/8c2873e3177d48eb843a4a69d44d93dd';
+
+export const SOCIAL_FOLLOW_PROMPT_SESSION_KEY = 'pidec_show_social_follow_prompt';
+
+export const SOCIAL_FOLLOW_PROMPT_DISMISSED_KEY = 'pidec_social_follow_prompt_dismissed';
+
+export const SOCIAL_LINKS = [
+  {
+    label: 'Instagram',
+    href: 'https://www.instagram.com/ulespidec1.0/',
+  },
+  {
+    label: 'X',
+    href: 'https://x.com/pidecunilag',
+  },
+  {
+    label: 'TikTok',
+    href: 'https://www.tiktok.com/@pidecunilag',
+  },
+  {
+    label: 'LinkedIn',
+    href: 'https://www.linkedin.com/company/ules-pidec',
+  },
+] as const;

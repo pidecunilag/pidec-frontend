@@ -4,6 +4,7 @@ import Link from 'next/link';
 import type { SVGProps } from 'react';
 
 import { BrandIcon, BrandLogo } from '@/components/brand/brand-assets';
+import { SOCIAL_LINKS } from '@/lib/constants';
 import { Reveal } from './motion-primitives';
 
 function LinkedInIcon(props: SVGProps<SVGSVGElement>) {
@@ -36,11 +37,21 @@ function XIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-const SOCIAL_LINKS = [
-  { href: 'https://www.linkedin.com', label: 'LinkedIn', Icon: LinkedInIcon },
-  { href: 'https://www.instagram.com', label: 'Instagram', Icon: InstagramIcon },
-  { href: 'https://x.com', label: 'X', Icon: XIcon },
-];
+function TikTokIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+      <path d="M14 3v11.2a4.8 4.8 0 1 1-4.8-4.8" />
+      <path d="M14 5.5c1.2 2.4 3.1 3.7 5.6 3.9" />
+    </svg>
+  );
+}
+
+const SOCIAL_ICONS = {
+  Instagram: InstagramIcon,
+  X: XIcon,
+  TikTok: TikTokIcon,
+  LinkedIn: LinkedInIcon,
+} as const;
 
 export function Footer() {
   return (
@@ -58,7 +69,10 @@ export function Footer() {
             <div>
               <BrandLogo width={142} height={61} sizes="142px" className="h-10 w-auto" />
               <div className="mt-4 flex flex-wrap items-center gap-3">
-                {SOCIAL_LINKS.map(({ href, label, Icon }) => (
+                {SOCIAL_LINKS.map(({ href, label }) => {
+                  const Icon = SOCIAL_ICONS[label];
+
+                  return (
                   <a
                     key={label}
                     href={href}
@@ -69,7 +83,8 @@ export function Footer() {
                   >
                     <Icon className="h-4 w-4" />
                   </a>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

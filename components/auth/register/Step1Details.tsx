@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
 import { registerSchema, type RegisterFormValues } from "@/lib/validators/auth";
-import { DEPARTMENTS, LEVELS } from "@/lib/constants";
+import { DEPARTMENTS, LEVELS, SOCIAL_FOLLOW_PROMPT_SESSION_KEY } from "@/lib/constants";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { useLocalStorageState } from "@/lib/hooks/use-local-storage";
 import { extractApiError } from "@/lib/api/client";
@@ -101,6 +101,11 @@ export function Step1Details({ onNext, onCreatingChange }: Step1DetailsProps) {
     });
     try {
       await register(data);
+      try {
+        window.sessionStorage.setItem(SOCIAL_FOLLOW_PROMPT_SESSION_KEY, "1");
+      } catch {
+        // If storage is unavailable, registration should continue normally.
+      }
       await new Promise((resolve) => setTimeout(resolve, 450));
       toast.success("Account created! Please upload your verification document.");
       onNext();
