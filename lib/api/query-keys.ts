@@ -46,8 +46,6 @@ export const qk = {
       ['admin', 'students', params] as const,
     teams: (params?: Record<string, unknown>) =>
       ['admin', 'teams', params] as const,
-    tokens: (params?: Record<string, unknown>) =>
-      ['admin', 'tokens', params] as const,
     judges: (params?: Record<string, unknown>) =>
       ['admin', 'judges', params] as const,
     submissions: (params?: Record<string, unknown>) =>

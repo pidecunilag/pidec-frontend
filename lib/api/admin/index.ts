@@ -4,7 +4,6 @@ export { studentsApi } from './students';
 export { verificationsApi } from './verifications';
 export { teamsAdminApi } from './teams';
 export { submissionsAdminApi } from './submissions';
-export { tokensApi } from './tokens';
 export { judgesAdminApi } from './judges';
 export { feedbackAdminApi } from './feedback';
 export { settingsApi } from './settings';

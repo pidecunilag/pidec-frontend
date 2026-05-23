@@ -10,7 +10,6 @@ import {
   studentsApi,
   teamsAdminApi,
   submissionsAdminApi,
-  tokensApi,
   judgesAdminApi,
   feedbackAdminApi,
   settingsApi,
@@ -29,8 +28,6 @@ import type {
   SuspendUserRequest,
   TeamListParams,
   TeamActionRequest,
-  TokenListParams,
-  GenerateTokenRequest,
   JudgeListParams,
   CreateJudgeRequest,
   SubmissionListParams,
@@ -51,7 +48,6 @@ const PREFIX = {
   verifications: ['admin', 'verifications'] as const,
   students: ['admin', 'students'] as const,
   teams: ['admin', 'teams'] as const,
-  tokens: ['admin', 'tokens'] as const,
   judges: ['admin', 'judges'] as const,
   submissions: ['admin', 'submissions'] as const,
 };
@@ -154,38 +150,6 @@ export function useTeamAction() {
       qc.invalidateQueries({ queryKey: PREFIX.teams });
       qc.invalidateQueries({ queryKey: qk.admin.overview });
       toast.success('Team action applied.');
-    },
-    onError: (err) => toast.error(extractApiError(err).message),
-  });
-}
-
-// ─── Tokens ─────────────────────────────────────────────────────────────────
-export function useAdminTokens(params?: TokenListParams) {
-  return useQuery({
-    queryKey: qk.admin.tokens(params as Record<string, unknown>),
-    queryFn: () => tokensApi.listTokens(params),
-  });
-}
-
-export function useGenerateToken() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: GenerateTokenRequest) => tokensApi.generateToken(data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: PREFIX.tokens });
-      toast.success('Token generated.');
-    },
-    onError: (err) => toast.error(extractApiError(err).message),
-  });
-}
-
-export function useRegenerateToken() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: GenerateTokenRequest) => tokensApi.regenerateToken(data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: PREFIX.tokens });
-      toast.success('Token regenerated.');
     },
     onError: (err) => toast.error(extractApiError(err).message),
   });

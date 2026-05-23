@@ -132,23 +132,6 @@ export type TeamActionRequest =
   | { action: 'disqualify'; reason: string; atStage: 1 | 2 | 3 }
   | { action: 'unlock_submission' };
 
-// Submission tokens
-export interface Token {
-  id: string;
-  department: string;
-  tokenString: string;
-  editionId: string;
-  expiresAt?: string;
-  useCount: number;
-  lastUsedAt?: string;
-  deletedAt?: string;
-}
-
-export interface GenerateTokenRequest {
-  department: string;
-  expiresAt?: string;
-}
-
 // Checkpoints
 export interface Checkpoint {
   id: string;
@@ -261,14 +244,6 @@ export interface JudgeListParams {
   offset?: number;
   stageScope?: 'stage_1' | 'stage_2';
   isActive?: boolean;
-}
-
-export interface TokenListParams {
-  cursor?: string;
-  limit?: number;
-  offset?: number;
-  department?: string;
-  includeRetired?: boolean;
 }
 
 export interface UserListParams {

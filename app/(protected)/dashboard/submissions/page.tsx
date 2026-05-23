@@ -61,7 +61,6 @@ export default function StudentSubmissionsPage() {
     isSubmittingStage3,
     isUploadingFile,
   } = useSubmissions();
-  const [stage1Token, setStage1Token] = useState('');
   const [stage1Files, setStage1Files] = useState<UploadedSubmissionFile[]>([]);
   const [stage2VideoLink, setStage2VideoLink] = useState('');
   const [stage2Data, setStage2Data] = useState<Stage2FormData>(emptyStage2);
@@ -87,7 +86,6 @@ export default function StudentSubmissionsPage() {
     : 'pidec_draft_unavailable';
   const draftPayload = useMemo(
     () => ({
-      stage1Token,
       stage1Files,
       stage2VideoLink,
       stage2Data,
@@ -95,12 +93,10 @@ export default function StudentSubmissionsPage() {
       stage3Data,
       stage3Files,
     }),
-    [stage1Token, stage1Files, stage2VideoLink, stage2Data, stage2Files, stage3Data, stage3Files],
+    [stage1Files, stage2VideoLink, stage2Data, stage2Files, stage3Data, stage3Files],
   );
   const hasDraftContent = useMemo(() => {
-    const hasStage1Content =
-      stage1Token.trim().length > 0 ||
-      stage1Files.length > 0;
+    const hasStage1Content = stage1Files.length > 0;
     const hasStage2Content =
       stage2VideoLink.trim().length > 0 ||
       Object.values(stage2Data).some((value) => value.trim().length > 0) ||
@@ -111,7 +107,7 @@ export default function StudentSubmissionsPage() {
       stage3Files.length > 0;
 
     return hasStage1Content || hasStage2Content || hasStage3Content;
-  }, [stage1Token, stage1Files, stage2VideoLink, stage2Data, stage2Files, stage3Data, stage3Files]);
+  }, [stage1Files, stage2VideoLink, stage2Data, stage2Files, stage3Data, stage3Files]);
   const { hasSavedDraft, restoreDraft, clearDraft } = useAutosave(
     draftKey,
     draftPayload,
@@ -126,7 +122,6 @@ export default function StudentSubmissionsPage() {
   const restoreSavedDraft = () => {
     const draft = restoreDraft();
     if (!draft) return toast.error('No saved draft found.');
-    setStage1Token(draft.stage1Token ?? '');
     setStage1Files(draft.stage1Files ?? []);
     setStage2VideoLink(draft.stage2VideoLink ?? '');
     setStage2Data(draft.stage2Data ?? emptyStage2);
@@ -153,7 +148,6 @@ export default function StudentSubmissionsPage() {
     try {
       if (confirmStage === 1) {
         await submitStage1({
-          token: stage1Token,
           formData: { submission_type: 'document_upload' },
           fileIds: stage1Files.map((file) => file.id),
         });
@@ -172,7 +166,6 @@ export default function StudentSubmissionsPage() {
         });
       }
       clearDraft();
-      setStage1Token('');
       setStage1Files([]);
       setStage2VideoLink('');
       setStage2Data(emptyStage2);
@@ -190,7 +183,6 @@ export default function StudentSubmissionsPage() {
   const validateAndConfirm = (stage: 1 | 2 | 3) => {
     if (!canSubmit) return toast.error('You cannot submit for this stage right now.');
     if (stage === 1) {
-      if (!stage1Token.trim()) return toast.error('Department token is required.');
       if (stage1Files.length !== 1) return toast.error('Upload one PDF or Word proposal document.');
     }
     if (stage === 2) {
@@ -281,8 +273,6 @@ export default function StudentSubmissionsPage() {
         <>
           <DraftRestoreBar hasDraft={hasSavedDraft} onRestore={restoreSavedDraft} />
           <Stage1Form
-            token={stage1Token}
-            setToken={setStage1Token}
             files={stage1Files}
             setFiles={setStage1Files}
             isUploading={isUploadingFile}
@@ -350,8 +340,6 @@ export default function StudentSubmissionsPage() {
 }
 
 function Stage1Form({
-  token,
-  setToken,
   files,
   setFiles,
   isUploading,
@@ -359,8 +347,6 @@ function Stage1Form({
   onUpload,
   onSubmit,
 }: {
-  token: string;
-  setToken: (value: string) => void;
   files: UploadedSubmissionFile[];
   setFiles: React.Dispatch<React.SetStateAction<UploadedSubmissionFile[]>>;
   isUploading: boolean;
@@ -392,10 +378,6 @@ function Stage1Form({
               </a>
             </Button>
           </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="stage-token">Department token</Label>
-          <Input id="stage-token" value={token} onChange={(event) => setToken(event.target.value)} placeholder="12 character token" />
         </div>
         <FileUploadList
           files={files}

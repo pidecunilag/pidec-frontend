@@ -25,7 +25,6 @@ export interface Stage1FormData {
 }
 
 export interface Stage1SubmissionRequest {
-  token: string;
   formData: Stage1FormData;
   fileIds: string[];
 }

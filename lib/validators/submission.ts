@@ -6,7 +6,6 @@ function requiredText(field: string) {
 
 // Stage 1: Proposal document
 export const stage1Schema = z.object({
-  token: z.string().min(1, 'Department token is required'),
   formData: z.object({
     submission_type: z.literal('document_upload'),
   }),

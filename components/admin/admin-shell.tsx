@@ -8,7 +8,6 @@ import {
   Users,
   Users2,
   FileText,
-  KeyRound,
   Gavel,
   MessageSquare,
   Globe,
@@ -65,7 +64,6 @@ const NAV_SECTIONS: NavSection[] = [
     label: 'Competition',
     items: [
       { label: 'Submissions', href: '/admin/submissions', icon: FileText },
-      { label: 'Tokens', href: '/admin/tokens', icon: KeyRound },
       { label: 'Judges', href: '/admin/judges', icon: Gavel },
       { label: 'Feedback', href: '/admin/feedback', icon: MessageSquare },
     ],
