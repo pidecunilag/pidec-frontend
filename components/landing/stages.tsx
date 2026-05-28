@@ -7,7 +7,7 @@ const STAGES = [
   {
     number: 'Stage 1',
     name: 'Preliminary Entry',
-    dates: '18 to 24 May 2026',
+    dates: '18 to 31 May 2026',
     description:
       'Teams submit engineering proposals. One judge selects the best team from each department.',
     status: 'Upcoming',
