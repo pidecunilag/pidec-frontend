@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 import { DEPARTMENTS, LEVELS } from '@/lib/constants';
 
+const MATRIC_REGEX = /^(?:1[89]|2[0-5])04\d{5}$/;
+
 export const registerSchema = z.object({
   name: z
     .string()
@@ -20,7 +22,7 @@ export const registerSchema = z.object({
 
   matricNumber: z
     .string()
-    .regex(/^(19|2[0-5])04\d{5}$/, 'Enter a valid UNILAG matric number (e.g. 210412345)'),
+    .regex(MATRIC_REGEX, 'Enter a valid UNILAG matric number (e.g. 180412345)'),
 
   department: z.enum(DEPARTMENTS as unknown as [string, ...string[]], {
     message: 'Select a valid department',
