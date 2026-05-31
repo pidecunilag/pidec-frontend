@@ -78,7 +78,7 @@ export function Step1Details({ onNext, onCreatingChange }: Step1DetailsProps) {
   const passwordValue = form.watch("password");
   const matricValue = form.watch("matricNumber");
 
-  const isMatricValid = /^(?:1[89]|2[0-5])04\d{5}$/.test(matricValue || "");
+  const isMatricValid = /^(?:1[89]|2[0-5])(?:04|08)\d{5}$/.test(matricValue || "");
   const matricStateClasses = matricValue
     ? isMatricValid
       ? "border-green-500 focus-visible:ring-green-500 shadow-[0_0_10px_rgba(34,197,94,0.2)]"
