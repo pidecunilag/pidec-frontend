@@ -148,6 +148,7 @@ export function useTeamAction() {
       teamsAdminApi.applyTeamAction(teamId, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: PREFIX.teams });
+      qc.invalidateQueries({ queryKey: PREFIX.submissions });
       qc.invalidateQueries({ queryKey: qk.admin.overview });
       toast.success('Team action applied.');
     },

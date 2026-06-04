@@ -2,6 +2,7 @@ export type SubmissionStatus =
   | 'not_submitted'
   | 'submitted'
   | 'under_review'
+  | 'feedback_published'
   | 'feedback_available';
 
 export type Stage = 1 | 2 | 3;
@@ -61,6 +62,7 @@ export interface SubmissionTeamPreview {
   name: string;
   status: string;
   department: string;
+  currentStage?: number;
 }
 
 export interface SubmissionUserPreview {
@@ -71,11 +73,32 @@ export interface SubmissionUserPreview {
 
 export interface SubmissionJudgeScorePreview {
   id: string;
+  submissionId?: string;
+  judgeId?: string;
   scores: Record<string, number>;
   comments: Record<string, string>;
   totalScore: number | null;
   isRepresentativePick?: boolean;
   submittedAt?: string;
+  judges?: {
+    id: string;
+    name: string;
+    email: string;
+    stageScope?: 'stage_1' | 'stage_2';
+  } | null;
+}
+
+export interface SubmissionFeedbackPreview {
+  id: string;
+  submissionId: string;
+  scores: Record<string, number>;
+  comments: Record<string, string>;
+  totalScore: number | null;
+  outcome: 'advanced' | 'not_advanced' | 'pending' | null;
+  published: boolean;
+  publishedAt?: string | null;
+  evaluatorName?: string | null;
+  evaluationDate?: string | null;
 }
 
 // Discriminated union — switch on `stage` to narrow `formData` exhaustively.
@@ -97,6 +120,8 @@ interface SubmissionBase {
   teams?: SubmissionTeamPreview;
   users?: SubmissionUserPreview;
   judgeScore?: SubmissionJudgeScorePreview | null;
+  judgeScores?: SubmissionJudgeScorePreview[];
+  feedbackRecord?: SubmissionFeedbackPreview | null;
 }
 
 export interface Stage1Submission extends SubmissionBase {
