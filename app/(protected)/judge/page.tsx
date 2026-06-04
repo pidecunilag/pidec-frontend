@@ -191,16 +191,16 @@ export default function JudgePage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto w-full min-w-0 max-w-7xl space-y-6 sm:space-y-8">
       <section
         id="overview"
-        className="relative scroll-mt-24 overflow-hidden rounded-3xl border border-[rgba(42,0,59,0.1)] bg-[linear-gradient(135deg,rgba(255,255,255,0.94)_0%,rgba(236,220,255,0.78)_56%,rgba(196,240,255,0.58)_100%)] p-6 shadow-[0_24px_70px_rgba(42,0,59,0.08)] sm:p-7"
+        className="relative min-w-0 scroll-mt-24 overflow-hidden rounded-3xl border border-[rgba(42,0,59,0.1)] bg-[linear-gradient(135deg,rgba(255,255,255,0.94)_0%,rgba(236,220,255,0.78)_56%,rgba(196,240,255,0.58)_100%)] p-5 shadow-[0_24px_70px_rgba(42,0,59,0.08)] sm:p-7"
       >
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--brand-orange)]">
           PIDEC Judge Desk
         </p>
-        <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
+        <div className="mt-3 flex min-w-0 flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0">
             <h2 className="text-3xl font-semibold tracking-normal text-[var(--brand-plum)]">
               {scopeStage === 1 ? 'Stage 1 Proposal Scoring' : 'Prototype Scoring'}
             </h2>
@@ -221,14 +221,14 @@ export default function JudgePage() {
         </div>
       </section>
 
-      <section id="assignments" className="grid scroll-mt-24 gap-4 md:grid-cols-3">
+      <section id="assignments" className="grid min-w-0 scroll-mt-24 gap-4 md:grid-cols-3">
         <JudgeMetric label="Assigned Departments" value={profile?.judge.assignedDepartments.length ?? 0} />
         <JudgeMetric label="Visible Submissions" value={submissions.length} />
         <JudgeMetric label="Active Stage" value={`Stage ${profile?.edition.activeStage ?? '-'}`} />
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="rounded-3xl border border-[rgba(42,0,59,0.1)] bg-white/88 p-5 shadow-[0_18px_44px_rgba(42,0,59,0.07)] sm:p-6">
+      <section className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+        <div className="min-w-0 rounded-3xl border border-[rgba(42,0,59,0.1)] bg-white/88 p-5 shadow-[0_18px_44px_rgba(42,0,59,0.07)] sm:p-6">
           <div className="flex items-center gap-3">
             <UsersRound className="h-5 w-5 text-[var(--brand-orange)]" />
             <h3 className="text-xl font-semibold text-[var(--brand-plum)]">Department scope</h3>
@@ -246,7 +246,7 @@ export default function JudgePage() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-[rgba(255,90,0,0.18)] bg-[linear-gradient(135deg,rgba(255,255,255,0.96)_0%,rgba(255,245,235,0.92)_52%,rgba(241,231,255,0.78)_100%)] p-5 shadow-[0_18px_44px_rgba(255,90,0,0.08)] sm:p-6">
+        <div className="min-w-0 rounded-3xl border border-[rgba(255,90,0,0.18)] bg-[linear-gradient(135deg,rgba(255,255,255,0.96)_0%,rgba(255,245,235,0.92)_52%,rgba(241,231,255,0.78)_100%)] p-5 shadow-[0_18px_44px_rgba(255,90,0,0.08)] sm:p-6">
           <div className="flex items-center gap-3">
             <ShieldCheck className="h-5 w-5 text-[var(--brand-orange)]" />
             <h3 className="text-xl font-semibold text-[var(--brand-plum)]">Visibility rule</h3>
@@ -259,7 +259,7 @@ export default function JudgePage() {
 
       <section
         id="guidelines"
-        className="scroll-mt-24 rounded-3xl border border-[rgba(42,0,59,0.1)] bg-white/88 p-5 shadow-[0_18px_44px_rgba(42,0,59,0.07)] sm:p-6"
+        className="min-w-0 scroll-mt-24 overflow-hidden rounded-3xl border border-[rgba(42,0,59,0.1)] bg-white/88 p-5 shadow-[0_18px_44px_rgba(42,0,59,0.07)] sm:p-6"
       >
         <div className="flex items-center gap-3">
           <BookOpenCheck className="h-5 w-5 text-[var(--brand-orange)]" />
@@ -268,7 +268,7 @@ export default function JudgePage() {
         {scopeStage === 1 ? (
           <Stage1GuideAccordion />
         ) : (
-          <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <div className="mt-4 grid min-w-0 gap-3 md:grid-cols-3">
             <GuidelineCard
               title="Review complete demos"
               body="Use each team video, documentation, and prototype notes before scoring."
@@ -285,7 +285,7 @@ export default function JudgePage() {
         )}
       </section>
 
-      <section id="queue" className="scroll-mt-24">
+      <section id="queue" className="min-w-0 scroll-mt-24">
         {!profile?.judge.isActive ? (
           <JudgeEmptyState
             title="Judge account inactive"
@@ -324,7 +324,7 @@ export default function JudgePage() {
 
 function JudgeMetric({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-2xl border border-[rgba(42,0,59,0.1)] bg-white/88 p-5 shadow-[0_18px_44px_rgba(42,0,59,0.07)]">
+    <div className="min-w-0 rounded-2xl border border-[rgba(42,0,59,0.1)] bg-white/88 p-5 shadow-[0_18px_44px_rgba(42,0,59,0.07)]">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand-plum-soft)]/62">
         {label}
       </p>
@@ -337,7 +337,7 @@ function JudgeMetric({ label, value }: { label: string; value: string | number }
 
 function GuidelineCard({ title, body }: { title: string; body: string }) {
   return (
-    <div className="rounded-2xl border border-[rgba(42,0,59,0.08)] bg-[rgba(248,244,251,0.82)] p-4">
+    <div className="min-w-0 rounded-2xl border border-[rgba(42,0,59,0.08)] bg-[rgba(248,244,251,0.82)] p-4">
       <p className="font-semibold text-[var(--brand-plum)]">{title}</p>
       <p className="mt-2 text-sm leading-6 text-[var(--brand-plum-soft)]/72">{body}</p>
     </div>
@@ -348,23 +348,23 @@ function Stage1GuideAccordion() {
   const [openSection, setOpenSection] = useState<string>(STAGE_1_GUIDE_SECTIONS[0].title);
 
   return (
-    <div className="mt-5 space-y-4">
-      <div className="flex flex-col gap-3 rounded-2xl border border-[rgba(18,183,234,0.18)] bg-[rgba(18,183,234,0.06)] p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+    <div className="mt-5 min-w-0 space-y-4">
+      <div className="flex min-w-0 flex-col gap-3 rounded-2xl border border-[rgba(18,183,234,0.18)] bg-[rgba(18,183,234,0.06)] p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <p className="font-semibold text-[var(--brand-plum)]">Stage 1 guide</p>
           <p className="mt-1 text-sm leading-6 text-[var(--brand-plum-soft)]/72">
             Use the rubric below while scoring. Representative selection is handled by admin after review.
           </p>
         </div>
-        <Button asChild variant="outline" className="w-full sm:w-auto">
-          <a href={STAGE_1_GUIDE_PDF_URL} download>
+        <Button asChild variant="outline" className="w-full shrink-0 sm:w-auto">
+          <a href={STAGE_1_GUIDE_PDF_URL} download className="justify-center">
             <Download className="mr-2 h-4 w-4" />
             Download PDF
           </a>
         </Button>
       </div>
 
-      <div className="divide-y divide-[rgba(42,0,59,0.08)] overflow-hidden rounded-2xl border border-[rgba(42,0,59,0.08)] bg-white">
+      <div className="min-w-0 divide-y divide-[rgba(42,0,59,0.08)] overflow-hidden rounded-2xl border border-[rgba(42,0,59,0.08)] bg-white">
         {STAGE_1_GUIDE_SECTIONS.map((section) => {
           const isOpen = openSection === section.title;
 
@@ -372,19 +372,23 @@ function Stage1GuideAccordion() {
             <div key={section.title}>
               <button
                 type="button"
-                className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left transition-colors hover:bg-[rgba(42,0,59,0.03)]"
+                className="flex w-full min-w-0 items-center justify-between gap-4 px-4 py-4 text-left transition-colors hover:bg-[rgba(42,0,59,0.03)]"
                 aria-expanded={isOpen}
                 onClick={() => setOpenSection(isOpen ? '' : section.title)}
               >
-                <span className="font-semibold text-[var(--brand-plum)]">{section.title}</span>
+                <span className="min-w-0 break-words font-semibold text-[var(--brand-plum)]">
+                  {section.title}
+                </span>
                 <ChevronDown
                   className={`h-4 w-4 shrink-0 text-[var(--brand-plum-soft)] transition-transform ${isOpen ? 'rotate-180' : ''}`}
                 />
               </button>
               {isOpen ? (
-                <div className="space-y-3 px-4 pb-5 text-sm leading-6 text-[var(--brand-plum-soft)]/78">
+                <div className="min-w-0 space-y-3 px-4 pb-5 text-sm leading-6 text-[var(--brand-plum-soft)]/78">
                   {section.body.map((paragraph) => (
-                    <p key={paragraph}>{paragraph}</p>
+                    <p key={paragraph} className="break-words">
+                      {paragraph}
+                    </p>
                   ))}
                 </div>
               ) : null}
@@ -475,21 +479,23 @@ function Stage1Queue({ groupedByDepartment }: { groupedByDepartment: Record<stri
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="min-w-0 space-y-6">
         {Object.entries(groupedByDepartment).map(([department, submissions]) => (
-          <section key={department} className="rounded-3xl border border-[rgba(42,0,59,0.1)] bg-white/88 p-4 shadow-[0_18px_44px_rgba(42,0,59,0.07)] sm:p-6">
-            <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h3 className="text-2xl font-semibold text-[var(--brand-plum)]">{department}</h3>
+          <section key={department} className="min-w-0 rounded-3xl border border-[rgba(42,0,59,0.1)] bg-white/88 p-4 shadow-[0_18px_44px_rgba(42,0,59,0.07)] sm:p-6">
+            <div className="mb-5 flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <h3 className="break-words text-2xl font-semibold text-[var(--brand-plum)]">{department}</h3>
                 <p className="text-sm text-[var(--brand-plum-soft)]/70">
                   Score each proposal. Admin will review scores and confirm the representative team.
                 </p>
               </div>
-              <Badge variant="secondary">{submissions.length} proposal{submissions.length === 1 ? '' : 's'}</Badge>
+              <Badge variant="secondary" className="w-fit shrink-0">
+                {submissions.length} proposal{submissions.length === 1 ? '' : 's'}
+              </Badge>
             </div>
 
-            <div className="overflow-hidden rounded-2xl border border-[rgba(42,0,59,0.08)] bg-white">
-              <Table className="min-w-[900px]">
+            <div className="min-w-0 overflow-hidden rounded-2xl border border-[rgba(42,0,59,0.08)] bg-white">
+              <Table className="min-w-[760px]">
                 <TableHeader>
                   <TableRow className="bg-[rgba(42,0,59,0.03)] hover:bg-[rgba(42,0,59,0.03)]">
                     <TableHead className="px-4 py-3 text-[var(--brand-plum)]">Team</TableHead>
@@ -506,18 +512,18 @@ function Stage1Queue({ groupedByDepartment }: { groupedByDepartment: Record<stri
 
                     return (
                       <TableRow key={submission.id}>
-                        <TableCell className="px-4 py-4 whitespace-normal">
-                          <p className="font-semibold text-[var(--brand-plum)]">
+                        <TableCell className="max-w-[14rem] whitespace-normal px-4 py-4">
+                          <p className="break-words font-semibold text-[var(--brand-plum)]">
                             {submission.teams?.name ?? 'Unnamed team'}
                           </p>
-                          <p className="mt-1 text-xs text-[var(--brand-plum-soft)]/70">
+                          <p className="mt-1 break-words text-xs text-[var(--brand-plum-soft)]/70">
                             Lead: {submission.users?.name ?? 'Team leader unavailable'}
                           </p>
                         </TableCell>
-                        <TableCell className="px-4 py-4 text-[var(--brand-plum-soft)]/78">
+                        <TableCell className="whitespace-normal px-4 py-4 text-[var(--brand-plum-soft)]/78">
                           {formatDateTime(submission.submittedAt)}
                         </TableCell>
-                        <TableCell className="px-4 py-4">
+                        <TableCell className="max-w-[14rem] whitespace-normal px-4 py-4">
                           <div className="flex flex-wrap gap-2">
                             {submission.files?.length ? (
                               submission.files.map((file) => (
@@ -528,7 +534,7 @@ function Stage1Queue({ groupedByDepartment }: { groupedByDepartment: Record<stri
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="px-4 py-4 font-semibold text-[var(--brand-plum)]">
+                        <TableCell className="whitespace-normal px-4 py-4 font-semibold text-[var(--brand-plum)]">
                           {typeof total === 'number' ? `${total}/100` : 'Not scored'}
                         </TableCell>
                         <TableCell className="px-4 py-4">
@@ -560,7 +566,7 @@ function Stage1Queue({ groupedByDepartment }: { groupedByDepartment: Record<stri
       </div>
 
       <Dialog open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>
-        <DialogContent className="max-h-[92vh] overflow-y-auto rounded-3xl border border-[rgba(42,0,59,0.12)] bg-white p-5 shadow-[0_30px_90px_rgba(42,0,59,0.22)] sm:max-w-4xl sm:p-6">
+        <DialogContent className="max-h-[92vh] w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] overflow-y-auto rounded-3xl border border-[rgba(42,0,59,0.12)] bg-white p-4 shadow-[0_30px_90px_rgba(42,0,59,0.22)] sm:max-w-4xl sm:p-6">
           <DialogHeader className="pr-8 text-left">
             <DialogTitle className="font-heading text-2xl font-semibold tracking-normal text-[var(--brand-plum)]">
               Score {selected?.submission.teams?.name ?? 'submission'}
@@ -579,10 +585,10 @@ function Stage1Queue({ groupedByDepartment }: { groupedByDepartment: Record<stri
             </div>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid min-w-0 gap-4 lg:grid-cols-2">
             {STAGE_1_RUBRIC.map((criterion) => (
-              <div key={criterion.key} className="rounded-2xl border border-[rgba(42,0,59,0.08)] bg-[rgba(248,244,251,0.74)] p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div key={criterion.key} className="min-w-0 rounded-2xl border border-[rgba(42,0,59,0.08)] bg-[rgba(248,244,251,0.74)] p-4">
+                <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <label
                       className="font-semibold text-[var(--brand-plum)]"
@@ -590,7 +596,7 @@ function Stage1Queue({ groupedByDepartment }: { groupedByDepartment: Record<stri
                     >
                       {criterion.label}
                     </label>
-                    <p className="mt-1 text-sm leading-6 text-[var(--brand-plum-soft)]/72">
+                    <p className="mt-1 break-words text-sm leading-6 text-[var(--brand-plum-soft)]/72">
                       {criterion.description}
                     </p>
                   </div>
@@ -683,11 +689,11 @@ function Stage2Queue({ submissions }: { submissions: Stage2Submission[] }) {
   }
 
   return (
-    <div className="grid gap-5">
+    <div className="grid min-w-0 gap-5">
       {submissions.map((submission) => (
-        <article key={submission.id} className="rounded-3xl border border-[rgba(42,0,59,0.1)] bg-white/88 p-5 shadow-[0_18px_44px_rgba(42,0,59,0.07)] sm:p-6">
+        <article key={submission.id} className="min-w-0 rounded-3xl border border-[rgba(42,0,59,0.1)] bg-white/88 p-5 shadow-[0_18px_44px_rgba(42,0,59,0.07)] sm:p-6">
           <SubmissionHeader submission={submission} />
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <div className="mt-4 grid min-w-0 gap-3 md:grid-cols-2">
             <FieldPreview label="Design summary" value={submission.formData.design_summary} />
             <FieldPreview label="Engineering decisions" value={submission.formData.engineering_decisions} />
             <FieldPreview label="Constraints addressed" value={submission.formData.constraints_addressed} />
@@ -708,10 +714,10 @@ function Stage2Queue({ submissions }: { submissions: Stage2Submission[] }) {
           </div>
 
           {activeSubmissionId === submission.id ? (
-            <div className="mt-5 rounded-2xl border border-[rgba(142,77,255,0.16)] bg-[rgba(142,77,255,0.05)] p-4">
-              <div className="grid gap-4 lg:grid-cols-2">
+            <div className="mt-5 min-w-0 rounded-2xl border border-[rgba(142,77,255,0.16)] bg-[rgba(142,77,255,0.05)] p-4">
+              <div className="grid min-w-0 gap-4 lg:grid-cols-2">
                 {STAGE_2_RUBRIC.map((criterion) => (
-                  <div key={criterion.key} className="space-y-2 rounded-xl bg-white/80 p-4">
+                  <div key={criterion.key} className="min-w-0 space-y-2 rounded-xl bg-white/80 p-4">
                     <label className="text-sm font-semibold text-[var(--brand-plum)]" htmlFor={`${submission.id}-${criterion.key}`}>
                       {criterion.label}
                     </label>
@@ -793,32 +799,39 @@ function SubmissionFileDownloadButton({
   }
 
   return (
-    <Button type="button" variant="outline" size="sm" onClick={downloadFile} disabled={isDownloading}>
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      onClick={downloadFile}
+      disabled={isDownloading}
+      className="max-w-full justify-start"
+    >
       {isDownloading ? (
         <Download className="mr-2 h-4 w-4 animate-pulse" />
       ) : (
         <FileText className="mr-2 h-4 w-4" />
       )}
-      {isDownloading ? 'Preparing...' : file.filename}
+      <span className="min-w-0 truncate">{isDownloading ? 'Preparing...' : file.filename}</span>
     </Button>
   );
 }
 
 function SubmissionHeader({ submission }: { submission: Submission }) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-      <div>
-        <h4 className="text-xl font-semibold text-[var(--brand-plum)]">
+    <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div className="min-w-0">
+        <h4 className="break-words text-xl font-semibold text-[var(--brand-plum)]">
           {submission.teams?.name ?? 'Unnamed team'}
         </h4>
-        <p className="text-sm text-[var(--brand-plum-soft)]/70">
+        <p className="break-words text-sm text-[var(--brand-plum-soft)]/70">
           {submission.teams?.department ?? 'Department unavailable'}
         </p>
-        <p className="text-sm text-[var(--brand-plum-soft)]/70">
+        <p className="break-words text-sm text-[var(--brand-plum-soft)]/70">
           Submitted by {submission.users?.name ?? 'team leader'}
         </p>
       </div>
-      <Badge className="w-fit rounded-full bg-[rgba(18,183,234,0.12)] text-[#0b6f91]">
+      <Badge className="w-fit shrink-0 rounded-full bg-[rgba(18,183,234,0.12)] text-[#0b6f91]">
         <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
         Submitted
       </Badge>
@@ -828,11 +841,11 @@ function SubmissionHeader({ submission }: { submission: Submission }) {
 
 function FieldPreview({ label, value }: { label: string; value?: string }) {
   return (
-    <div className="rounded-xl border border-[rgba(42,0,59,0.08)] bg-white/76 p-4">
+    <div className="min-w-0 rounded-xl border border-[rgba(42,0,59,0.08)] bg-white/76 p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--brand-plum-soft)]/60">
         {label}
       </p>
-      <p className="mt-2 line-clamp-6 text-sm leading-6 text-[var(--brand-plum-soft)]/82">
+      <p className="mt-2 line-clamp-6 break-words text-sm leading-6 text-[var(--brand-plum-soft)]/82">
         {value?.trim() || 'No response provided.'}
       </p>
     </div>

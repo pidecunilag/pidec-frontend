@@ -180,22 +180,24 @@ export function JudgeShell({ children }: { children: React.ReactNode }) {
         </SidebarFooter>
       </Sidebar>
 
-      <SidebarInset className="bg-[#f7f4fb]">
-        <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-[rgba(42,0,59,0.08)] bg-[#f7f4fb]/92 px-5 backdrop-blur">
+      <SidebarInset className="min-w-0 overflow-x-hidden bg-[#f7f4fb]">
+        <header className="sticky top-0 z-30 flex h-16 min-w-0 shrink-0 items-center gap-3 border-b border-[rgba(42,0,59,0.08)] bg-[#f7f4fb]/92 px-4 backdrop-blur sm:px-5">
           <SidebarTrigger className="-ml-1 rounded-xl hover:bg-white" />
           <Separator orientation="vertical" className="mr-1 h-5 bg-[rgba(42,0,59,0.12)]" />
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand-plum-soft)]/60">
               Judge Workspace
             </p>
-            <h1 className="font-heading text-xl font-semibold tracking-[-0.04em] text-[var(--brand-plum)]">
+            <h1 className="truncate font-heading text-xl font-semibold tracking-normal text-[var(--brand-plum)]">
               Review Queue
             </h1>
           </div>
-          <Scale className="ml-auto h-5 w-5 text-[var(--brand-orange)]" />
+          <Scale className="ml-auto hidden h-5 w-5 shrink-0 text-[var(--brand-orange)] sm:block" />
         </header>
 
-        <main className="student-workspace flex-1 p-5 lg:p-8">{children}</main>
+        <main className="student-workspace min-w-0 flex-1 overflow-x-hidden p-4 sm:p-5 lg:p-8">
+          {children}
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

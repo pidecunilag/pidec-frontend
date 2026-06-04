@@ -250,7 +250,9 @@
   .student-workspace {
     position: relative;
     isolation: isolate;
+    min-width: 0;
     min-height: calc(100svh - 4rem);
+    overflow-x: hidden;
     background:
       radial-gradient(circle at 12% 8%, rgba(18, 183, 234, 0.14), transparent 30%),
       radial-gradient(circle at 92% 18%, rgba(255, 85, 0, 0.12), transparent 28%),
@@ -292,6 +294,7 @@
 
   .student-workspace > div {
     width: 100%;
+    min-width: 0;
     max-width: 82rem;
     margin-inline: auto;
     animation: admin-page-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
