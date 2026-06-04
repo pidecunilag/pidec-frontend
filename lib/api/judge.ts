@@ -2,7 +2,9 @@ import type {
   ApiResponse,
   Edition,
   Judge,
+  JudgeScore,
   Stage1RepresentativeRequest,
+  Stage1ScoreRequest,
   Stage2ScoreRequest,
   Submission,
 } from '@/lib/types';
@@ -41,6 +43,29 @@ export const judgeApi = {
     return apiClient
       .post<ApiResponse<null>>('/judge/stage-1/representative', data)
       .then(unwrap);
+  },
+
+  submitStage1Score(data: Stage1ScoreRequest) {
+    return apiClient
+      .post<ApiResponse<{ score: JudgeScore }>>('/judge/stage-1/score', {
+        submissionId: data.submissionId,
+        scores: {
+          problem_statement_clarity: data.scores.problemStatementClarity,
+          proposed_solution_quality: data.scores.proposedSolutionQuality,
+          theme_alignment: data.scores.themeAlignment,
+          feasibility_assessment: data.scores.feasibilityAssessment,
+          departmental_relevance: data.scores.departmentalRelevance,
+        },
+        comments: {
+          problem_statement_clarity: data.comments?.problemStatementClarity,
+          proposed_solution_quality: data.comments?.proposedSolutionQuality,
+          theme_alignment: data.comments?.themeAlignment,
+          feasibility_assessment: data.comments?.feasibilityAssessment,
+          departmental_relevance: data.comments?.departmentalRelevance,
+          overall: data.comments?.overall,
+        },
+      })
+      .then((response) => unwrap(response).score);
   },
 
   submitScore(submissionId: string, data: Stage2ScoreRequest) {

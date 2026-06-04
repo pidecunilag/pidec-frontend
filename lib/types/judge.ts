@@ -24,7 +24,43 @@ export interface Stage1RepresentativeRequest {
   comments?: string;
 }
 
+export interface Stage1ScoreRequest {
+  submissionId: string;
+  scores: {
+    problemStatementClarity: number;
+    proposedSolutionQuality: number;
+    themeAlignment: number;
+    feasibilityAssessment: number;
+    departmentalRelevance: number;
+  };
+  comments?: Partial<
+    Record<
+      | 'problemStatementClarity'
+      | 'proposedSolutionQuality'
+      | 'themeAlignment'
+      | 'feasibilityAssessment'
+      | 'departmentalRelevance'
+      | 'overall',
+      string
+    >
+  >;
+}
+
 export interface Stage2ScoreRequest {
   scores: Record<string, number>;
   comments: Record<string, string>;
+}
+
+export interface JudgeScore {
+  id: string;
+  submissionId: string;
+  judgeId: string;
+  scores: Record<string, number>;
+  comments: Record<string, string>;
+  totalScore: number | null;
+  isRepresentativePick: boolean;
+  submittedAt: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
 }

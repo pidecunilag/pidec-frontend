@@ -4,25 +4,129 @@ import { useMemo, useState } from 'react';
 import {
   AlertCircle,
   BookOpenCheck,
+  ChevronDown,
   CheckCircle2,
   Download,
   FileText,
+  MessageSquareText,
+  PencilLine,
   Send,
   ShieldCheck,
-  Trophy,
   UsersRound,
 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import { judgeApi } from '@/lib/api/judge';
 import { extractApiError } from '@/lib/api/client';
-import { useJudgeProfile, useJudgeSubmissions, usePickRepresentative, useSubmitJudgeScore } from '@/lib/hooks/use-judge';
+import {
+  useJudgeProfile,
+  useJudgeSubmissions,
+  useSubmitJudgeScore,
+  useSubmitStage1Score,
+} from '@/lib/hooks/use-judge';
 import type { Stage1Submission, Stage2Submission, Submission, SubmissionFile } from '@/lib/types';
 import { toast } from 'sonner';
+
+const STAGE_1_GUIDE_PDF_URL = '/stage-1-judging-guide.pdf';
+
+const STAGE_1_RUBRIC = [
+  {
+    key: 'problemStatementClarity',
+    label: 'Problem Statement Clarity',
+    max: 20,
+    description:
+      'How clearly the team defines the problem, who is affected, why it matters, and what happens if it remains unsolved.',
+  },
+  {
+    key: 'proposedSolutionQuality',
+    label: 'Proposed Solution Quality',
+    max: 30,
+    description:
+      'How strong, technically grounded, appropriate, original, and valuable the proposed engineering solution is.',
+  },
+  {
+    key: 'themeAlignment',
+    label: 'Theme Alignment',
+    max: 20,
+    description:
+      'How clearly the proposal connects to Engineering for Impact: Building Inclusive Solutions for a Sustainable Future.',
+  },
+  {
+    key: 'feasibilityAssessment',
+    label: 'Feasibility Assessment',
+    max: 20,
+    description:
+      'How realistic it is to build, simulate, prototype, or implement the solution within stated constraints.',
+  },
+  {
+    key: 'departmentalRelevance',
+    label: 'Departmental Relevance',
+    max: 10,
+    description:
+      'How meaningfully the proposal applies engineering principles from the team department.',
+  },
+] as const;
+
+const STAGE_1_GUIDE_SECTIONS = [
+  {
+    title: 'Purpose of Stage 1',
+    body: [
+      'Stage 1 is a selection stage. Each department will be represented in Stage 2 by one team.',
+      'The goal is to identify the strongest proposal from each department based on clear thinking, sound engineering logic, and alignment with the PIDEC theme.',
+    ],
+  },
+  {
+    title: 'Judge Responsibility',
+    body: [
+      'Review assigned submissions independently and enter the official weighted rubric score for each proposal.',
+      'Judges do not pick representative teams on the portal. Scores and optional feedback go to admin, and admin confirms the department representatives.',
+    ],
+  },
+  {
+    title: 'Stage 1 Scoring Rubric',
+    body: STAGE_1_RUBRIC.map((criterion) => `${criterion.label}: 0-${criterion.max} points. ${criterion.description}`),
+  },
+  {
+    title: 'Comments and Feedback',
+    body: [
+      'Criterion comments are optional.',
+      'Overall comments are optional.',
+      'When provided, comments should be concise, constructive, and focused on the proposal rather than the people who wrote it.',
+    ],
+  },
+  {
+    title: 'Confidentiality and Conduct',
+    body: [
+      'Review submissions independently and declare any conflict of interest.',
+      'Keep scores, rankings, and deliberations confidential until official results are published.',
+      'Report any attempt by a team to lobby, influence, or improperly contact you.',
+    ],
+  },
+] as const;
+
+type Stage1CriterionKey = (typeof STAGE_1_RUBRIC)[number]['key'];
+type Stage1ScoreValues = Record<Stage1CriterionKey, number | ''>;
+type Stage1ScoreComments = Partial<Record<Stage1CriterionKey | 'overall', string>>;
 
 const STAGE_2_RUBRIC = [
   { key: 'innovation', label: 'Innovation' },
@@ -47,6 +151,14 @@ const emptyComments: ScoreComments = {
   impact: '',
   feasibility: '',
 };
+
+const emptyStage1Scores = (): Stage1ScoreValues => ({
+  problemStatementClarity: '',
+  proposedSolutionQuality: '',
+  themeAlignment: '',
+  feasibilityAssessment: '',
+  departmentalRelevance: '',
+});
 
 const EMPTY_SUBMISSIONS: Submission[] = [];
 
@@ -90,11 +202,11 @@ export default function JudgePage() {
         <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h2 className="text-3xl font-semibold tracking-normal text-[var(--brand-plum)]">
-              {scopeStage === 1 ? 'Representative Selection' : 'Prototype Scoring'}
+              {scopeStage === 1 ? 'Stage 1 Proposal Scoring' : 'Prototype Scoring'}
             </h2>
             <p className="mt-2 max-w-2xl text-[var(--brand-plum-soft)]/72">
               {scopeStage === 1
-                ? 'Review Stage 1 proposals and select one representative per assigned department.'
+                ? 'Review assigned Stage 1 proposals, enter weighted rubric scores, and send them to admin for final selection.'
                 : 'Review Stage 2 prototype submissions and submit rubric scores for each assigned team.'}
             </p>
           </div>
@@ -153,28 +265,24 @@ export default function JudgePage() {
           <BookOpenCheck className="h-5 w-5 text-[var(--brand-orange)]" />
           <h3 className="text-xl font-semibold text-[var(--brand-plum)]">Judging guidance</h3>
         </div>
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
-          <GuidelineCard
-            title={scopeStage === 1 ? 'Read independently' : 'Review complete demos'}
-            body={
-              scopeStage === 1
-                ? 'Stage 1 judging is discretionary. The rubric is a guide, not a forced score sheet.'
-                : 'Use each team video, documentation, and prototype notes before scoring.'
-            }
-          />
-          <GuidelineCard
-            title={scopeStage === 1 ? 'Pick one representative' : 'Score with comments'}
-            body={
-              scopeStage === 1
-                ? 'Select the strongest proposal for each assigned department.'
-                : 'Enter criterion scores and written comments so feedback is useful after publishing.'
-            }
-          />
-          <GuidelineCard
-            title="Admin confirms"
-            body="Your selections and scores go to admin review before teams see any result."
-          />
-        </div>
+        {scopeStage === 1 ? (
+          <Stage1GuideAccordion />
+        ) : (
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <GuidelineCard
+              title="Review complete demos"
+              body="Use each team video, documentation, and prototype notes before scoring."
+            />
+            <GuidelineCard
+              title="Score with comments"
+              body="Enter criterion scores and written comments so feedback is useful after publishing."
+            />
+            <GuidelineCard
+              title="Admin confirms"
+              body="Your scores go to admin review before teams see any result."
+            />
+          </div>
+        )}
       </section>
 
       <section id="queue" className="scroll-mt-24">
@@ -236,6 +344,58 @@ function GuidelineCard({ title, body }: { title: string; body: string }) {
   );
 }
 
+function Stage1GuideAccordion() {
+  const [openSection, setOpenSection] = useState<string>(STAGE_1_GUIDE_SECTIONS[0].title);
+
+  return (
+    <div className="mt-5 space-y-4">
+      <div className="flex flex-col gap-3 rounded-2xl border border-[rgba(18,183,234,0.18)] bg-[rgba(18,183,234,0.06)] p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="font-semibold text-[var(--brand-plum)]">Stage 1 guide</p>
+          <p className="mt-1 text-sm leading-6 text-[var(--brand-plum-soft)]/72">
+            Use the rubric below while scoring. Representative selection is handled by admin after review.
+          </p>
+        </div>
+        <Button asChild variant="outline" className="w-full sm:w-auto">
+          <a href={STAGE_1_GUIDE_PDF_URL} download>
+            <Download className="mr-2 h-4 w-4" />
+            Download PDF
+          </a>
+        </Button>
+      </div>
+
+      <div className="divide-y divide-[rgba(42,0,59,0.08)] overflow-hidden rounded-2xl border border-[rgba(42,0,59,0.08)] bg-white">
+        {STAGE_1_GUIDE_SECTIONS.map((section) => {
+          const isOpen = openSection === section.title;
+
+          return (
+            <div key={section.title}>
+              <button
+                type="button"
+                className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left transition-colors hover:bg-[rgba(42,0,59,0.03)]"
+                aria-expanded={isOpen}
+                onClick={() => setOpenSection(isOpen ? '' : section.title)}
+              >
+                <span className="font-semibold text-[var(--brand-plum)]">{section.title}</span>
+                <ChevronDown
+                  className={`h-4 w-4 shrink-0 text-[var(--brand-plum-soft)] transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                />
+              </button>
+              {isOpen ? (
+                <div className="space-y-3 px-4 pb-5 text-sm leading-6 text-[var(--brand-plum-soft)]/78">
+                  {section.body.map((paragraph) => (
+                    <p key={paragraph}>{paragraph}</p>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function JudgeEmptyState({ title, description }: { title: string; description: string }) {
   return (
     <div className="rounded-3xl border border-[rgba(42,0,59,0.1)] bg-white/88 p-10 text-center shadow-[0_18px_44px_rgba(42,0,59,0.07)]">
@@ -249,78 +409,254 @@ function JudgeEmptyState({ title, description }: { title: string; description: s
 }
 
 function Stage1Queue({ groupedByDepartment }: { groupedByDepartment: Record<string, Submission[]> }) {
-  const pickRepresentative = usePickRepresentative();
-  const [comments, setComments] = useState<Record<string, string>>({});
+  const submitStage1Score = useSubmitStage1Score();
+  const [selected, setSelected] = useState<{
+    department: string;
+    submission: Stage1Submission;
+  } | null>(null);
+  const [scores, setScores] = useState<Stage1ScoreValues>(emptyStage1Scores);
+  const [comments, setComments] = useState<Stage1ScoreComments>({});
+
+  const totalScore = STAGE_1_RUBRIC.reduce((sum, criterion) => {
+    const value = scores[criterion.key];
+    return sum + (typeof value === 'number' ? value : 0);
+  }, 0);
+
+  function openScoreModal(department: string, submission: Stage1Submission) {
+    const existingScores = submission.judgeScore?.scores as Partial<Record<Stage1CriterionKey, number>> | undefined;
+    const existingComments = submission.judgeScore?.comments as Stage1ScoreComments | undefined;
+
+    setSelected({ department, submission });
+    setScores({
+      ...emptyStage1Scores(),
+      ...existingScores,
+    });
+    setComments(existingComments ?? {});
+  }
+
+  function updateScore(key: Stage1CriterionKey, value: string) {
+    setScores((current) => ({
+      ...current,
+      [key]: value === '' ? '' : Number(value),
+    }));
+  }
+
+  function submitScore() {
+    if (!selected) return;
+
+    const missing = STAGE_1_RUBRIC.filter((criterion) => typeof scores[criterion.key] !== 'number');
+    if (missing.length > 0) {
+      toast.error(`Missing scores: ${missing.map((criterion) => criterion.label).join(', ')}`);
+      return;
+    }
+
+    const outOfRange = STAGE_1_RUBRIC.find((criterion) => {
+      const value = scores[criterion.key];
+      return typeof value !== 'number' || value < 0 || value > criterion.max;
+    });
+    if (outOfRange) {
+      toast.error(`${outOfRange.label} must be between 0 and ${outOfRange.max}.`);
+      return;
+    }
+
+    const cleanedComments = Object.fromEntries(
+      Object.entries(comments).filter(([, value]) => value?.trim()),
+    ) as Stage1ScoreComments;
+
+    submitStage1Score.mutate(
+      {
+        submissionId: selected.submission.id,
+        scores: scores as Record<Stage1CriterionKey, number>,
+        comments: cleanedComments,
+      },
+      { onSuccess: () => setSelected(null) },
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      {Object.entries(groupedByDepartment).map(([department, submissions]) => (
-        <section key={department} className="rounded-3xl border border-[rgba(42,0,59,0.1)] bg-white/88 p-5 shadow-[0_18px_44px_rgba(42,0,59,0.07)] sm:p-6">
-          <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h3 className="text-2xl font-semibold text-[var(--brand-plum)]">{department}</h3>
-              <p className="text-sm text-[var(--brand-plum-soft)]/70">
-                Select one team to represent this department in Stage 2.
+    <>
+      <div className="space-y-6">
+        {Object.entries(groupedByDepartment).map(([department, submissions]) => (
+          <section key={department} className="rounded-3xl border border-[rgba(42,0,59,0.1)] bg-white/88 p-4 shadow-[0_18px_44px_rgba(42,0,59,0.07)] sm:p-6">
+            <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-2xl font-semibold text-[var(--brand-plum)]">{department}</h3>
+                <p className="text-sm text-[var(--brand-plum-soft)]/70">
+                  Score each proposal. Admin will review scores and confirm the representative team.
+                </p>
+              </div>
+              <Badge variant="secondary">{submissions.length} proposal{submissions.length === 1 ? '' : 's'}</Badge>
+            </div>
+
+            <div className="overflow-hidden rounded-2xl border border-[rgba(42,0,59,0.08)] bg-white">
+              <Table className="min-w-[900px]">
+                <TableHeader>
+                  <TableRow className="bg-[rgba(42,0,59,0.03)] hover:bg-[rgba(42,0,59,0.03)]">
+                    <TableHead className="px-4 py-3 text-[var(--brand-plum)]">Team</TableHead>
+                    <TableHead className="px-4 py-3 text-[var(--brand-plum)]">Submitted</TableHead>
+                    <TableHead className="px-4 py-3 text-[var(--brand-plum)]">Document</TableHead>
+                    <TableHead className="px-4 py-3 text-[var(--brand-plum)]">Score</TableHead>
+                    <TableHead className="px-4 py-3 text-[var(--brand-plum)]">Status</TableHead>
+                    <TableHead className="px-4 py-3 text-right text-[var(--brand-plum)]">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {(submissions as Stage1Submission[]).map((submission) => {
+                    const total = submission.judgeScore?.totalScore;
+
+                    return (
+                      <TableRow key={submission.id}>
+                        <TableCell className="px-4 py-4 whitespace-normal">
+                          <p className="font-semibold text-[var(--brand-plum)]">
+                            {submission.teams?.name ?? 'Unnamed team'}
+                          </p>
+                          <p className="mt-1 text-xs text-[var(--brand-plum-soft)]/70">
+                            Lead: {submission.users?.name ?? 'Team leader unavailable'}
+                          </p>
+                        </TableCell>
+                        <TableCell className="px-4 py-4 text-[var(--brand-plum-soft)]/78">
+                          {formatDateTime(submission.submittedAt)}
+                        </TableCell>
+                        <TableCell className="px-4 py-4">
+                          <div className="flex flex-wrap gap-2">
+                            {submission.files?.length ? (
+                              submission.files.map((file) => (
+                                <SubmissionFileDownloadButton key={file.id ?? file.url} submissionId={submission.id} file={file} />
+                              ))
+                            ) : (
+                              <Badge variant="secondary">No file</Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-4 py-4 font-semibold text-[var(--brand-plum)]">
+                          {typeof total === 'number' ? `${total}/100` : 'Not scored'}
+                        </TableCell>
+                        <TableCell className="px-4 py-4">
+                          <Badge
+                            variant="secondary"
+                            className={
+                              typeof total === 'number'
+                                ? 'bg-[rgba(18,183,234,0.12)] text-[#0b6f91]'
+                                : 'bg-[rgba(255,90,0,0.12)] text-[var(--brand-orange)]'
+                            }
+                          >
+                            {typeof total === 'number' ? 'Scored' : 'Pending'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="px-4 py-4 text-right">
+                          <Button size="sm" onClick={() => openScoreModal(department, submission)}>
+                            <PencilLine className="mr-2 h-4 w-4" />
+                            Score
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </section>
+        ))}
+      </div>
+
+      <Dialog open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>
+        <DialogContent className="max-h-[92vh] overflow-y-auto rounded-3xl border border-[rgba(42,0,59,0.12)] bg-white p-5 shadow-[0_30px_90px_rgba(42,0,59,0.22)] sm:max-w-4xl sm:p-6">
+          <DialogHeader className="pr-8 text-left">
+            <DialogTitle className="font-heading text-2xl font-semibold tracking-normal text-[var(--brand-plum)]">
+              Score {selected?.submission.teams?.name ?? 'submission'}
+            </DialogTitle>
+            <DialogDescription className="text-sm leading-6 text-[var(--brand-plum-soft)]/74">
+              Enter the direct weighted scores. Criterion comments and overall comments are optional.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="rounded-2xl border border-[rgba(18,183,234,0.18)] bg-[rgba(18,183,234,0.06)] p-4 text-sm leading-6 text-[var(--brand-plum-soft)]/78">
+            <div className="flex items-start gap-2">
+              <MessageSquareText className="mt-0.5 h-4 w-4 shrink-0 text-[#0b6f91]" />
+              <p>
+                Scores go to admin for review. Judges are not selecting representative teams on the portal.
               </p>
             </div>
-            <Badge variant="secondary">{submissions.length} proposal{submissions.length === 1 ? '' : 's'}</Badge>
           </div>
 
-          <div className="grid gap-4">
-            {(submissions as Stage1Submission[]).map((submission) => (
-              <article key={submission.id} className="rounded-2xl border border-[rgba(42,0,59,0.08)] bg-white p-4">
-                <SubmissionHeader submission={submission} />
-                <div className="mt-4 rounded-2xl border border-[rgba(142,77,255,0.14)] bg-[rgba(142,77,255,0.05)] p-4">
-                  <p className="text-sm font-semibold text-[var(--brand-plum)]">Proposal document</p>
-                  <p className="mt-1 text-sm text-[var(--brand-plum-soft)]/72">
-                    Review the uploaded PDF or Word proposal before selecting a representative.
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {submission.files?.length ? (
-                      submission.files.map((file) => (
-                        <SubmissionFileDownloadButton key={file.id ?? file.url} submissionId={submission.id} file={file} />
-                      ))
-                    ) : (
-                      <Badge variant="secondary">No proposal file attached</Badge>
-                    )}
+          <div className="grid gap-4 lg:grid-cols-2">
+            {STAGE_1_RUBRIC.map((criterion) => (
+              <div key={criterion.key} className="rounded-2xl border border-[rgba(42,0,59,0.08)] bg-[rgba(248,244,251,0.74)] p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <label
+                      className="font-semibold text-[var(--brand-plum)]"
+                      htmlFor={`stage-1-${criterion.key}`}
+                    >
+                      {criterion.label}
+                    </label>
+                    <p className="mt-1 text-sm leading-6 text-[var(--brand-plum-soft)]/72">
+                      {criterion.description}
+                    </p>
+                  </div>
+                  <div className="w-full shrink-0 sm:w-28">
+                    <span className="mb-1 block text-xs font-semibold uppercase tracking-[0.12em] text-[var(--brand-plum-soft)]/60">
+                      / {criterion.max}
+                    </span>
+                    <Input
+                      id={`stage-1-${criterion.key}`}
+                      type="number"
+                      inputMode="decimal"
+                      min={0}
+                      max={criterion.max}
+                      value={scores[criterion.key]}
+                      onChange={(event) => updateScore(criterion.key, event.target.value)}
+                    />
                   </div>
                 </div>
-                <div className="mt-4 space-y-2">
-                  <label className="text-sm font-semibold text-[var(--brand-plum)]" htmlFor={`comments-${submission.id}`}>
-                    Selection note
-                  </label>
-                  <Textarea
-                    id={`comments-${submission.id}`}
-                    value={comments[submission.id] ?? ''}
-                    onChange={(event) =>
-                      setComments((current) => ({ ...current, [submission.id]: event.target.value }))
-                    }
-                    placeholder="Optional note for the admin team"
-                    className="min-h-20"
-                  />
-                </div>
-                <Button
-                  className="mt-4"
-                  disabled={pickRepresentative.isPending}
-                  onClick={() =>
-                    pickRepresentative.mutate({
-                      department,
-                      data: {
-                        submissionId: submission.id,
-                        comments: comments[submission.id]?.trim() || undefined,
-                      },
-                    })
+                <Textarea
+                  value={comments[criterion.key] ?? ''}
+                  onChange={(event) =>
+                    setComments((current) => ({
+                      ...current,
+                      [criterion.key]: event.target.value,
+                    }))
                   }
-                >
-                  <Trophy className="mr-2 h-4 w-4" />
-                  Select as representative
-                </Button>
-              </article>
+                  placeholder="Optional criterion comment"
+                  className="mt-3 min-h-20 bg-white"
+                />
+              </div>
             ))}
           </div>
-        </section>
-      ))}
-    </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-[var(--brand-plum)]" htmlFor="stage-1-overall-comment">
+              Overall comment
+            </label>
+            <Textarea
+              id="stage-1-overall-comment"
+              value={comments.overall ?? ''}
+              onChange={(event) =>
+                setComments((current) => ({
+                  ...current,
+                  overall: event.target.value,
+                }))
+              }
+              placeholder="Optional overall comment for admin"
+              className="min-h-24"
+            />
+          </div>
+
+          <DialogFooter className="gap-3 sm:items-center sm:justify-between">
+            <p className="text-lg font-semibold text-[var(--brand-plum)]">Total: {totalScore}/100</p>
+            <div className="flex w-full flex-col-reverse gap-2 sm:w-auto sm:flex-row">
+              <Button type="button" variant="outline" onClick={() => setSelected(null)} className="w-full sm:w-auto">
+                Cancel
+              </Button>
+              <Button type="button" onClick={submitScore} disabled={submitStage1Score.isPending} className="w-full sm:w-auto">
+                <Send className="mr-2 h-4 w-4" />
+                {submitStage1Score.isPending ? 'Saving score...' : 'Save score'}
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -501,4 +837,16 @@ function FieldPreview({ label, value }: { label: string; value?: string }) {
       </p>
     </div>
   );
+}
+
+function formatDateTime(value?: string | null) {
+  if (!value) return 'Not available';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  return new Intl.DateTimeFormat('en-NG', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'Africa/Lagos',
+  }).format(date);
 }

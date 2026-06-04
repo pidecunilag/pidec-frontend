@@ -69,6 +69,15 @@ export interface SubmissionUserPreview {
   email: string;
 }
 
+export interface SubmissionJudgeScorePreview {
+  id: string;
+  scores: Record<string, number>;
+  comments: Record<string, string>;
+  totalScore: number | null;
+  isRepresentativePick?: boolean;
+  submittedAt?: string;
+}
+
 // Discriminated union — switch on `stage` to narrow `formData` exhaustively.
 interface SubmissionBase {
   id: string;
@@ -87,6 +96,7 @@ interface SubmissionBase {
   // Joined records on admin list responses.
   teams?: SubmissionTeamPreview;
   users?: SubmissionUserPreview;
+  judgeScore?: SubmissionJudgeScorePreview | null;
 }
 
 export interface Stage1Submission extends SubmissionBase {

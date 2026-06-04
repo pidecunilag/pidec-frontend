@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { extractApiError } from '@/lib/api/client';
 import { judgeApi } from '@/lib/api/judge';
 import { qk } from '@/lib/api/query-keys';
-import type { Stage1RepresentativeRequest, Stage2ScoreRequest } from '@/lib/types';
+import type { Stage1RepresentativeRequest, Stage1ScoreRequest, Stage2ScoreRequest } from '@/lib/types';
 
 export function useJudgeProfile() {
   return useQuery({
@@ -54,6 +54,19 @@ export function useSubmitJudgeScore() {
       submissionId: string;
       data: Stage2ScoreRequest;
     }) => judgeApi.submitScore(submissionId, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['judge', 'submissions'] });
+      toast.success('Score saved.');
+    },
+    onError: (error) => toast.error(extractApiError(error).message),
+  });
+}
+
+export function useSubmitStage1Score() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: Stage1ScoreRequest) => judgeApi.submitStage1Score(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['judge', 'submissions'] });
       toast.success('Score saved.');
