@@ -287,6 +287,21 @@ export function useToggleTeamLock() {
   });
 }
 
+export function useLaunchStage1Results() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { password: string }) => settingsApi.launchStage1Results(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.admin.edition });
+      qc.invalidateQueries({ queryKey: qk.admin.overview });
+      qc.invalidateQueries({ queryKey: PREFIX.teams });
+      qc.invalidateQueries({ queryKey: PREFIX.submissions });
+      toast.success('Stage 1 results launch completed.');
+    },
+    onError: (err) => toast.error(extractApiError(err).message),
+  });
+}
+
 // ─── Content (Sponsors / Partners / FAQs) ───────────────────────────────────
 export function useAdminSponsors() {
   return useQuery({

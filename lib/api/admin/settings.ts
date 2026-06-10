@@ -34,4 +34,10 @@ export const settingsApi = {
   toggleTeamLock(data: ToggleRequest) {
     return apiClient.post<ApiResponse<null>>('/admin/team-lock', data).then(unwrap);
   },
+
+  launchStage1Results(data: { password: string }) {
+    return apiClient
+      .post<ApiResponse<{ report: unknown }>>('/admin/stage1-results/launch', data)
+      .then(unwrap);
+  },
 };

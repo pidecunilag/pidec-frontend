@@ -10,6 +10,7 @@ import {
   useToggleSignup,
   useToggleSubmissionWindow,
   useToggleTeamLock,
+  useLaunchStage1Results,
 } from '@/lib/hooks/use-admin';
 import { ConfirmationDialog } from '@/components/admin/confirmation-dialog';
 import { Button } from '@/components/ui/button';
@@ -35,8 +36,12 @@ export default function SettingsPage() {
   const toggleSignup = useToggleSignup();
   const toggleSubmission = useToggleSubmissionWindow();
   const toggleTeamLock = useToggleTeamLock();
+  const launchStage1Results = useLaunchStage1Results();
 
   const [stageDialog, setStageDialog] = useState<ActiveStage | null>(null);
+  const [launchDialogOpen, setLaunchDialogOpen] = useState(false);
+  const [launchPassword, setLaunchPassword] = useState('');
+  const [launchReport, setLaunchReport] = useState<unknown>(null);
 
   return (
     <div className="space-y-8 max-w-2xl">
@@ -127,6 +132,28 @@ export default function SettingsPage() {
         </div>
       </section>
 
+      <section className="space-y-4 rounded-xl border border-red-200 bg-red-50/50 p-6">
+        <div>
+          <h3 className="text-lg font-semibold text-red-950">Stage 1 Results Launch</h3>
+          <p className="mt-1 text-sm text-red-900/75">
+            This sends the Stage 1 results announcement to all registered students,
+            sends congratulatory emails to the Top 10 team leads, promotes those
+            teams to Stage 2, publishes their reviews, and sets the platform active
+            stage to Stage 2. Keep this page open while it runs.
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="destructive"
+          onClick={() => setLaunchDialogOpen(true)}
+          disabled={launchStage1Results.isPending}
+        >
+          {launchStage1Results.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Launch Stage 1 Results
+        </Button>
+        {launchReport ? <LaunchReportSummary report={launchReport} /> : null}
+      </section>
+
       <ConfirmationDialog
         // stageDialog can be 0 (Pre-Competition) — explicit null check, not truthy.
         open={stageDialog !== null}
@@ -144,6 +171,76 @@ export default function SettingsPage() {
         }}
         isLoading={setStage.isPending}
       />
+
+      <ConfirmationDialog
+        open={launchDialogOpen}
+        onOpenChange={(open) => {
+          setLaunchDialogOpen(open);
+          if (!open) setLaunchPassword('');
+        }}
+        title="Launch Stage 1 Results"
+        description="Enter your admin password to confirm. This will send emails, promote the Top 10, publish reviews, and move the platform to Stage 2."
+        confirmLabel="Launch results"
+        isDestructive
+        confirmDisabled={!launchPassword.trim()}
+        isLoading={launchStage1Results.isPending}
+        onConfirm={() => {
+          launchStage1Results.mutate(
+            { password: launchPassword },
+            {
+              onSuccess: (data) => {
+                setLaunchReport(data.report);
+                setLaunchDialogOpen(false);
+                setLaunchPassword('');
+              },
+            },
+          );
+        }}
+      >
+        <div className="space-y-2">
+          <Label htmlFor="launch-password">Admin password</Label>
+          <Input
+            id="launch-password"
+            type="password"
+            value={launchPassword}
+            onChange={(event) => setLaunchPassword(event.target.value)}
+            placeholder="Re-enter your password"
+            autoComplete="current-password"
+          />
+        </div>
+      </ConfirmationDialog>
+    </div>
+  );
+}
+
+function LaunchReportSummary({ report }: { report: unknown }) {
+  const data = report as {
+    totals?: {
+      generalRecipients?: number;
+      teamLeadRecipients?: number;
+      liveGeneralSent?: number;
+      liveLeadSent?: number;
+      liveGeneralFailed?: number;
+      liveLeadFailed?: number;
+      topTeams?: number;
+    };
+    edition?: {
+      activeStageAfterLiveRun?: number | string;
+    };
+  };
+
+  const totals = data.totals ?? {};
+
+  return (
+    <div className="grid gap-2 rounded-lg border bg-white/80 p-4 text-sm md:grid-cols-2">
+      <p><span className="font-medium">General recipients:</span> {totals.generalRecipients ?? '-'}</p>
+      <p><span className="font-medium">Team lead recipients:</span> {totals.teamLeadRecipients ?? '-'}</p>
+      <p><span className="font-medium">General sent:</span> {totals.liveGeneralSent ?? '-'}</p>
+      <p><span className="font-medium">Team lead sent:</span> {totals.liveLeadSent ?? '-'}</p>
+      <p><span className="font-medium">General failed:</span> {totals.liveGeneralFailed ?? '-'}</p>
+      <p><span className="font-medium">Team lead failed:</span> {totals.liveLeadFailed ?? '-'}</p>
+      <p><span className="font-medium">Top teams:</span> {totals.topTeams ?? '-'}</p>
+      <p><span className="font-medium">Active stage:</span> {data.edition?.activeStageAfterLiveRun ?? '-'}</p>
     </div>
   );
 }
