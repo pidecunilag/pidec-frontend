@@ -54,6 +54,8 @@ export const qk = {
     sponsors: ['admin', 'sponsors'] as const,
     partners: ['admin', 'partners'] as const,
     faqs: ['admin', 'faqs'] as const,
+    finaleRegistrations: (params?: Record<string, unknown>) =>
+      ['admin', 'finale-registrations', params] as const,
   },
 
   judge: {

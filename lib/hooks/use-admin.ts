@@ -18,6 +18,7 @@ import {
   faqsApi,
   exportsApi,
   downloadBlob,
+  finaleAdminApi,
 } from '@/lib/api/admin';
 import { extractApiError } from '@/lib/api/client';
 import { qk } from '@/lib/api/query-keys';
@@ -38,6 +39,7 @@ import type {
   LandingAssetRequest,
   LandingFaqRequest,
   AdminAnalyticsParams,
+  FinaleRegistrationsParams,
 } from '@/lib/types';
 
 // Convention: every mutation uses the qk prefix arrays for invalidation, never literal strings.
@@ -50,7 +52,36 @@ const PREFIX = {
   teams: ['admin', 'teams'] as const,
   judges: ['admin', 'judges'] as const,
   submissions: ['admin', 'submissions'] as const,
+  finaleRegistrations: ['admin', 'finale-registrations'] as const,
 };
+
+export function useFinaleRegistrations(params?: FinaleRegistrationsParams) {
+  return useQuery({
+    queryKey: qk.admin.finaleRegistrations(params as Record<string, unknown>),
+    queryFn: () => finaleAdminApi.list(params),
+  });
+}
+
+export function useSetFinaleAdmission() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ registrationId, admitted }: { registrationId: string; admitted: boolean }) =>
+      finaleAdminApi.setAdmission(registrationId, admitted),
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: PREFIX.finaleRegistrations });
+      toast.success(variables.admitted ? 'Attendee admitted.' : 'Admission reversed.');
+    },
+    onError: (err) => toast.error(extractApiError(err).message),
+  });
+}
+
+export function useExportFinaleRegistrations() {
+  return useMutation({
+    mutationFn: () => finaleAdminApi.export(),
+    onSuccess: (blob) => downloadBlob(blob, `pidec-finale-registrations-${Date.now()}.csv`),
+    onError: (err) => toast.error(extractApiError(err).message),
+  });
+}
 
 // ─── Overview ───────────────────────────────────────────────────────────────
 export function useAdminOverview() {

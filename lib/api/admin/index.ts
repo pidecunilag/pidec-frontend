@@ -9,3 +9,4 @@ export { feedbackAdminApi } from './feedback';
 export { settingsApi } from './settings';
 export { sponsorsApi, partnersApi, faqsApi } from './content';
 export { exportsApi, downloadBlob } from './exports';
+export { finaleAdminApi } from './finale';

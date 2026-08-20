@@ -128,6 +128,7 @@ function redirectToLoginIfProtected() {
     "/forgot-password",
     "/reset-password",
     "/verify-email",
+    "/finale",
     "/",
   ];
   if (!publicPaths.includes(window.location.pathname)) {

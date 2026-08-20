@@ -8,3 +8,4 @@ export type * from './feedback';
 export type * from './judge';
 export type * from './notification';
 export type * from './admin';
+export type * from './finale';

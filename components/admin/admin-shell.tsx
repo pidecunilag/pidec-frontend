@@ -13,6 +13,7 @@ import {
   Globe,
   Settings,
   Download,
+  TicketCheck,
   LogOut,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -66,6 +67,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: 'Submissions', href: '/admin/submissions', icon: FileText },
       { label: 'Judges', href: '/admin/judges', icon: Gavel },
       { label: 'Feedback', href: '/admin/feedback', icon: MessageSquare },
+      { label: 'Finale Registrations', href: '/admin/finale', icon: TicketCheck },
     ],
   },
   {
