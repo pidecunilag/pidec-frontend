@@ -178,8 +178,7 @@ export function FinaleRegistrationExperience() {
           <div className="mx-auto w-full min-w-0 max-w-2xl">
             {!registration ? (
               <>
-                <p className="text-xs font-bold uppercase text-[#8e4dff]">Open to everyone</p>
-                <h1 className="mt-3 text-4xl font-semibold leading-tight sm:text-5xl">
+                <h1 className="text-4xl font-semibold leading-tight sm:text-5xl">
                   Register for the PIDEC 1.0 Grand Finale
                 </h1>
                 <p className="mt-4 max-w-xl text-base leading-7 text-[#694b76]">
