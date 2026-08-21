@@ -61,6 +61,24 @@ test.describe('finale registration', () => {
     await expect(page.getByLabel('Full name')).toBeInViewport();
     await page.screenshot({ path: testInfo.outputPath('finale-mobile.png'), fullPage: true });
   });
+
+  test('keeps the generated share card within the mobile viewport', async ({ page }, testInfo) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/finale');
+
+    await page.getByLabel('Full name').fill('Teslim Ade');
+    await page.getByLabel('Email address').fill('teslim@example.com');
+    await page.getByLabel('Phone number').fill('0801 234 5678');
+    await page.getByRole('button', { name: 'Complete registration' }).click();
+
+    await expect(page.getByText('Registration confirmed', { exact: true })).toBeVisible();
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+
+    await page.getByLabel('Add a photo').setInputFiles('public/finale-poster.jpg');
+    await expect(page.getByRole('button', { name: 'Download PNG' })).toBeVisible();
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+    await page.screenshot({ path: testInfo.outputPath('finale-mobile-share-card.png'), fullPage: true });
+  });
 });
 
 test.describe('finale admin', () => {
@@ -139,7 +157,7 @@ test.describe('finale admin', () => {
     await page.getByPlaceholder('Search name, email, phone, or reg number').fill('Amina');
     await expect(page.getByText('Amina Bello')).toBeVisible();
     await page.getByRole('button', { name: 'Admit' }).click();
-    await expect(page.getByText('Admitted', { exact: true })).toBeVisible();
+    await expect(page.getByRole('table').getByText('Admitted', { exact: true })).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath('finale-admin.png'), fullPage: true });
   });
 });

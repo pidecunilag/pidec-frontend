@@ -147,7 +147,7 @@ export function FinaleRegistrationExperience() {
   }
 
   return (
-    <main className="min-h-dvh bg-[#f8f5fb] text-[#2a003b]">
+    <main className="min-h-dvh w-full overflow-x-hidden bg-[#f8f5fb] text-[#2a003b]">
       <header className="border-b border-[#2a003b]/10 bg-white">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
           <Link href="/" className="flex items-center gap-2 text-sm font-semibold text-[#5b376b] hover:text-[#2a003b]">
@@ -159,7 +159,7 @@ export function FinaleRegistrationExperience() {
         </div>
       </header>
 
-      <div className="mx-auto grid w-full max-w-7xl gap-0 lg:min-h-[calc(100dvh-73px)] lg:grid-cols-[0.92fr_1.08fr]">
+      <div className="mx-auto grid w-full min-w-0 max-w-7xl gap-0 lg:min-h-[calc(100dvh-73px)] lg:grid-cols-[0.92fr_1.08fr]">
         <section className="relative hidden overflow-hidden bg-[#180d22] p-8 lg:flex lg:items-center lg:justify-center">
           <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(30deg,#8244da_12%,transparent_12.5%,transparent_87%,#8244da_87.5%,#8244da),linear-gradient(150deg,#8244da_12%,transparent_12.5%,transparent_87%,#8244da_87.5%,#8244da)] [background-size:90px_156px]" />
           <div className="relative h-[min(78dvh,720px)] w-full max-w-[576px] overflow-hidden border border-white/15 bg-black shadow-[0_28px_80px_rgba(0,0,0,0.45)]">
@@ -174,8 +174,8 @@ export function FinaleRegistrationExperience() {
           </div>
         </section>
 
-        <section className="flex items-center px-5 py-10 sm:px-8 lg:px-14 lg:py-12">
-          <div className="mx-auto w-full max-w-2xl">
+        <section className="flex min-w-0 items-center overflow-hidden px-5 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-10 sm:px-8 lg:overflow-visible lg:px-14 lg:py-12">
+          <div className="mx-auto w-full min-w-0 max-w-2xl">
             {!registration ? (
               <>
                 <p className="text-xs font-bold uppercase text-[#8e4dff]">Open to everyone</p>
@@ -255,8 +255,12 @@ export function FinaleRegistrationExperience() {
                   </p>
                 </div>
 
-                <div ref={cardViewportRef} className="mt-6 w-full overflow-hidden" style={{ height: 540 * cardScale }}>
-                  <div style={{ transform: `scale(${cardScale})`, transformOrigin: 'top left' }}>
+                <div
+                  ref={cardViewportRef}
+                  className="mt-6 w-full min-w-0 max-w-full overflow-hidden"
+                  style={{ height: 540 * cardScale }}
+                >
+                  <div className="w-[540px]" style={{ transform: `scale(${cardScale})`, transformOrigin: 'top left' }}>
                     <FinaleShareCard ref={cardRef} firstName={registration.firstName} registrationNumber={registration.registrationNumber} photoUrl={photoUrl} photoPosition={photoPosition} />
                   </div>
                 </div>
@@ -266,7 +270,7 @@ export function FinaleRegistrationExperience() {
                     <Camera className="h-4 w-4" />
                     {photoUrl ? 'Change photo' : 'Add a photo'}
                   </Label>
-                  <Input id="finale-photo" type="file" accept="image/jpeg,image/png,image/webp" onChange={selectPhoto} className="sr-only" />
+                  <Input id="finale-photo" type="file" accept="image/jpeg,image/png,image/webp" onChange={selectPhoto} className="hidden" />
                   {photoUrl ? (
                     <Button type="button" variant="ghost" onClick={() => setPhotoUrl(null)}><X />Remove</Button>
                   ) : null}
