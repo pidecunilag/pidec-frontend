@@ -16,8 +16,14 @@ export const metadata: Metadata = {
     description,
     url: absoluteUrl('/finale/card'),
     images: [
-      { url: '/finale-poster.jpg', width: 1024, height: 1280, alt: title },
+      { url: '/finale/card/opengraph-image', width: 1200, height: 630, alt: title },
     ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+    images: ['/finale/card/opengraph-image'],
   },
 };
 
