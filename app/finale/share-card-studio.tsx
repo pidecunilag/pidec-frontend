@@ -7,7 +7,6 @@ import {
   Download,
   ExternalLink,
   Loader2,
-  Share2,
   Sparkles,
   X,
 } from 'lucide-react';
@@ -106,34 +105,6 @@ export function FinaleShareCardStudio({
     }
   }
 
-  async function shareCard() {
-    setIsGenerating(true);
-    try {
-      const blob = await makeCardBlob();
-      const file = new File(
-        [blob],
-        `${registration.firstName}-PIDEC-finale.png`,
-        {
-          type: 'image/png',
-        },
-      );
-      if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({
-          title: 'PIDEC 1.0 Grand Finale',
-          text: `${registration.firstName} is going to the PIDEC 1.0 Grand Finale!`,
-          files: [file],
-        });
-      } else {
-        await downloadCard();
-      }
-    } catch (error) {
-      if (error instanceof DOMException && error.name === 'AbortError') return;
-      toast.error('Sharing is not available here. Download the card instead.');
-    } finally {
-      setIsGenerating(false);
-    }
-  }
-
   return (
     <div>
       <div className="flex items-center gap-3 border-b border-[#2a003b]/10 pb-5">
@@ -224,27 +195,16 @@ export function FinaleShareCardStudio({
         </div>
       ) : null}
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+      <div className="mt-6">
         <Button
           type="button"
           size="lg"
           disabled={isGenerating}
           onClick={downloadCard}
-          className="h-11 bg-[#2a003b] text-white hover:bg-[#431158]"
+          className="h-11 w-full bg-[#2a003b] text-white hover:bg-[#431158]"
         >
           {isGenerating ? <Loader2 className="animate-spin" /> : <Download />}
           Download PNG
-        </Button>
-        <Button
-          type="button"
-          size="lg"
-          variant="outline"
-          disabled={isGenerating}
-          onClick={shareCard}
-          className="h-11 bg-white"
-        >
-          <Share2 />
-          Share card
         </Button>
       </div>
 
