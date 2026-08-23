@@ -8,6 +8,17 @@ export interface FinaleRegistrationConfirmation {
   createdAt: string;
 }
 
+export interface FinaleCardRegistration {
+  registrationNumber: string;
+  fullName: string;
+  firstName: string;
+  email: string;
+}
+
+export interface FinaleCardLookupRequest {
+  email: string;
+}
+
 export interface FinaleRegistration {
   id: string;
   registrationNumber: string;

@@ -81,6 +81,39 @@ test.describe('finale registration', () => {
   });
 });
 
+test.describe('finale share card lookup', () => {
+  test('lets a returning attendee find and regenerate their card on mobile', async ({ page }, testInfo) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.route('**/api/v1/public/finale/card-lookup', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          data: {
+            registrationNumber: 'PIDEC26-00999',
+            fullName: 'Teslim Ade',
+            firstName: 'Teslim',
+            email: 'teslim@example.com',
+          },
+        }),
+      });
+    });
+
+    await page.goto('/finale/card');
+    await expect(page.getByRole('heading', { name: 'Create your PIDEC Finale share card' })).toBeVisible();
+    await page.getByLabel('Registration email').fill('teslim@example.com');
+    await page.getByRole('button', { name: 'Find my registration' }).click();
+
+    await expect(page.getByText('Registration found', { exact: true })).toBeVisible();
+    await expect(page.getByText('PIDEC26-00999').first()).toBeVisible();
+    await page.getByLabel('Add a photo').setInputFiles('public/finale-poster.jpg');
+    await expect(page.getByRole('button', { name: 'Download PNG' })).toBeVisible();
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+    await page.screenshot({ path: testInfo.outputPath('finale-card-lookup-mobile.png'), fullPage: true });
+  });
+});
+
 test.describe('finale admin', () => {
   test('shows metrics, searches attendees, and admits an attendee', async ({ page }, testInfo) => {
     test.setTimeout(60_000);

@@ -1,6 +1,8 @@
 import type {
   ApiResponse,
   Edition,
+  FinaleCardLookupRequest,
+  FinaleCardRegistration,
   FinaleRegistrationConfirmation,
   FinaleRegistrationRequest,
 } from '@/lib/types';
@@ -21,6 +23,11 @@ export const publicApi = {
   registerForFinale(data: FinaleRegistrationRequest) {
     return apiClient
       .post<ApiResponse<FinaleRegistrationConfirmation>>('/public/finale/registrations', data)
+      .then(unwrap);
+  },
+  lookupFinaleCard(data: FinaleCardLookupRequest) {
+    return apiClient
+      .post<ApiResponse<FinaleCardRegistration>>('/public/finale/card-lookup', data)
       .then(unwrap);
   },
 };
