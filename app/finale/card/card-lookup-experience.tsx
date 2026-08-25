@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { extractApiError } from '@/lib/api/client';
 import { publicApi } from '@/lib/api/public';
 import type { FinaleCardRegistration } from '@/lib/types';
+import { FinaleHeadlineSponsor } from '../headline-sponsor';
 import { FinaleShareCardStudio } from '../share-card-studio';
 
 export function FinaleCardLookupExperience() {
@@ -95,6 +96,7 @@ export function FinaleCardLookupExperience() {
                   find your details so you can personalise and download your
                   card again.
                 </p>
+                <FinaleHeadlineSponsor />
 
                 <form onSubmit={lookupRegistration} className="mt-8 space-y-5">
                   <div className="space-y-2">

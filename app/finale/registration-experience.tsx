@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { extractApiError } from '@/lib/api/client';
 import { publicApi } from '@/lib/api/public';
 import type { FinaleRegistrationConfirmation } from '@/lib/types';
+import { FinaleHeadlineSponsor } from './headline-sponsor';
 import { FinaleShareCardStudio } from './share-card-studio';
 
 export function FinaleRegistrationExperience() {
@@ -72,6 +73,7 @@ export function FinaleRegistrationExperience() {
                 <p className="mt-4 max-w-xl text-base leading-7 text-[#694b76]">
                   Engineering for Impact: Building Inclusive Solutions for a Sustainable Future.
                 </p>
+                <FinaleHeadlineSponsor />
                 <Link href="/finale/card" className="mt-4 inline-flex text-sm font-semibold text-[#8e4dff] hover:text-[#6f31d5]">
                   Already registered? Create your share card
                 </Link>

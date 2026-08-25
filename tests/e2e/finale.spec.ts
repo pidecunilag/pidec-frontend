@@ -26,6 +26,8 @@ test.describe('finale registration', () => {
     await expect(page.getByRole('heading', { name: 'Register for the PIDEC 1.0 Grand Finale' })).toBeVisible();
     await expect(page.getByText('Friday, 28 August 2026')).toBeVisible();
     await expect(page.getByText('J.F. Ajayi Auditorium')).toBeVisible();
+    await expect(page.getByText('Headline sponsor')).toBeVisible();
+    await expect(page.getByAltText('Bitnob')).toBeVisible();
 
     await page.getByLabel('Full name').fill('Teslim Ade');
     await page.getByLabel('Email address').fill('teslim@example.com');
@@ -35,6 +37,7 @@ test.describe('finale registration', () => {
     await expect(page.getByText('Registration confirmed', { exact: true })).toBeVisible();
     await expect(page.getByText('PIDEC26-00999').first()).toBeVisible();
     await expect(page.getByText('Teslim', { exact: true })).toBeVisible();
+    await expect(page.getByAltText('Bitnob')).toHaveAttribute('src', /^data:image\/png;base64,/);
 
     const sharp = (await import('sharp')).default;
     const photo = await sharp({
@@ -125,6 +128,8 @@ test.describe('finale share card lookup', () => {
 
     await page.goto('/finale/card');
     await expect(page.getByRole('heading', { name: 'Create your PIDEC Finale share card' })).toBeVisible();
+    await expect(page.getByText('Headline sponsor')).toBeVisible();
+    await expect(page.getByAltText('Bitnob')).toBeVisible();
     await page.getByLabel('Registration email').fill('teslim@example.com');
     await page.getByRole('button', { name: 'Find my registration' }).click();
 

@@ -102,7 +102,10 @@ export function FinaleShareCardStudio({
         }
         if (!image.naturalWidth) throw new Error('Card image failed to load');
         if (typeof image.decode === 'function') {
-          await image.decode().catch(() => undefined);
+          await Promise.race([
+            image.decode().catch(() => undefined),
+            new Promise<void>((resolve) => window.setTimeout(resolve, 1_500)),
+          ]);
         }
       }),
     );

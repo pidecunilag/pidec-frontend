@@ -3,6 +3,8 @@
 import Image from 'next/image';
 import { forwardRef } from 'react';
 
+import { BITNOB_CARD_LOGO_DATA_URL } from './bitnob-card-logo';
+
 type FinaleShareCardProps = {
   firstName: string;
   registrationNumber: string;
@@ -29,9 +31,19 @@ export const FinaleShareCard = forwardRef<HTMLDivElement, FinaleShareCardProps>(
             height={66}
             className="h-[46px] w-auto object-contain"
           />
-          <p className="max-w-[180px] text-right text-[11px] font-bold uppercase leading-[1.35] text-[#6d3fa0]">
-            Engineering for Impact
-          </p>
+          <div className="flex flex-col items-end gap-1">
+            <p className="text-[8px] font-bold uppercase leading-none text-[#765784]">
+              Headline sponsor
+            </p>
+            <Image
+              src={BITNOB_CARD_LOGO_DATA_URL}
+              alt="Bitnob"
+              width={183}
+              height={40}
+              unoptimized
+              className="h-[21px] w-auto"
+            />
+          </div>
         </div>
 
         <div className="mt-5 flex min-h-0 flex-1 items-center gap-7">
