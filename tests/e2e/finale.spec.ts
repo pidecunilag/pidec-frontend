@@ -36,8 +36,22 @@ test.describe('finale registration', () => {
     await expect(page.getByText('PIDEC26-00999').first()).toBeVisible();
     await expect(page.getByText('Teslim', { exact: true })).toBeVisible();
 
-    await page.getByLabel('Add a photo').setInputFiles('public/finale-poster.jpg');
+    const sharp = (await import('sharp')).default;
+    const photo = await sharp({
+      create: {
+        width: 300,
+        height: 300,
+        channels: 3,
+        background: { r: 220, g: 20, b: 30 },
+      },
+    }).png().toBuffer();
+    await page.getByLabel('Add a photo').setInputFiles({
+      name: 'attendee.png',
+      mimeType: 'image/png',
+      buffer: photo,
+    });
     await expect(page.getByLabel('Photo position')).toBeVisible();
+    await expect(page.getByAltText('Attendee')).toHaveAttribute('src', /^data:image\/png;base64,/);
 
     const downloadPromise = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Download PNG' }).click();
@@ -49,6 +63,15 @@ test.describe('finale registration', () => {
     const file = await import('node:fs/promises');
     const stat = await file.stat(path!);
     expect(stat.size).toBeGreaterThan(50_000);
+
+    const downloadedCard = sharp(path!);
+    await expect(downloadedCard.metadata()).resolves.toMatchObject({ width: 1080, height: 1080 });
+    const photoPixel = await downloadedCard
+      .extract({ left: 308, top: 540, width: 1, height: 1 })
+      .removeAlpha()
+      .raw()
+      .toBuffer();
+    expect([...photoPixel]).toEqual([220, 20, 30]);
 
     await page.screenshot({ path: testInfo.outputPath('finale-share-card.png'), fullPage: true });
   });

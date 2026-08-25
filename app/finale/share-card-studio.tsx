@@ -33,10 +33,12 @@ export function FinaleShareCardStudio({
 }: FinaleShareCardStudioProps) {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoPosition, setPhotoPosition] = useState(50);
+  const [isPhotoLoading, setIsPhotoLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [cardScale, setCardScale] = useState(1);
   const cardRef = useRef<HTMLDivElement>(null);
   const cardViewportRef = useRef<HTMLDivElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const viewport = cardViewportRef.current;
@@ -49,14 +51,7 @@ export function FinaleShareCardStudio({
     return () => observer.disconnect();
   }, []);
 
-  useEffect(
-    () => () => {
-      if (photoUrl) URL.revokeObjectURL(photoUrl);
-    },
-    [photoUrl],
-  );
-
-  function selectPhoto(event: ChangeEvent<HTMLInputElement>) {
+  async function selectPhoto(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
@@ -67,13 +62,56 @@ export function FinaleShareCardStudio({
       toast.error('Choose a photo smaller than 8MB.');
       return;
     }
-    if (photoUrl) URL.revokeObjectURL(photoUrl);
-    setPhotoUrl(URL.createObjectURL(file));
-    setPhotoPosition(50);
+    setIsPhotoLoading(true);
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () =>
+          typeof reader.result === 'string'
+            ? resolve(reader.result)
+            : reject(new Error('Could not read the selected photo'));
+        reader.onerror = () => reject(reader.error ?? new Error('Could not read the selected photo'));
+        reader.readAsDataURL(file);
+      });
+      setPhotoUrl(dataUrl);
+      setPhotoPosition(50);
+    } catch {
+      toast.error('We could not prepare that photo. Please choose another one.');
+      event.target.value = '';
+    } finally {
+      setIsPhotoLoading(false);
+    }
+  }
+
+  function removePhoto() {
+    setPhotoUrl(null);
+    if (photoInputRef.current) photoInputRef.current.value = '';
+  }
+
+  async function waitForCardImages(card: HTMLDivElement) {
+    const images = Array.from(card.querySelectorAll('img'));
+    await Promise.all(
+      images.map(async (image) => {
+        if (!image.complete) {
+          await new Promise<void>((resolve, reject) => {
+            image.addEventListener('load', () => resolve(), { once: true });
+            image.addEventListener('error', () => reject(new Error('Card image failed to load')), {
+              once: true,
+            });
+          });
+        }
+        if (!image.naturalWidth) throw new Error('Card image failed to load');
+        if (typeof image.decode === 'function') {
+          await image.decode().catch(() => undefined);
+        }
+      }),
+    );
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
   }
 
   async function makeCardBlob(): Promise<Blob> {
     if (!cardRef.current) throw new Error('Share card is not ready');
+    await waitForCardImages(cardRef.current);
     const { toBlob } = await import('html-to-image');
     const blob = await toBlob(cardRef.current, {
       width: 540,
@@ -127,8 +165,8 @@ export function FinaleShareCardStudio({
           Make your “I&apos;m going” card
         </h1>
         <p className="mt-2 text-sm leading-6 text-[#725a7d]">
-          Add a photo if you like, adjust it, then download or share your square
-          card. Your photo never leaves this device.
+          Add a photo if you like, adjust it, then download your square card to
+          share. Your photo never leaves this device.
         </p>
       </div>
 
@@ -163,6 +201,7 @@ export function FinaleShareCardStudio({
           {photoUrl ? 'Change photo' : 'Add a photo'}
         </Label>
         <Input
+          ref={photoInputRef}
           id="finale-photo"
           type="file"
           accept="image/jpeg,image/png,image/webp"
@@ -173,7 +212,7 @@ export function FinaleShareCardStudio({
           <Button
             type="button"
             variant="ghost"
-            onClick={() => setPhotoUrl(null)}
+            onClick={removePhoto}
           >
             <X />
             Remove
@@ -199,12 +238,12 @@ export function FinaleShareCardStudio({
         <Button
           type="button"
           size="lg"
-          disabled={isGenerating}
+          disabled={isGenerating || isPhotoLoading}
           onClick={downloadCard}
           className="h-11 w-full bg-[#2a003b] text-white hover:bg-[#431158]"
         >
-          {isGenerating ? <Loader2 className="animate-spin" /> : <Download />}
-          Download PNG
+          {isGenerating || isPhotoLoading ? <Loader2 className="animate-spin" /> : <Download />}
+          {isPhotoLoading ? 'Preparing photo' : 'Download PNG'}
         </Button>
       </div>
 
