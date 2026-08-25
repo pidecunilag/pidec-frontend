@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { FinaleCardRegistration } from '@/lib/types';
 import { FinaleShareCard } from './finale-share-card';
+import { renderFinaleCard } from './render-finale-card';
 
 const WHATSAPP_URL = 'https://chat.whatsapp.com/Fs4FQGkmTE48dAwt6fb4DY';
 
@@ -88,42 +89,13 @@ export function FinaleShareCardStudio({
     if (photoInputRef.current) photoInputRef.current.value = '';
   }
 
-  async function waitForCardImages(card: HTMLDivElement) {
-    const images = Array.from(card.querySelectorAll('img'));
-    await Promise.all(
-      images.map(async (image) => {
-        if (!image.complete) {
-          await new Promise<void>((resolve, reject) => {
-            image.addEventListener('load', () => resolve(), { once: true });
-            image.addEventListener('error', () => reject(new Error('Card image failed to load')), {
-              once: true,
-            });
-          });
-        }
-        if (!image.naturalWidth) throw new Error('Card image failed to load');
-        if (typeof image.decode === 'function') {
-          await Promise.race([
-            image.decode().catch(() => undefined),
-            new Promise<void>((resolve) => window.setTimeout(resolve, 1_500)),
-          ]);
-        }
-      }),
-    );
-    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-  }
-
   async function makeCardBlob(): Promise<Blob> {
-    if (!cardRef.current) throw new Error('Share card is not ready');
-    await waitForCardImages(cardRef.current);
-    const { toBlob } = await import('html-to-image');
-    const blob = await toBlob(cardRef.current, {
-      width: 540,
-      height: 540,
-      pixelRatio: 2,
-      backgroundColor: '#8142df',
+    return renderFinaleCard({
+      firstName: registration.firstName,
+      registrationNumber: registration.registrationNumber,
+      photoUrl,
+      photoPosition,
     });
-    if (!blob) throw new Error('Could not generate the share card');
-    return blob;
   }
 
   async function downloadCard() {

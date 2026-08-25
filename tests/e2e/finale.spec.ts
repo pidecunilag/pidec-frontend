@@ -66,6 +66,7 @@ test.describe('finale registration', () => {
     const file = await import('node:fs/promises');
     const stat = await file.stat(path!);
     expect(stat.size).toBeGreaterThan(50_000);
+    await file.copyFile(path!, testInfo.outputPath('downloaded-finale-card.png'));
 
     const downloadedCard = sharp(path!);
     await expect(downloadedCard.metadata()).resolves.toMatchObject({ width: 1080, height: 1080 });
