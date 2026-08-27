@@ -1,6 +1,6 @@
 'use client';
 
-import { useDeferredValue, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   CheckCircle2,
   Clock3,
@@ -29,6 +29,7 @@ import {
 import type { FinaleRegistration } from '@/lib/types';
 
 const PAGE_SIZE = 25;
+const SEARCH_DEBOUNCE_MS = 150;
 
 const formatDate = (value: string) =>
   new Intl.DateTimeFormat('en-NG', {
@@ -38,13 +39,23 @@ const formatDate = (value: string) =>
 
 export default function FinaleRegistrationsPage() {
   const [search, setSearch] = useState('');
-  const deferredSearch = useDeferredValue(search.trim());
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [status, setStatus] = useState<'all' | 'admitted' | 'awaiting'>('all');
   const [page, setPage] = useState(1);
   const [undoTarget, setUndoTarget] = useState<FinaleRegistration | null>(null);
 
+  useEffect(() => {
+    const normalizedSearch = search.trim();
+    if (!normalizedSearch) return;
+    const timeout = window.setTimeout(
+      () => setDebouncedSearch(normalizedSearch),
+      SEARCH_DEBOUNCE_MS,
+    );
+    return () => window.clearTimeout(timeout);
+  }, [search]);
+
   const { data, isPending, isFetching } = useFinaleRegistrations({
-    ...(deferredSearch ? { q: deferredSearch } : {}),
+    ...(debouncedSearch ? { q: debouncedSearch } : {}),
     status,
     page,
     limit: PAGE_SIZE,
@@ -93,15 +104,21 @@ export default function FinaleRegistrationsPage() {
         <div className="relative min-w-0 flex-1 sm:max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
+            aria-label="Search finale registrations"
+            autoComplete="off"
+            inputMode="search"
+            spellCheck={false}
             value={search}
             onChange={(event) => {
-              setSearch(event.target.value);
+              const nextSearch = event.target.value;
+              setSearch(nextSearch);
+              if (!nextSearch.trim()) setDebouncedSearch('');
               setPage(1);
             }}
             placeholder="Search name, email, phone, or reg number"
             className="h-10 bg-white pl-9"
           />
-          {isFetching && !isPending ? <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" /> : null}
+          {(isFetching && !isPending) || search.trim() !== debouncedSearch ? <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" /> : null}
         </div>
         <Select
           value={status}
