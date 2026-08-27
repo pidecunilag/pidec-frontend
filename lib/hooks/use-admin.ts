@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 import {
@@ -59,6 +59,8 @@ export function useFinaleRegistrations(params?: FinaleRegistrationsParams) {
   return useQuery({
     queryKey: qk.admin.finaleRegistrations(params as Record<string, unknown>),
     queryFn: () => finaleAdminApi.list(params),
+    placeholderData: keepPreviousData,
+    staleTime: 10_000,
   });
 }
 
