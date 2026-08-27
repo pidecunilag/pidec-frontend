@@ -147,6 +147,7 @@ test.describe('finale admin', () => {
   test('shows metrics, searches attendees, and admits an attendee', async ({ page }, testInfo) => {
     test.setTimeout(60_000);
     let admittedAt: string | null = null;
+    let searchRequests = 0;
     const attendee = () => ({
       id: '17c1f237-e39d-420e-a8c0-9553a54e956c',
       registrationNumber: 'PIDEC26-00021',
@@ -199,6 +200,7 @@ test.describe('finale admin', () => {
         await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: attendee() }) });
         return;
       }
+      if (new URL(route.request().url()).searchParams.has('q')) searchRequests += 1;
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -216,8 +218,10 @@ test.describe('finale admin', () => {
     await page.goto('/admin/finale');
     await expect(page.getByRole('heading', { name: 'Attendee registrations' })).toBeVisible();
     await expect(page.getByText('84')).toBeVisible();
-    await page.getByPlaceholder('Search name, email, phone, or reg number').fill('Amina');
+    const search = page.getByPlaceholder('Search name, email, phone, or reg number');
+    await search.pressSequentially('Amina', { delay: 20 });
     await expect(page.getByText('Amina Bello')).toBeVisible();
+    await expect.poll(() => searchRequests).toBe(1);
     await page.getByRole('button', { name: 'Admit' }).click();
     await expect(page.getByRole('table').getByText('Admitted', { exact: true })).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath('finale-admin.png'), fullPage: true });
